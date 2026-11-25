@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ระบบรายงานการปฏิบัติงาน</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     @font-face {
       font-family: "TH Sarabun PSK";
@@ -28,15 +26,18 @@
       --bg-soft: #f4f7fa;
     }
 
+    *, *::before, *::after {
+      font-family: "TH Sarabun PSK", "Sarabun", sans-serif !important;
+      box-sizing: border-box;
+    }
+
     body {
       background-color: var(--bg-soft);
-      font-family: "TH Sarabun PSK", "Sarabun", system-ui, sans-serif;
       font-size: 1.25rem;
       color: #1f2937;
     }
 
-    .btn, .form-control, .form-select, .badge, .modal-content {
-      font-family: "TH Sarabun PSK", "Sarabun", system-ui, sans-serif;
+    .btn, .form-control, .form-select, .badge, .modal-content, label, textarea {
       font-size: 1.18rem;
     }
 
@@ -119,58 +120,97 @@
       background: #dc2626;
     }
 
-    /* กระดาษ A4 สำหรับพรีวิวและเรนเดอร์เป็น PDF */
-    .preview-paper {
+    /* รูปแบบกระดาษรายงานทั้งหน้าพรีวิวและหน้าพิมพ์ PDF */
+    .report-sheet {
       background: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      padding: 42px 54px;
-      font-family: "TH Sarabun PSK", "Sarabun", sans-serif;
+      color: #000;
       font-size: 20px;
       line-height: 1.35;
-      color: #000;
-      width: 100%;
+      padding: 24px 36px;
       max-width: 794px;
       margin: 0 auto;
     }
 
     .doc-header-center {
       text-align: center;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
+    /* หัวข้อขนาดเท่ากับเนื้อหาที่กรอก (20px) ตัวหนา */
     .doc-title {
       font-weight: 700;
-      font-size: 26px;
-      line-height: 1.2;
+      font-size: 20px;
+      line-height: 1.3;
     }
 
     .doc-date-sub {
+      font-weight: 400;
       font-size: 20px;
+      line-height: 1.3;
       margin-top: 2px;
     }
 
-    .pdf-photo-grid {
+    .doc-row {
+      margin-bottom: 8px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .doc-photo-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
+      gap: 12px;
       margin-top: 8px;
     }
 
-    .pdf-photo-box {
+    .doc-photo-box {
       border: 1px solid #cbd5e1;
-      height: 195px;
+      height: 190px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background: #fafafa;
+      background: #fff;
     }
 
-    .pdf-photo-box img {
+    .doc-photo-box img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
+    }
+
+    /* โซนพิมพ์เฉพาะตอนสั่งออก PDF */
+    #printArea {
+      display: none;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 15mm 18mm;
+    }
+
+    @media print {
+      body > :not(#printArea) {
+        display: none !important;
+      }
+      #printArea {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        background: #fff !important;
+      }
+      .report-sheet {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .doc-photo-box {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .doc-row {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
     }
   </style>
 </head>
@@ -181,13 +221,7 @@
         <h1 class="h3 mb-0 fw-bold">แบบฟอร์มรายงานการปฏิบัติงาน</h1>
         <div id="thaiDatePreview" style="font-size: 1.18rem; opacity: 0.95;">กำลังคำนวณวันที่...</div>
       </div>
-      <div class="d-flex align-items-center gap-2">
-        <span class="badge bg-light text-dark px-3 py-2" id="fontStatusBadge">ฟอนต์สารบรรณ · เลขไทย</span>
-        <button type="button" class="btn btn-sm btn-outline-light" id="pickFontBtn" title="เลือกไฟล์ฟอนต์ THSarabunPSK.ttf หากต้องการฝังฟอนต์ตรงใน PDF">
-          เลือกฟอนต์ .ttf
-        </button>
-        <input type="file" id="fontFileInput" accept=".ttf" class="d-none" />
-      </div>
+      <span class="badge bg-light text-dark px-3 py-2">ฟอนต์สารบรรณ · เลขไทย</span>
     </div>
 
     <form id="reportForm" class="card-box">
@@ -255,6 +289,9 @@
     </form>
   </div>
 
+  <!-- โซนสำหรับพิมพ์ / บันทึกเป็น PDF -->
+  <div id="printArea"></div>
+
   <!-- Modal 1: พรีวิวตรวจสอบข้อมูล -->
   <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -264,7 +301,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body bg-light">
-          <div class="preview-paper" id="previewContent"></div>
+          <div class="border rounded bg-white" id="previewContent"></div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">กลับไปแก้ไข</button>
@@ -274,18 +311,18 @@
     </div>
   </div>
 
-  <!-- Modal 2: บันทึกสำเร็จ + ดาวน์โหลด PDF -->
+  <!-- Modal 2: บันทึกสำเร็จ + สร้าง/ดาวน์โหลดไฟล์ PDF -->
   <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content text-center p-3">
         <div class="modal-body">
           <div class="display-6 text-success mb-2">✓</div>
           <h5 class="fw-bold mb-2">บันทึกข้อมูลสำเร็จ</h5>
-          <p class="text-muted mb-3" id="saveStatusText">สร้างไฟล์ PDF เลขไทยฟอนต์สารบรรณเรียบร้อยแล้ว</p>
+          <p class="text-muted mb-3" id="saveStatusText">พร้อมสร้างไฟล์ PDF เลขไทยฟอนต์สารบรรณ</p>
           <div class="d-grid gap-2">
-            <a id="downloadPdfBtn" class="btn btn-primary" style="background: var(--navy); border-color: var(--navy);" download="รายงานการปฏิบัติงาน.pdf">
-              ดาวน์โหลดไฟล์ PDF
-            </a>
+            <button type="button" id="downloadPdfBtn" class="btn btn-primary" style="background: var(--navy); border-color: var(--navy);">
+              ดาวน์โหลด / บันทึกเป็นไฟล์ PDF
+            </button>
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="doneBtn">เสร็จสิ้น / สร้างรายการใหม่</button>
           </div>
         </div>
@@ -295,8 +332,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const GAS_WEB_APP_URL = "";
-    const SARABUN_FONT_URL = "./fonts/THSarabunPSK.ttf";
+    const GAS_WEB_APP_URL = ""; // ใส่ URL Web App ของ Google Apps Script เมื่อพร้อมเชื่อมต่อ
 
     const THAI_DIGITS = ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"];
     const THAI_DAYS = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
@@ -308,16 +344,12 @@
     let photoSlots = [null, null, null, null];
     let activeSlotIndex = 0;
     let currentReportData = null;
-    let generatedPdfBlobUrl = null;
-    let uploadedFontArrayBuffer = null;
 
     const reportDateEl = document.getElementById("reportDate");
     const thaiDatePreviewEl = document.getElementById("thaiDatePreview");
     const singlePhotoInput = document.getElementById("singlePhotoInput");
     const multiPhotoInput = document.getElementById("multiPhotoInput");
     const photoGridEl = document.getElementById("photoGrid");
-    const fontStatusBadge = document.getElementById("fontStatusBadge");
-    const fontFileInput = document.getElementById("fontFileInput");
     const previewModal = new bootstrap.Modal(document.getElementById("previewModal"));
     const successModal = new bootstrap.Modal(document.getElementById("successModal"));
 
@@ -367,23 +399,6 @@
     });
 
     reportDateEl.addEventListener("change", updateThaiDateLabel);
-
-    // รองรับการเลือกไฟล์ฟอนต์ .ttf จากเครื่องโดยตรงและใช้ในหน้าเว็บด้วย
-    document.getElementById("pickFontBtn").addEventListener("click", () => {
-      fontFileInput.value = "";
-      fontFileInput.click();
-    });
-
-    fontFileInput.addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      uploadedFontArrayBuffer = await file.arrayBuffer();
-      const fontFace = new FontFace("TH Sarabun PSK", uploadedFontArrayBuffer);
-      await fontFace.load();
-      document.fonts.add(fontFace);
-      fontStatusBadge.textContent = `ฝังฟอนต์: ${file.name}`;
-      document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
-    });
 
     function readFileAsDataUrl(file) {
       return new Promise((resolve, reject) => {
@@ -481,27 +496,29 @@
     function buildDocumentHtml(data) {
       const { dayName, dayNumThai, monthName, buddhistYearThai } = data.dateParts;
       const photosHtml = data.photos && data.photos.length
-        ? `<div class="pdf-photo-grid">${data.photos
+        ? `<div class="doc-photo-grid">${data.photos
             .slice(0, 4)
-            .map((p, idx) => `<div class="pdf-photo-box"><img src="${p.dataUrl}" alt="ภาพ ${idx + 1}" /></div>`)
+            .map((p, idx) => `<div class="doc-photo-box"><img src="${p.dataUrl}" alt="ภาพ ${idx + 1}" /></div>`)
             .join("")}</div>`
         : `<span style="color:#6b7280;">- ไม่มีภาพประกอบ -</span>`;
 
       return `
-        <div class="doc-header-center">
-          <div class="doc-title">รายงานการปฏิบัติงาน</div>
-          <div class="doc-date-sub">
-            ${escapeHtml(dayName)} ที่ ${escapeHtml(dayNumThai)} เดือน${escapeHtml(monthName)} พ.ศ. ${escapeHtml(buddhistYearThai)}
+        <div class="report-sheet">
+          <div class="doc-header-center">
+            <div class="doc-title">รายงานการปฏิบัติงาน</div>
+            <div class="doc-date-sub">
+              ${escapeHtml(dayName)} ที่ ${escapeHtml(dayNumThai)} เดือน${escapeHtml(monthName)} พ.ศ. ${escapeHtml(buddhistYearThai)}
+            </div>
           </div>
-        </div>
-        <div style="margin-bottom: 8px;"><strong>ชื่อ-สกุล :</strong> ${escapeHtml(data.fullName)}</div>
-        <div style="margin-bottom: 8px;"><strong>การปฏิบัติ เรื่อง :</strong> ${escapeHtml(data.subject)}</div>
-        <div style="margin-bottom: 8px;"><strong>ข้อเท็จจริงการปฏิบัติ :</strong><br>${escapeHtml(data.facts)}</div>
-        <div style="margin-bottom: 8px;"><strong>ผลการปฏิบัติงาน :</strong><br>${escapeHtml(data.results)}</div>
-        <div style="margin-bottom: 10px;"><strong>ข้อเสนอแนะ :</strong><br>${data.suggestions ? escapeHtml(data.suggestions) : "-"}</div>
-        <div>
-          <strong>ภาพประกอบ (ถ้ามี) :</strong>
-          ${photosHtml}
+          <div class="doc-row"><strong>ชื่อ-สกุล :</strong> ${escapeHtml(data.fullName)}</div>
+          <div class="doc-row"><strong>การปฏิบัติ เรื่อง :</strong> ${escapeHtml(data.subject)}</div>
+          <div class="doc-row"><strong>ข้อเท็จจริงการปฏิบัติ :</strong><br>${escapeHtml(data.facts)}</div>
+          <div class="doc-row"><strong>ผลการปฏิบัติงาน :</strong><br>${escapeHtml(data.results)}</div>
+          <div class="doc-row"><strong>ข้อเสนอแนะ :</strong><br>${data.suggestions ? escapeHtml(data.suggestions) : "-"}</div>
+          <div class="doc-row" style="margin-top: 10px;">
+            <strong>ภาพประกอบ (ถ้ามี) :</strong>
+            ${photosHtml}
+          </div>
         </div>
       `;
     }
@@ -524,109 +541,19 @@
       };
 
       document.getElementById("previewContent").innerHTML = buildDocumentHtml(currentReportData);
+      document.getElementById("printArea").innerHTML = buildDocumentHtml(currentReportData);
       previewModal.show();
     });
-
-    // เรนเดอร์หน้าเอกสารเป็นภาพคุณภาพสูงแล้วบรรจุลง PDF A4 เพื่อรักษาสระ วรรณยุกต์ และเลขไทยให้ครบถ้วนเสมอ
-    async function buildPdfBlob(data) {
-      await document.fonts.ready;
-
-      const tempContainer = document.createElement("div");
-      tempContainer.style.position = "fixed";
-      tempContainer.style.left = "-99999px";
-      tempContainer.style.top = "0";
-      tempContainer.style.width = "794px";
-      tempContainer.style.background = "#ffffff";
-      tempContainer.innerHTML = `<div class="preview-paper" style="border:none; max-width:794px; width:794px;">${buildDocumentHtml(data)}</div>`;
-      document.body.appendChild(tempContainer);
-
-      try {
-        const paperEl = tempContainer.firstElementChild;
-        const canvas = await html2canvas(paperEl, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff"
-        });
-
-        const { PDFDocument } = PDFLib;
-        const pdfDoc = await PDFDocument.create();
-
-        // ขนาดกระดาษ A4 ในหน่วย pt (595.28 x 841.89)
-        const a4Width = 595.28;
-        const a4Height = 841.89;
-        const margin = 24;
-        const printableWidth = a4Width - margin * 2;
-        const printableHeight = a4Height - margin * 2;
-
-        const imgDataUrl = canvas.toDataURL("image/jpeg", 0.94);
-        const base64 = imgDataUrl.split(",")[1];
-        const jpgBytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-        const embeddedJpg = await pdfDoc.embedJpg(jpgBytes);
-
-        const scaledHeight = (embeddedJpg.height * printableWidth) / embeddedJpg.width;
-
-        if (scaledHeight <= printableHeight) {
-          const page = pdfDoc.addPage([a4Width, a4Height]);
-          page.drawImage(embeddedJpg, {
-            x: margin,
-            y: a4Height - margin - scaledHeight,
-            width: printableWidth,
-            height: scaledHeight
-          });
-        } else {
-          // กรณีเนื้อหายาวเกิน 1 หน้า ให้แบ่งตัดเป็นหลายหน้า A4 อัตโนมัติ
-          const pxPerPage = Math.floor((printableHeight * canvas.width) / printableWidth);
-          let offsetY = 0;
-
-          while (offsetY < canvas.height) {
-            const sliceHeight = Math.min(pxPerPage, canvas.height - offsetY);
-            const sliceCanvas = document.createElement("canvas");
-            sliceCanvas.width = canvas.width;
-            sliceCanvas.height = sliceHeight;
-            const ctx = sliceCanvas.getContext("2d");
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
-            ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-
-            const sliceUrl = sliceCanvas.toDataURL("image/jpeg", 0.94);
-            const sliceBase64 = sliceUrl.split(",")[1];
-            const sliceBytes = Uint8Array.from(atob(sliceBase64), (c) => c.charCodeAt(0));
-            const sliceImg = await pdfDoc.embedJpg(sliceBytes);
-            const slicePdfHeight = (sliceImg.height * printableWidth) / sliceImg.width;
-
-            const page = pdfDoc.addPage([a4Width, a4Height]);
-            page.drawImage(sliceImg, {
-              x: margin,
-              y: a4Height - margin - slicePdfHeight,
-              width: printableWidth,
-              height: slicePdfHeight
-            });
-
-            offsetY += sliceHeight;
-          }
-        }
-
-        const pdfBytes = await pdfDoc.save();
-        return new Blob([pdfBytes], { type: "application/pdf" });
-      } finally {
-        document.body.removeChild(tempContainer);
-      }
-    }
 
     document.getElementById("confirmSaveBtn").addEventListener("click", async () => {
       if (!currentReportData) return;
       const btn = document.getElementById("confirmSaveBtn");
       btn.disabled = true;
-      btn.textContent = "กำลังสร้าง PDF...";
+      btn.textContent = "กำลังบันทึก...";
 
       try {
-        const pdfBlob = await buildPdfBlob(currentReportData);
-        if (generatedPdfBlobUrl) URL.revokeObjectURL(generatedPdfBlobUrl);
-        generatedPdfBlobUrl = URL.createObjectURL(pdfBlob);
-
-        const dlBtn = document.getElementById("downloadPdfBtn");
-        dlBtn.href = generatedPdfBlobUrl;
-        dlBtn.download = `รายงานการปฏิบัติงาน_${currentReportData.isoDate}_${currentReportData.fullName}.pdf`;
+        document.getElementById("printArea").innerHTML = buildDocumentHtml(currentReportData);
+        document.title = `รายงานการปฏิบัติงาน_${currentReportData.isoDate}_${currentReportData.fullName}`;
 
         if (GAS_WEB_APP_URL) {
           document.getElementById("saveStatusText").textContent = "กำลังส่งข้อมูลบันทึกไปยัง Google Sheets...";
@@ -645,23 +572,29 @@
               photos: currentReportData.photos
             })
           });
-          document.getElementById("saveStatusText").textContent = "บันทึกข้อมูลและสร้างไฟล์ PDF เลขไทยเรียบร้อยแล้ว";
+          document.getElementById("saveStatusText").textContent = "บันทึกข้อมูลลงระบบเรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อบันทึกเป็นไฟล์ PDF";
         } else {
           document.getElementById("saveStatusText").textContent =
-            "สร้างไฟล์ PDF เลขไทยเรียบร้อยแล้ว (ยังไม่ได้เชื่อมต่อ URL หลังบ้าน Google Apps Script)";
+            "เตรียมเอกสารพร้อมแล้ว กดปุ่มด้านล่างเพื่อบันทึกเป็นไฟล์ PDF ฟอนต์สารบรรณ";
         }
 
         previewModal.hide();
         successModal.show();
       } catch (err) {
-        alert("เกิดข้อผิดพลาดระหว่างสร้าง PDF: " + err.message);
+        alert("เกิดข้อผิดพลาด: " + err.message);
       } finally {
         btn.disabled = false;
         btn.textContent = "ยืนยันและบันทึก";
       }
     });
 
+    document.getElementById("downloadPdfBtn").addEventListener("click", async () => {
+      await document.fonts.ready;
+      window.print();
+    });
+
     document.getElementById("doneBtn").addEventListener("click", () => {
+      document.title = "ระบบรายงานการปฏิบัติงาน";
       document.getElementById("reportForm").reset();
       photoSlots = [null, null, null, null];
       renderPhotoGrid();

@@ -116,6 +116,11 @@
       flex: 1;
     }
 
+    .banner-text-group {
+      min-width: 0;
+      flex: 1;
+    }
+
     .header-actions {
       display: flex;
       align-items: center;
@@ -448,42 +453,44 @@
         height: 66px;
       }
       .top-bar {
-        padding: 0.72rem 0.85rem;
+        padding: 0.8rem 0.9rem;
         border-radius: 14px;
         margin-bottom: 0.75rem !important;
       }
       .banner-content {
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-      .banner-left {
+        flex-direction: column;
+        align-items: stretch;
         gap: 0.55rem;
       }
+      .banner-left {
+        align-items: center;
+        gap: 0.65rem;
+      }
       .school-logo-box {
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
         padding: 3px;
-        margin-top: 2px;
       }
       .banner-title {
-        font-size: 1.08rem;
+        font-size: 1.18rem;
         line-height: 1.25;
-        white-space: nowrap;
       }
       .banner-subtitle,
       #thaiDatePreview {
-        font-size: 0.85rem !important;
+        font-size: 0.88rem !important;
         line-height: 1.25;
         margin-top: 2px;
       }
       .header-actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.3rem;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 0.45rem;
+        padding-top: 0.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.16);
       }
       .header-actions .btn {
-        font-size: 0.84rem;
-        padding: 0.25rem 0.55rem;
+        font-size: 0.88rem;
+        padding: 0.3rem 0.7rem;
         line-height: 1.25;
       }
       .btn, .form-control, .form-select, .modal-content, label, textarea, .form-label {
@@ -657,7 +664,7 @@
             <div class="school-logo-box" id="schoolLogoBox">
               <img id="schoolLogoImg" src="./logo.png" alt="โลโก้โรงเรียน" />
             </div>
-            <div>
+            <div class="banner-text-group">
               <h2 class="mb-0 fw-bold banner-title">แบบฟอร์มรายงานการปฏิบัติงาน</h2>
               <div id="thaiDatePreview" class="banner-subtitle">กำลังคำนวณวันที่...</div>
             </div>
@@ -852,6 +859,11 @@
     const SCHOOL_LOGO_URL = "./picture/logo.png";
     const SCHOOL_BANNER_BG_URL = "./picture/bn.png";
 
+    // === ออกจากระบบอัตโนมัติเมื่อไม่ใช้งานเกิน 15 นาที ===
+    const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
+    const LAST_ACTIVITY_KEY = "perfReportLastActivity";
+    let idleTimerId = null;
+
     function initBannerBranding() {
       const logoBox = document.getElementById("schoolLogoBox");
       const logoImg = document.getElementById("schoolLogoImg");
@@ -944,6 +956,33 @@
       changePassAlertEl.textContent = "";
     }
 
+    function stopIdleTimer() {
+      if (idleTimerId) {
+        clearTimeout(idleTimerId);
+        idleTimerId = null;
+      }
+    }
+
+    function resetIdleTimer() {
+      stopIdleTimer();
+      if (!loggedInUser) return;
+      const now = Date.now();
+      sessionStorage.setItem(LAST_ACTIVITY_KEY, String(now));
+      idleTimerId = setTimeout(() => {
+        if (!loggedInUser) return;
+        clearAuthenticatedState();
+        showLoginAlert("ออกจากระบบอัตโนมัติเนื่องจากไม่มีการใช้งานเกิน ๑๕ นาที");
+      }, IDLE_TIMEOUT_MS);
+    }
+
+    function hasSessionExpiredByIdle() {
+      const lastRaw = sessionStorage.getItem(LAST_ACTIVITY_KEY);
+      if (!lastRaw) return false;
+      const lastTime = Number(lastRaw);
+      if (!Number.isFinite(lastTime)) return false;
+      return (Date.now() - lastTime) >= IDLE_TIMEOUT_MS;
+    }
+
     function applyAuthenticatedState(userFullName) {
       loggedInUser = userFullName;
       sessionStorage.setItem("perfReportUser", userFullName);
@@ -951,11 +990,14 @@
       mainFormSectionEl.classList.remove("d-none");
       logoutBtnEl.classList.remove("d-none");
       fullNameEl.value = userFullName;
+      resetIdleTimer();
     }
 
     function clearAuthenticatedState() {
+      stopIdleTimer();
       loggedInUser = null;
       sessionStorage.removeItem("perfReportUser");
+      sessionStorage.removeItem(LAST_ACTIVITY_KEY);
       document.getElementById("loginForm").reset();
       document.getElementById("loginPassword").type = "password";
       hideLoginAlert();
@@ -963,6 +1005,23 @@
       logoutBtnEl.classList.add("d-none");
       loginSectionEl.classList.remove("d-none");
     }
+
+    ["pointerdown", "keydown", "scroll", "touchstart", "input"].forEach((evtName) => {
+      document.addEventListener(evtName, () => {
+        if (loggedInUser) resetIdleTimer();
+      }, { passive: true });
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && loggedInUser) {
+        if (hasSessionExpiredByIdle()) {
+          clearAuthenticatedState();
+          showLoginAlert("ออกจากระบบอัตโนมัติเนื่องจากไม่มีการใช้งานเกิน ๑๕ นาที");
+        } else {
+          resetIdleTimer();
+        }
+      }
+    });
 
     document.getElementById("toggleLoginPassBtn").addEventListener("click", () => {
       const passInput = document.getElementById("loginPassword");
@@ -1434,7 +1493,12 @@
 
     const savedUser = sessionStorage.getItem("perfReportUser");
     if (savedUser) {
-      applyAuthenticatedState(savedUser);
+      if (hasSessionExpiredByIdle()) {
+        clearAuthenticatedState();
+        showLoginAlert("ออกจากระบบอัตโนมัติเนื่องจากไม่มีการใช้งานเกิน ๑๕ นาที");
+      } else {
+        applyAuthenticatedState(savedUser);
+      }
     }
   </script>
 </body>

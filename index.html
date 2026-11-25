@@ -46,6 +46,18 @@
       overflow-wrap: break-word;
     }
 
+    .app-container {
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+
+    .app-container.director-wide {
+      max-width: 1320px;
+    }
+
     .btn, .form-control, .form-select, .badge, .modal-content, label, textarea, .form-label {
       font-size: 1.04rem;
       max-width: 100%;
@@ -265,14 +277,35 @@
       background: #fff;
       border: 1px solid var(--border-formal);
       border-radius: 14px;
-      padding: 0.9rem 1rem;
+      padding: 0.95rem 1.1rem;
       box-shadow: 0 3px 10px rgba(15, 23, 42, 0.03);
     }
 
     .stat-number {
-      font-size: 1.65rem;
+      font-size: 1.7rem;
       font-weight: 700;
       line-height: 1.15;
+    }
+
+    .director-table {
+      width: 100%;
+      table-layout: auto;
+      margin-bottom: 0;
+    }
+
+    .director-table th,
+    .director-table td {
+      padding: 0.75rem 0.9rem;
+      vertical-align: middle;
+    }
+
+    .director-table th.col-no,
+    .director-table td.col-no,
+    .director-table th.col-status,
+    .director-table td.col-status,
+    .director-table th.col-action,
+    .director-table td.col-action {
+      white-space: nowrap;
     }
 
     .deputy-mobile-card {
@@ -473,10 +506,6 @@
       body {
         font-size: 0.98rem;
       }
-      .container {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-      }
       .login-wrapper {
         min-height: auto;
         padding-top: 0.5rem;
@@ -623,7 +652,7 @@
   </style>
 </head>
 <body class="py-3 py-md-4">
-  <div class="container" style="max-width: 860px;">
+  <div class="app-container" id="appContainer">
 
     <!-- หน้าแรก: เข้าสู่ระบบ -->
     <div id="loginSection" class="login-wrapper">
@@ -652,7 +681,7 @@
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
               </span>
-             <select id="loginFullName" name="loginFullName" class="form-select" required>
+              <select id="loginFullName" name="loginFullName" class="form-select" required>
                 <option value="" selected disabled>-- เลือกรายชื่อผู้บริหาร --</option>
                 <optgroup label="ผู้อำนวยการสถานศึกษา">
                   <option value="นายสิรวุฒิ ยุนุ้ย">นายสิรวุฒิ ยุนุ้ย</option>
@@ -759,7 +788,6 @@
           </div>
         </div>
 
-        <!-- กล่องตั้งค่ากรณีเลือก "ไปราชการ" -->
         <div id="officialTravelBox" class="status-panel-box d-none">
           <div class="fw-bold mb-2" style="color: var(--navy-dark);">การปฏิบัติราชการนอกสถานที่ / ไปราชการ</div>
           <div class="mb-2">
@@ -779,7 +807,6 @@
           </div>
         </div>
 
-        <!-- กล่องกรณีเลือก "ลากิจ" หรือ "ลาป่วย" -->
         <div id="leaveStatusBox" class="status-panel-box d-none">
           <div class="fw-bold mb-2" style="color: var(--navy-dark);" id="leaveBoxTitle">บันทึกสถานะลากิจ / ลาป่วย</div>
           <div class="mb-3">
@@ -791,7 +818,6 @@
           </button>
         </div>
 
-        <!-- ส่วนกรอกรายละเอียดรายงาน (แสดงเมื่อสถานะเป็น "ปกติ" หรือ "ไปราชการ" แบบเลือกแนบไฟล์รายงาน) -->
         <div id="reportDetailsSection">
           <div class="mb-3">
             <label for="subject" class="form-label fw-bold">การปฏิบัติ เรื่อง <span class="text-danger">*</span></label>
@@ -869,11 +895,11 @@
 
       <div class="card-box mb-3">
         <div class="row g-2 align-items-end">
-          <div class="col-sm-6 col-md-5">
+          <div class="col-sm-6 col-md-4 col-lg-3">
             <label for="directorDateInput" class="form-label fw-bold">เลือกวันที่ตรวจสอบรายงาน</label>
             <input type="date" id="directorDateInput" class="form-control" />
           </div>
-          <div class="col-sm-6 col-md-7 d-flex gap-2">
+          <div class="col-sm-6 col-md-8 col-lg-9 d-flex gap-2">
             <button type="button" class="btn btn-primary fw-semibold" id="refreshOverviewBtn" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
               รีเฟรชข้อมูล
             </button>
@@ -913,17 +939,17 @@
 
       <div id="directorLoadingText" class="text-center text-muted py-3 d-none">กำลังโหลดข้อมูลรายงานประจำวัน...</div>
 
-      <!-- มุมมองคอมพิวเตอร์: ตาราง -->
+      <!-- มุมมองคอมพิวเตอร์: ขยายเต็มความกว้างหน้าจอ -->
       <div class="card-box d-none d-md-block">
         <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
+          <table class="table table-hover align-middle director-table">
             <thead class="table-light">
               <tr>
-                <th style="width: 60px;">ลำดับ</th>
+                <th class="col-no">ลำดับ</th>
                 <th>ชื่อ-สกุล รองผู้อำนวยการ</th>
-                <th style="width: 140px;">สถานะ</th>
+                <th class="col-status">สถานะ</th>
                 <th>เรื่อง / หมายเหตุ</th>
-                <th class="text-end" style="width: 230px;">การจัดการ</th>
+                <th class="col-action text-end">ไฟล์รายงาน</th>
               </tr>
             </thead>
             <tbody id="directorTableBody"></tbody>
@@ -931,48 +957,8 @@
         </div>
       </div>
 
-      <!-- มุมมองมือถือ: การ์ด -->
+      <!-- มุมมองมือถือ: แสดงเป็นการ์ด -->
       <div class="d-md-none d-flex flex-column gap-2" id="directorCardList"></div>
-    </div>
-  </div>
-
-  <!-- Modal ตั้งสถานะ ไปราชการ / ลากิจ / ลาป่วย (ฝั่ง ผอ.) -->
-  <div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" style="border-radius: 16px;">
-        <div class="modal-header" style="background: var(--navy-dark); color: #fff; border-top-left-radius: 16px; border-top-right-radius: 16px;">
-          <h5 class="modal-title fw-bold">บันทึกสถานะการปฏิบัติงานประจำวัน</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body p-3 p-sm-4">
-          <form id="statusForm">
-            <input type="hidden" id="statusTargetName" />
-            <div class="mb-2">
-              <div class="text-muted" style="font-size: 0.92rem;">รองผู้อำนวยการ</div>
-              <div class="fw-bold fs-5" id="statusTargetLabel">-</div>
-            </div>
-            <div class="mb-3">
-              <label for="statusTypeSelect" class="form-label fw-bold">ประเภทสถานะ</label>
-              <select id="statusTypeSelect" class="form-select" required>
-                <option value="ไปราชการ">ไปราชการ</option>
-                <option value="ลากิจ">ลากิจ</option>
-                <option value="ลาป่วย">ลาป่วย</option>
-                <option value="ปกติ">ยกเลิกสถานะราชการ/ลา (ปกติ)</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="statusNoteInput" class="form-label fw-bold">หมายเหตุ</label>
-              <input type="text" id="statusNoteInput" class="form-control" placeholder="ระบุหมายเหตุสั้น ๆ (ถ้ามี)" />
-            </div>
-            <div class="d-flex justify-content-end gap-2">
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">ยกเลิก</button>
-              <button type="submit" id="saveStatusBtn" class="btn btn-primary px-4 fw-bold" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
-                บันทึกสถานะ
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -1130,6 +1116,7 @@
     let loggedInUser = null;
     let loggedInRole = null;
 
+    const appContainerEl = document.getElementById("appContainer");
     const reportDateEl = document.getElementById("reportDate");
     const fullNameEl = document.getElementById("fullName");
     const dailyStatusSelectEl = document.getElementById("dailyStatusSelect");
@@ -1147,7 +1134,6 @@
     const previewModal = new bootstrap.Modal(document.getElementById("previewModal"));
     const successModal = new bootstrap.Modal(document.getElementById("successModal"));
     const profileModal = new bootstrap.Modal(document.getElementById("profileModal"));
-    const statusModal = new bootstrap.Modal(document.getElementById("statusModal"));
     const loginSectionEl = document.getElementById("loginSection");
     const mainFormSectionEl = document.getElementById("mainFormSection");
     const directorSectionEl = document.getElementById("directorSection");
@@ -1182,7 +1168,6 @@
         factsEl.required = wantAttach;
         resultsEl.required = wantAttach;
       } else {
-        // ลากิจ หรือ ลาป่วย
         document.getElementById("leaveBoxTitle").textContent = `บันทึกสถานะ${mode}`;
         leaveStatusBoxEl.classList.remove("d-none");
         reportDetailsSectionEl.classList.add("d-none");
@@ -1299,11 +1284,13 @@
       loginSectionEl.classList.add("d-none");
 
       if (loggedInRole === "director") {
+        appContainerEl.classList.add("director-wide");
         mainFormSectionEl.classList.add("d-none");
         directorSectionEl.classList.remove("d-none");
         updateDirectorDateLabel();
         loadDirectorOverview();
       } else {
+        appContainerEl.classList.remove("director-wide");
         directorSectionEl.classList.add("d-none");
         mainFormSectionEl.classList.remove("d-none");
         logoutBtnEl.classList.remove("d-none");
@@ -1321,6 +1308,7 @@
       sessionStorage.removeItem(SESSION_USER_KEY);
       sessionStorage.removeItem(SESSION_ROLE_KEY);
       sessionStorage.removeItem(LAST_ACTIVITY_KEY);
+      appContainerEl.classList.remove("director-wide");
       document.getElementById("loginForm").reset();
       document.getElementById("loginPassword").type = "password";
       hideLoginAlert();
@@ -1538,28 +1526,17 @@
       cardList.innerHTML = "";
 
       (data.items || []).forEach((item) => {
-        const safeNameAttr = item.fullName.replace(/"/g, "&quot;");
-        const safeLeaveAttr = (item.leaveType || "ไปราชการ").replace(/"/g, "&quot;");
-        const safeNoteAttr = (item.note || "").replace(/"/g, "&quot;");
-
         const viewPdfBtn = item.pdfUrl
-          ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" style="background: var(--navy); border-color: var(--navy); border-radius: 8px;">ดูไฟล์รายงาน</a>`
-          : "";
-
-        const statusBtn = `<button type="button" class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;" data-open-status="1" data-name="${safeNameAttr}" data-leave="${safeLeaveAttr}" data-note="${safeNoteAttr}">ตั้งสถานะลา/ราชการ</button>`;
+          ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" style="background: var(--navy); border-color: var(--navy); border-radius: 8px; white-space: nowrap;">ดูไฟล์รายงาน</a>`
+          : `<span class="text-muted" style="font-size: 0.94rem;">-</span>`;
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${toThaiDigits(item.order)}</td>
-          <td class="fw-bold">${escapeHtml(item.fullName)}</td>
-          <td>${renderBadgeHtml(item)}</td>
+          <td class="col-no">${toThaiDigits(item.order)}</td>
+          <td class="fw-bold" style="white-space: nowrap;">${escapeHtml(item.fullName)}</td>
+          <td class="col-status">${renderBadgeHtml(item)}</td>
           <td>${escapeHtml(item.note || "-")}</td>
-          <td class="text-end">
-            <div class="d-inline-flex gap-1 flex-wrap justify-content-end">
-              ${viewPdfBtn}
-              ${statusBtn}
-            </div>
-          </td>
+          <td class="col-action text-end">${viewPdfBtn}</td>
         `;
         tbody.appendChild(tr);
 
@@ -1571,22 +1548,9 @@
             ${renderBadgeHtml(item)}
           </div>
           <div class="text-muted mb-2" style="font-size: 0.94rem;">${escapeHtml(item.note || "ยังไม่มีข้อมูลรายงานหรือหมายเหตุ")}</div>
-          <div class="d-flex gap-2 flex-wrap">
-            ${viewPdfBtn}
-            ${statusBtn}
-          </div>
+          ${item.pdfUrl ? `<div>${viewPdfBtn}</div>` : ""}
         `;
         cardList.appendChild(card);
-      });
-
-      document.querySelectorAll('[data-open-status="1"]').forEach((btn) => {
-        btn.addEventListener("click", () => {
-          document.getElementById("statusTargetName").value = btn.getAttribute("data-name");
-          document.getElementById("statusTargetLabel").textContent = btn.getAttribute("data-name");
-          document.getElementById("statusTypeSelect").value = btn.getAttribute("data-leave") || "ไปราชการ";
-          document.getElementById("statusNoteInput").value = btn.getAttribute("data-note") || "";
-          statusModal.show();
-        });
       });
     }
 
@@ -1625,36 +1589,6 @@
       directorDateInputEl.value = getTodayIsoDate();
       updateDirectorDateLabel();
       loadDirectorOverview();
-    });
-
-    document.getElementById("statusForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const saveBtn = document.getElementById("saveStatusBtn");
-      saveBtn.disabled = true;
-      saveBtn.textContent = "กำลังบันทึก...";
-
-      try {
-        const res = await fetch(GAS_WEB_APP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            action: "setDeputyStatus",
-            isoDate: directorDateInputEl.value || getTodayIsoDate(),
-            fullName: document.getElementById("statusTargetName").value,
-            statusType: document.getElementById("statusTypeSelect").value,
-            note: document.getElementById("statusNoteInput").value.trim(),
-            updatedBy: loggedInUser || "ผู้อำนวยการ"
-          })
-        });
-        const result = await res.json();
-        if (result && result.ok) {
-          statusModal.hide();
-          await loadDirectorOverview();
-        }
-      } finally {
-        saveBtn.disabled = false;
-        saveBtn.textContent = "บันทึกสถานะ";
-      }
     });
 
     function autoExpandTextarea(el) {

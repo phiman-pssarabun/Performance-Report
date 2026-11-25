@@ -111,8 +111,9 @@
     .banner-left {
       display: flex;
       align-items: center;
-      gap: 0.95rem;
+      gap: 0.9rem;
       min-width: 0;
+      flex: 1;
     }
 
     .header-actions {
@@ -123,8 +124,8 @@
     }
 
     .school-logo-box {
-      width: 58px;
-      height: 58px;
+      width: 56px;
+      height: 56px;
       flex-shrink: 0;
       border-radius: 50%;
       background: #ffffff;
@@ -145,12 +146,15 @@
     }
 
     .banner-title {
+      font-size: 1.48rem;
+      line-height: 1.2;
       letter-spacing: 0.2px;
       text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
     }
 
     .banner-subtitle {
-      font-size: 1.02rem;
+      font-size: 1rem;
+      line-height: 1.3;
       color: rgba(255, 255, 255, 0.92);
       margin-top: 2px;
     }
@@ -443,15 +447,44 @@
         width: 66px;
         height: 66px;
       }
-      h1.h3 {
-        font-size: 1.2rem;
+      .top-bar {
+        padding: 0.72rem 0.85rem;
+        border-radius: 14px;
+        margin-bottom: 0.75rem !important;
+      }
+      .banner-content {
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .banner-left {
+        gap: 0.55rem;
+      }
+      .school-logo-box {
+        width: 40px;
+        height: 40px;
+        padding: 3px;
+        margin-top: 2px;
+      }
+      .banner-title {
+        font-size: 1.08rem;
         line-height: 1.25;
+        white-space: nowrap;
       }
       .banner-subtitle,
       #thaiDatePreview {
-        font-size: 0.92rem !important;
-        line-height: 1.3;
+        font-size: 0.85rem !important;
+        line-height: 1.25;
         margin-top: 2px;
+      }
+      .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.3rem;
+      }
+      .header-actions .btn {
+        font-size: 0.84rem;
+        padding: 0.25rem 0.55rem;
+        line-height: 1.25;
       }
       .btn, .form-control, .form-select, .modal-content, label, textarea, .form-label {
         font-size: 0.96rem;
@@ -463,27 +496,6 @@
       .input-icon-group .form-control,
       .input-icon-group .form-select {
         padding-left: 2.2rem;
-      }
-      .top-bar {
-        padding: 0.85rem 0.9rem;
-        border-radius: 14px;
-        margin-bottom: 0.75rem !important;
-      }
-      .banner-content, .banner-left {
-        gap: 0.6rem;
-      }
-      .header-actions {
-        flex-direction: column;
-        gap: 0.35rem;
-      }
-      .header-actions .btn {
-        font-size: 0.88rem;
-        padding: 0.3rem 0.6rem;
-      }
-      .school-logo-box {
-        width: 44px;
-        height: 44px;
-        padding: 3px;
       }
       .card-box {
         padding: 0.95rem;
@@ -646,14 +658,14 @@
               <img id="schoolLogoImg" src="./logo.png" alt="โลโก้โรงเรียน" />
             </div>
             <div>
-              <h2 class="h3 mb-0 fw-bold banner-title">แบบฟอร์มรายงานการปฏิบัติงาน</h2>
+              <h2 class="mb-0 fw-bold banner-title">แบบฟอร์มรายงานการปฏิบัติงาน</h2>
               <div id="thaiDatePreview" class="banner-subtitle">กำลังคำนวณวันที่...</div>
             </div>
           </div>
 
           <div class="header-actions">
-            <button type="button" class="btn btn-sm btn-light fw-semibold d-inline-flex align-items-center gap-1" id="profileBtn" style="border-radius: 9px; color: var(--navy-dark); white-space: nowrap;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button type="button" class="btn btn-sm btn-light fw-semibold d-inline-flex align-items-center justify-content-center gap-1" id="profileBtn" style="border-radius: 9px; color: var(--navy-dark); white-space: nowrap;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>

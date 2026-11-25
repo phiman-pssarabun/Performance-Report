@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบรายงานการปฏิบัติงาน</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+  <style>
+    :root {
+      --navy: #1a5276;
+      --navy-dark: #133d58;
+      --bg-soft: #f4f7fa;
+    }
+    body {
+      background-color: var(--bg-soft);
+      font-family: "Sarabun", "TH Sarabun PSK", system-ui, sans-serif;
+      color: #1f2937;
+    }
+    .top-bar {
+      background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+      color: #fff;
+      padding: 1rem 1.25rem;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(26, 82, 118, 0.16);
+    }
+    .card-box {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+    textarea.auto-expand {
+      resize: none;
+      overflow: hidden;
+      min-height: 44px;
+      line-height: 1.5;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    .photo-slot {
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 10px;
+      background: #f8fafc;
+      aspect-ratio: 4 / 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .photo-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .preview-paper {
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 1.5rem;
+      font-size: 0.98rem;
+      line-height: 1.65;
+    }
+    .preview-title {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+  </style>
+</head>
+<body class="py-3 py-md-4">
+  <div class="container" style="max-width: 860px;">
+    <div class="top-bar mb-3 d-flex justify-content-between align-items-center gap-2">
+      <div>
+        <h1 class="h5 mb-1 fw-bold">แบบฟอร์มรายงานการปฏิบัติงาน</h1>
+        <div class="small opacity-90" id="thaiDatePreview">กำลังคำนวณวันที่...</div>
+      </div>
+      <span class="badge bg-light text-dark px-3 py-2">เลขไทย</span>
+    </div>
+
+    <form id="reportForm" class="card-box">
+      <div class="row g-3 mb-3">
+        <div class="col-md-5">
+          <label for="reportDate" class="form-label fw-semibold">เลือกวันที่ปฏิบัติงาน <span class="text-danger">*</span></label>
+          <input type="date" id="reportDate" name="reportDate" class="form-control" required />
+        </div>
+        <div class="col-md-7">
+          <label for="fullName" class="form-label fw-semibold">ชื่อ-สกุล <span class="text-danger">*</span></label>
+          <select id="fullName" name="fullName" class="form-select" required>
+            <option value="" selected disabled>-- เลือกรายชื่อรองผู้อำนวยการ --</option>
+            <option value="นางวนิดา แดงคง">นางวนิดา แดงคง</option>
+            <option value="นางเขมิกา ทองสี">นางเขมิกา ทองสี</option>
+            <option value="นายคุณานนต์ ทองกรด">นายคุณานนต์ ทองกรด</option>
+            <option value="นายภูริพัฒน์ ยานา">นายภูริพัฒน์ ยานา</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="subject" class="form-label fw-semibold">การปฏิบัติ เรื่อง <span class="text-danger">*</span></label>
+        <textarea id="subject" name="subject" class="form-control auto-expand" rows="1" placeholder="ระบุชื่อเรื่องการปฏิบัติ..." required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="facts" class="form-label fw-semibold">ข้อเท็จจริงการปฏิบัติ <span class="text-danger">*</span></label>
+        <textarea id="facts" name="facts" class="form-control auto-expand" rows="2" placeholder="ระบุข้อเท็จจริงการปฏิบัติ..." required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="results" class="form-label fw-semibold">ผลการปฏิบัติงาน <span class="text-danger">*</span></label>
+        <textarea id="results" name="results" class="form-control auto-expand" rows="2" placeholder="ระบุผลการปฏิบัติงาน..." required></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="suggestions" class="form-label fw-semibold">ข้อเสนอแนะ (ถ้ามี)</label>
+        <textarea id="suggestions" name="suggestions" class="form-control auto-expand" rows="2" placeholder="ระบุข้อเสนอแนะเพิ่มเติม (ถ้ามี)..."></textarea>
+      </div>
+
+      <div class="mb-4">
+        <label for="photos" class="form-label fw-semibold">ภาพประกอบ (ถ้ามี) — สูงสุด 4 ภาพ (จัดวาง 2 แถว × 2 คอลัมน์)</label>
+        <input type="file" id="photos" name="photos" class="form-control mb-2" accept="image/*" multiple />
+        <div class="photo-grid" id="photoGrid">
+          <div class="photo-slot text-muted small">ช่องที่ ๑</div>
+          <div class="photo-slot text-muted small">ช่องที่ ๒</div>
+          <div class="photo-slot text-muted small">ช่องที่ ๓</div>
+          <div class="photo-slot text-muted small">ช่องที่ ๔</div>
+        </div>
+      </div>
+
+      <div class="d-grid d-sm-flex justify-content-end gap-2">
+        <button type="reset" class="btn btn-outline-secondary px-4" id="resetBtn">ล้างข้อมูล</button>
+        <button type="submit" class="btn btn-primary px-4" style="background: var(--navy); border-color: var(--navy);">
+          ตรวจสอบข้อมูลก่อนบันทึก
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal 1: พรีวิวตรวจสอบข้อมูล -->
+  <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">ตรวจสอบความถูกต้องของรายงาน</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body bg-light">
+          <div class="preview-paper" id="previewContent"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">กลับไปแก้ไข</button>
+          <button type="button" class="btn btn-success px-4" id="confirmSaveBtn">ยืนยันและบันทึก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: บันทึกสำเร็จ + ดาวน์โหลด PDF -->
+  <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center p-3">
+        <div class="modal-body">
+          <div class="display-6 text-success mb-2">✓</div>
+          <h5 class="fw-bold mb-2">บันทึกข้อมูลสำเร็จ</h5>
+          <p class="text-muted small mb-3" id="saveStatusText">สร้างไฟล์ PDF เลขไทยเรียบร้อยแล้ว</p>
+          <div class="d-grid gap-2">
+            <a id="downloadPdfBtn" class="btn btn-primary" style="background: var(--navy); border-color: var(--navy);" download="รายงานการปฏิบัติงาน.pdf">
+              ดาวน์โหลดไฟล์ PDF
+            </a>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="doneBtn">เสร็จสิ้น / สร้างรายการใหม่</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // === ตั้งค่า URL หลังบ้าน Google Apps Script เมื่อพร้อมเชื่อมต่อ ===
+    const GAS_WEB_APP_URL = ""; // ตัวอย่าง: "https://script.google.com/macros/s/XXXX/exec"
+    const SARABUN_FONT_URL = "./fonts/THSarabunPSK.ttf"; // วางไฟล์ฟอนต์ไว้ใน repo หากต้องการฝังฟอนต์ตรง
+
+    const THAI_DIGITS = ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"];
+    const THAI_DAYS = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
+    const THAI_MONTHS = [
+      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    ];
+
+    let selectedPhotos = []; // เก็บ { dataUrl, mimeType, fileName } สูงสุด 4 รูป
+    let currentReportData = null;
+    let generatedPdfBlobUrl = null;
+
+    const reportDateEl = document.getElementById("reportDate");
+    const thaiDatePreviewEl = document.getElementById("thaiDatePreview");
+    const photosInputEl = document.getElementById("photos");
+    const photoGridEl = document.getElementById("photoGrid");
+    const previewModal = new bootstrap.Modal(document.getElementById("previewModal"));
+    const successModal = new bootstrap.Modal(document.getElementById("successModal"));
+
+    function toThaiDigits(str) {
+      return String(str ?? "").replace(/\d/g, (d) => THAI_DIGITS[Number(d)]);
+    }
+
+    function formatThaiDateParts(isoDateStr) {
+      const [y, m, d] = isoDateStr.split("-").map(Number);
+      const dt = new Date(y, m - 1, d);
+      const dayName = THAI_DAYS[dt.getDay()];
+      const dayNumThai = toThaiDigits(d);
+      const monthName = THAI_MONTHS[m - 1];
+      const buddhistYearThai = toThaiDigits(y + 543);
+      return {
+        dayName,
+        dayNumThai,
+        monthName,
+        buddhistYearThai,
+        fullText: `${dayName} ที่ ${dayNumThai} เดือน${monthName} พ.ศ. ${buddhistYearThai}`
+      };
+    }
+
+    function setTodayDefault() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      reportDateEl.value = `${yyyy}-${mm}-${dd}`;
+      updateThaiDateLabel();
+    }
+
+    function updateThaiDateLabel() {
+      if (!reportDateEl.value) return;
+      const parts = formatThaiDateParts(reportDateEl.value);
+      thaiDatePreviewEl.textContent = parts.fullText;
+    }
+
+    function autoExpandTextarea(el) {
+      el.style.height = "auto";
+      el.style.height = `${Math.max(el.scrollHeight, 44)}px`;
+    }
+
+    document.querySelectorAll("textarea.auto-expand").forEach((el) => {
+      el.addEventListener("input", () => autoExpandTextarea(el));
+      autoExpandTextarea(el);
+    });
+
+    reportDateEl.addEventListener("change", updateThaiDateLabel);
+
+    photosInputEl.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []).slice(0, 4);
+      selectedPhotos = [];
+      for (const file of files) {
+        const dataUrl = await readFileAsDataUrl(file);
+        selectedPhotos.push({
+          fileName: file.name,
+          mimeType: file.type || "image/jpeg",
+          dataUrl
+        });
+      }
+      renderPhotoGrid();
+    });
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderPhotoGrid() {
+      const labels = ["ช่องที่ ๑", "ช่องที่ ๒", "ช่องที่ ๓", "ช่องที่ ๔"];
+      photoGridEl.innerHTML = "";
+      for (let i = 0; i < 4; i++) {
+        const slot = document.createElement("div");
+        slot.className = "photo-slot";
+        if (selectedPhotos[i]) {
+          const img = document.createElement("img");
+          img.src = selectedPhotos[i].dataUrl;
+          img.alt = `ภาพประกอบที่ ${toThaiDigits(i + 1)}`;
+          slot.appendChild(img);
+        } else {
+          slot.classList.add("text-muted", "small");
+          slot.textContent = labels[i];
+        }
+        photoGridEl.appendChild(slot);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/\n/g, "<br>");
+    }
+
+    document.getElementById("reportForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const dateParts = formatThaiDateParts(reportDateEl.value);
+
+      currentReportData = {
+        isoDate: reportDateEl.value,
+        dateParts,
+        thaiDateText: dateParts.fullText,
+        fullName: document.getElementById("fullName").value.trim(),
+        subject: toThaiDigits(document.getElementById("subject").value.trim()),
+        facts: toThaiDigits(document.getElementById("facts").value.trim()),
+        results: toThaiDigits(document.getElementById("results").value.trim()),
+        suggestions: toThaiDigits(document.getElementById("suggestions").value.trim()),
+        photos: selectedPhotos
+      };
+
+      const photosHtml = currentReportData.photos.length
+        ? `<div class="photo-grid mt-2">${currentReportData.photos
+            .map((p, idx) => `<div class="photo-slot"><img src="${p.dataUrl}" alt="ภาพ ${idx + 1}" /></div>`)
+            .join("")}</div>`
+        : `<span class="text-muted">- ไม่มีภาพประกอบ -</span>`;
+
+      document.getElementById("previewContent").innerHTML = `
+        <div class="text-end mb-2">
+          ${escapeHtml(dateParts.dayName)} ที่ ${escapeHtml(dateParts.dayNumThai)} เดือน${escapeHtml(dateParts.monthName)} พ.ศ. ${escapeHtml(dateParts.buddhistYearThai)}
+        </div>
+        <div class="preview-title">รายงานการปฏิบัติงาน</div>
+        <p class="mb-2"><strong>ชื่อ-สกุล :</strong> ${escapeHtml(currentReportData.fullName)}</p>
+        <p class="mb-2"><strong>การปฏิบัติ เรื่อง :</strong> ${escapeHtml(currentReportData.subject)}</p>
+        <p class="mb-2"><strong>ข้อเท็จจริงการปฏิบัติ :</strong><br>${escapeHtml(currentReportData.facts)}</p>
+        <p class="mb-2"><strong>ผลการปฏิบัติงาน :</strong><br>${escapeHtml(currentReportData.results)}</p>
+        <p class="mb-2"><strong>ข้อเสนอแนะ :</strong><br>${currentReportData.suggestions ? escapeHtml(currentReportData.suggestions) : "-"}</p>
+        <div class="mt-3">
+          <strong>ภาพประกอบ (ถ้ามี) :</strong>
+          ${photosHtml}
+        </div>
+      `;
+
+      previewModal.show();
+    });
+
+    async function buildPdfBlob(data) {
+      const { PDFDocument, rgb } = PDFLib;
+      const pdfDoc = await PDFDocument.create();
+
+      let font = null;
+      if (window.fontkit) {
+        pdfDoc.registerFontkit(window.fontkit);
+        try {
+          const res = await fetch(SARABUN_FONT_URL);
+          if (res.ok) {
+            const fontBytes = await res.arrayBuffer();
+            font = await pdfDoc.embedFont(fontBytes, { subset: true });
+          }
+        } catch (err) {
+          console.warn("ไม่พบไฟล์ฟอนต์ THSarabunPSK.ttf ใช้ฟอนต์สำรองชั่วคราว:", err);
+        }
+      }
+
+      // หน้ากระดาษ A4 (595.28 x 841.89 pt)
+      let page = pdfDoc.addPage([595.28, 841.89]);
+      const marginX = 56;
+      let cursorY = 790;
+      const contentWidth = 595.28 - marginX * 2;
+      const fontSize = 15;
+      const lineHeight = 21;
+
+      const drawTextSafe = (text, x, y, size = fontSize, bold = false) => {
+        if (font) {
+          page.drawText(String(text), {
+            x,
+            y,
+            size,
+            font,
+            color: rgb(0, 0, 0)
+          });
+        } else {
+          // กรณีไม่มีฟอนต์ไทยในเครื่อง ให้แสดงข้อความตัวเลข/ภาษาอังกฤษเพื่อทดสอบโครงสร้าง PDF
+          const asciiSafe = String(text).replace(/[^\x20-\x7E]/g, " ");
+          page.drawText(asciiSafe, { x, y, size: 11, color: rgb(0.2, 0.2, 0.2) });
+        }
+      };
+
+      const ensureSpace = (neededHeight) => {
+        if (cursorY - neededHeight < 55) {
+          page = pdfDoc.addPage([595.28, 841.89]);
+          cursorY = 790;
+        }
+      };
+
+      // ส่วนวันที่มุมขวาบน ตามรูปแบบฟอร์ม
+      const { dayName, dayNumThai, monthName, buddhistYearThai } = data.dateParts;
+      const dateLine = `${dayName} ที่ ${dayNumThai} เดือน${monthName} พ.ศ. ${buddhistYearThai}`;
+      if (font) {
+        const w = font.widthOfTextAtSize(dateLine, fontSize);
+        drawTextSafe(dateLine, 595.28 - marginX - w, cursorY, fontSize);
+      } else {
+        drawTextSafe(dateLine, 350, cursorY, fontSize);
+      }
+      cursorY -= lineHeight * 1.4;
+
+      // หัวข้อหลักตรงกลาง
+      const titleText = "รายงานการปฏิบัติงาน";
+      if (font) {
+        const titleW = font.widthOfTextAtSize(titleText, 18);
+        drawTextSafe(titleText, (595.28 - titleW) / 2, cursorY, 18, true);
+      } else {
+        drawTextSafe(titleText, 240, cursorY, 18, true);
+      }
+      cursorY -= lineHeight * 1.6;
+
+      const drawSection = (label, bodyText) => {
+        const fullLine = `${label} ${bodyText || "-"}`;
+        const paragraphs = fullLine.split("\n");
+        for (const para of paragraphs) {
+          const wordsOrChars = font ? para.split("") : para.split(" ");
+          let currentLine = "";
+          for (const unit of wordsOrChars) {
+            const sep = font ? "" : (currentLine ? " " : "");
+            const testLine = currentLine + sep + unit;
+            const width = font ? font.widthOfTextAtSize(testLine, fontSize) : testLine.length * 6;
+            if (width > contentWidth && currentLine) {
+              ensureSpace(lineHeight);
+              drawTextSafe(currentLine, marginX, cursorY, fontSize);
+              cursorY -= lineHeight;
+              currentLine = unit;
+            } else {
+              currentLine = testLine;
+            }
+          }
+          if (currentLine) {
+            ensureSpace(lineHeight);
+            drawTextSafe(currentLine, marginX, cursorY, fontSize);
+            cursorY -= lineHeight;
+          }
+        }
+        cursorY -= 6;
+      };
+
+      drawSection("ชื่อ-สกุล :", data.fullName);
+      drawSection("การปฏิบัติ เรื่อง :", data.subject);
+      drawSection("ข้อเท็จจริงการปฏิบัติ :", data.facts);
+      drawSection("ผลการปฏิบัติงาน :", data.results);
+      drawSection("ข้อเสนอแนะ :", data.suggestions || "-");
+
+      // ภาพประกอบ 2 แถว x 2 คอลัมน์
+      if (data.photos && data.photos.length > 0) {
+        ensureSpace(lineHeight + 10);
+        drawTextSafe("ภาพประกอบ (ถ้ามี) :", marginX, cursorY, fontSize);
+        cursorY -= 14;
+
+        const gapX = 16;
+        const gapY = 16;
+        const cellW = (contentWidth - gapX) / 2;
+        const cellH = 145;
+
+        for (let i = 0; i < Math.min(data.photos.length, 4); i++) {
+          const col = i % 2;
+          const row = Math.floor(i / 2);
+
+          if (col === 0) {
+            ensureSpace(cellH + gapY);
+          }
+
+          const cellX = marginX + col * (cellW + gapX);
+          const cellTopY = cursorY - row * (cellH + gapY);
+          const cellBottomY = cellTopY - cellH;
+
+          const p = data.photos[i];
+          const base64Data = p.dataUrl.split(",")[1];
+          const bytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+
+          let embeddedImg = null;
+          if (p.mimeType.includes("png")) {
+            embeddedImg = await pdfDoc.embedPng(bytes);
+          } else {
+            embeddedImg = await pdfDoc.embedJpg(bytes);
+          }
+
+          const dims = embeddedImg.scaleToFit(cellW - 8, cellH - 8);
+          const imgX = cellX + (cellW - dims.width) / 2;
+          const imgY = cellBottomY + (cellH - dims.height) / 2;
+
+          page.drawImage(embeddedImg, {
+            x: imgX,
+            y: imgY,
+            width: dims.width,
+            height: dims.height
+          });
+        }
+      }
+
+      const pdfBytes = await pdfDoc.save();
+      return new Blob([pdfBytes], { type: "application/pdf" });
+    }
+
+    document.getElementById("confirmSaveBtn").addEventListener("click", async () => {
+      if (!currentReportData) return;
+      const btn = document.getElementById("confirmSaveBtn");
+      btn.disabled = true;
+      btn.textContent = "กำลังสร้าง PDF...";
+
+      try {
+        const pdfBlob = await buildPdfBlob(currentReportData);
+        if (generatedPdfBlobUrl) URL.revokeObjectURL(generatedPdfBlobUrl);
+        generatedPdfBlobUrl = URL.createObjectURL(pdfBlob);
+
+        const dlBtn = document.getElementById("downloadPdfBtn");
+        dlBtn.href = generatedPdfBlobUrl;
+        dlBtn.download = `รายงานการปฏิบัติงาน_${currentReportData.isoDate}_${currentReportData.fullName}.pdf`;
+
+        // หากตั้งค่า GAS_WEB_APP_URL แล้ว ให้ส่งข้อมูลไปบันทึกที่ Google Sheets / Drive เบื้องหลัง
+        if (GAS_WEB_APP_URL) {
+          document.getElementById("saveStatusText").textContent = "กำลังส่งข้อมูลบันทึกไปยัง Google Sheets...";
+          await fetch(GAS_WEB_APP_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              isoDate: currentReportData.isoDate,
+              thaiDateText: currentReportData.thaiDateText,
+              fullName: currentReportData.fullName,
+              subject: currentReportData.subject,
+              facts: currentReportData.facts,
+              results: currentReportData.results,
+              suggestions: currentReportData.suggestions,
+              photos: currentReportData.photos
+            })
+          });
+          document.getElementById("saveStatusText").textContent = "บันทึกข้อมูลและสร้างไฟล์ PDF เลขไทยเรียบร้อยแล้ว";
+        } else {
+          document.getElementById("saveStatusText").textContent =
+            "สร้างไฟล์ PDF ฝั่งหน้าบ้านเรียบร้อยแล้ว (ยังไม่ได้เชื่อมต่อ URL หลังบ้าน Google Apps Script)";
+        }
+
+        previewModal.hide();
+        successModal.show();
+      } catch (err) {
+        alert("เกิดข้อผิดพลาดระหว่างสร้าง PDF: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "ยืนยันและบันทึก";
+      }
+    });
+
+    document.getElementById("doneBtn").addEventListener("click", () => {
+      document.getElementById("reportForm").reset();
+      selectedPhotos = [];
+      renderPhotoGrid();
+      setTodayDefault();
+      document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
+    });
+
+    setTodayDefault();
+  </script>
+</body>
+</html>

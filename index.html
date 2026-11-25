@@ -120,11 +120,11 @@
       background: #dc2626;
     }
 
-    /* รูปแบบกระดาษรายงานทั้งหน้าพรีวิวและหน้าพิมพ์ PDF */
+    /* รูปแบบกระดาษรายงานทั้งหน้าพรีวิวและหน้าพิมพ์ PDF (ขนาด 16px) */
     .report-sheet {
       background: #fff;
       color: #000;
-      font-size: 20px;
+      font-size: 16px;
       line-height: 1.35;
       padding: 24px 36px;
       max-width: 794px;
@@ -133,25 +133,35 @@
 
     .doc-header-center {
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
-    /* หัวข้อขนาดเท่ากับเนื้อหาที่กรอก (20px) ตัวหนา */
     .doc-title {
       font-weight: 700;
-      font-size: 20px;
+      font-size: 16px;
       line-height: 1.3;
     }
 
     .doc-date-sub {
       font-weight: 400;
-      font-size: 20px;
+      font-size: 16px;
       line-height: 1.3;
       margin-top: 2px;
     }
 
     .doc-row {
+      font-size: 16px;
       margin-bottom: 8px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    /* ย่อหน้าสำหรับเนื้อหาในหัวข้อ ข้อเท็จจริง / ผลการปฏิบัติงาน / ข้อเสนอแนะ */
+    .doc-indent-para {
+      font-size: 16px;
+      text-indent: 2.5em;
+      margin-top: 2px;
+      margin-bottom: 4px;
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
@@ -165,7 +175,7 @@
 
     .doc-photo-box {
       border: 1px solid #cbd5e1;
-      height: 190px;
+      height: 185px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -203,11 +213,9 @@
         padding: 0 !important;
         max-width: 100% !important;
       }
-      .doc-photo-box {
-        break-inside: avoid;
-        page-break-inside: avoid;
-      }
-      .doc-row {
+      .doc-photo-box,
+      .doc-row,
+      .doc-indent-para {
         break-inside: avoid;
         page-break-inside: avoid;
       }
@@ -493,6 +501,20 @@
         .replace(/\n/g, "<br>");
     }
 
+    // แปลงข้อความที่มีการขึ้นบรรทัดใหม่ให้เป็นย่อหน้าแยกบรรทัดและเว้นวรรคย่อหน้า
+    function formatIndentedParagraphs(text, emptyFallback = "-") {
+      const clean = String(text ?? "").trim();
+      if (!clean) {
+        return `<div class="doc-indent-para">${escapeHtml(emptyFallback)}</div>`;
+      }
+      return clean
+        .split(/\r?\n+/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => `<div class="doc-indent-para">${escapeHtml(line)}</div>`)
+        .join("");
+    }
+
     function buildDocumentHtml(data) {
       const { dayName, dayNumThai, monthName, buddhistYearThai } = data.dateParts;
       const photosHtml = data.photos && data.photos.length
@@ -500,7 +522,7 @@
             .slice(0, 4)
             .map((p, idx) => `<div class="doc-photo-box"><img src="${p.dataUrl}" alt="ภาพ ${idx + 1}" /></div>`)
             .join("")}</div>`
-        : `<span style="color:#6b7280;">- ไม่มีภาพประกอบ -</span>`;
+        : `<div class="doc-indent-para" style="color:#6b7280;">- ไม่มีภาพประกอบ -</div>`;
 
       return `
         <div class="report-sheet">
@@ -512,9 +534,18 @@
           </div>
           <div class="doc-row"><strong>ชื่อ-สกุล :</strong> ${escapeHtml(data.fullName)}</div>
           <div class="doc-row"><strong>การปฏิบัติ เรื่อง :</strong> ${escapeHtml(data.subject)}</div>
-          <div class="doc-row"><strong>ข้อเท็จจริงการปฏิบัติ :</strong><br>${escapeHtml(data.facts)}</div>
-          <div class="doc-row"><strong>ผลการปฏิบัติงาน :</strong><br>${escapeHtml(data.results)}</div>
-          <div class="doc-row"><strong>ข้อเสนอแนะ :</strong><br>${data.suggestions ? escapeHtml(data.suggestions) : "-"}</div>
+          <div class="doc-row">
+            <div><strong>ข้อเท็จจริงการปฏิบัติ :</strong></div>
+            ${formatIndentedParagraphs(data.facts, "-")}
+          </div>
+          <div class="doc-row">
+            <div><strong>ผลการปฏิบัติงาน :</strong></div>
+            ${formatIndentedParagraphs(data.results, "-")}
+          </div>
+          <div class="doc-row">
+            <div><strong>ข้อเสนอแนะ :</strong></div>
+            ${formatIndentedParagraphs(data.suggestions, "-")}
+          </div>
           <div class="doc-row" style="margin-top: 10px;">
             <strong>ภาพประกอบ (ถ้ามี) :</strong>
             ${photosHtml}

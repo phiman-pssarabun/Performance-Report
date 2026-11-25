@@ -930,7 +930,7 @@
           <div class="col-md-4">
             <label for="dailyStatusSelect" class="form-label fw-bold">สถานะประจำวัน <span class="text-danger">*</span></label>
             <select id="dailyStatusSelect" name="dailyStatusSelect" class="form-select" required>
-              <option value="ปกติ" selected>ปกติ</option>
+              <option value="ปกติ" selected>ปฏิบัติงานปกติ</option>
               <option value="ไปราชการ">ไปราชการ</option>
               <option value="ลากิจ">ลากิจ</option>
               <option value="ลาป่วย">ลาป่วย</option>
@@ -1307,7 +1307,7 @@
       officialTravelBoxEl.classList.add("d-none");
       leaveStatusBoxEl.classList.add("d-none");
 
-      if (mode === "ปกติ") {
+      if (mode === "ปฏิบัติงานปกติ") {
         attachReportCheckboxEl.checked = false;
         reportDetailsSectionEl.classList.remove("d-none");
         subjectEl.required = true;
@@ -2075,7 +2075,7 @@
       if (loggedInUser) {
         fullNameEl.value = loggedInUser;
       }
-      dailyStatusSelectEl.value = "ปกติ";
+      dailyStatusSelectEl.value = "ปฏิบัติงานปกติ";
       photoSlots = [null, null, null, null];
       renderPhotoGrid();
       setTodayDefault();

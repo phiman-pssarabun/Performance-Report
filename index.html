@@ -51,7 +51,7 @@
     .top-bar {
       position: relative;
       overflow: hidden;
-      background: linear-gradient(135deg, rgba(26, 82, 118, 0.92), rgba(18, 57, 82, 0.95));
+      background-color: var(--navy-dark);
       color: #fff;
       padding: 1.1rem 1.45rem;
       border-radius: 12px;
@@ -66,9 +66,9 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      filter: blur(4px) brightness(0.82);
+      filter: blur(4px) brightness(0.9);
       transform: scale(1.06);
-      z-index: -2;
+      z-index: 0;
       display: none;
     }
 
@@ -76,13 +76,14 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(26, 82, 118, 0.72), rgba(18, 57, 82, 0.82));
-      z-index: -1;
+      background: linear-gradient(135deg, rgba(26, 82, 118, 0.54), rgba(18, 57, 82, 0.66));
+      z-index: 1;
+      pointer-events: none;
     }
 
     .banner-content {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -494,7 +495,7 @@
   <script>
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwH_ab9NG2r52aT-fuissvRQPZxlqHTalItk2waQ-nx6OwThWBgfVeDIq9JdE-JASNQ/exec";
 
-// === ตั้งค่าโลโก้โรงเรียน และภาพพื้นหลังเบลอที่แบนเนอร์ ===
+    // === ตั้งค่าโลโก้โรงเรียน และภาพพื้นหลังเบลอที่แบนเนอร์ ===
     const SCHOOL_LOGO_URL = "./picture/logo.png";
     const SCHOOL_BANNER_BG_URL = "./picture/bn.png";
 
@@ -514,15 +515,16 @@
       }
 
       if (SCHOOL_BANNER_BG_URL && SCHOOL_BANNER_BG_URL.trim()) {
+        const cleanUrl = SCHOOL_BANNER_BG_URL.trim().replace(/"/g, "%22");
         const testImg = new Image();
         testImg.onload = () => {
-          bgLayer.style.backgroundImage = `url("${SCHOOL_BANNER_BG_URL.trim().replace(/"/g, "%22")}")`;
+          bgLayer.style.backgroundImage = `url("${cleanUrl}")`;
           bgLayer.style.display = "block";
         };
         testImg.onerror = () => {
           bgLayer.style.display = "none";
         };
-        testImg.src = SCHOOL_BANNER_BG_URL.trim();
+        testImg.src = cleanUrl;
       } else {
         bgLayer.style.display = "none";
       }

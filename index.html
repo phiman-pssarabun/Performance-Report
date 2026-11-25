@@ -29,6 +29,7 @@
       --gold-soft: #c5a059;
       --gold-light: #e2c27d;
       --bg-soft: #eef2f6;
+      --director-bg: linear-gradient(180deg, #dceaf5 0%, #e9f1f8 55%, #eef3f8 100%);
       --border-formal: #dde4ec;
     }
 
@@ -44,6 +45,11 @@
       overflow-x: hidden;
       word-break: normal;
       overflow-wrap: break-word;
+      min-height: 100vh;
+    }
+
+    body.director-body-bg {
+      background: var(--director-bg);
     }
 
     .app-container {
@@ -60,6 +66,7 @@
 
     .btn, .form-control, .form-select, .badge, .modal-content, label, textarea, .form-label {
       font-size: 1.04rem;
+      font-weight: 700;
       max-width: 100%;
       word-break: normal;
       overflow-wrap: break-word;
@@ -273,70 +280,79 @@
       margin-bottom: 1rem;
     }
 
-    /* แดชบอร์ดผู้อำนวยการแบบทันสมัย */
     .director-toolbar {
-      background: linear-gradient(180deg, #ffffff 0%, #f8fbfe 100%);
-      border: 1px solid #d6e2ee;
+      background: #ffffff;
+      border: 1px solid #c7d9e8;
       border-radius: 16px;
       padding: 1.05rem 1.25rem;
-      box-shadow: 0 6px 18px rgba(18, 57, 82, 0.05);
+      box-shadow: 0 8px 20px rgba(18, 57, 82, 0.08);
     }
 
     .stat-card {
       background: #ffffff;
-      border: 1px solid var(--border-formal);
-      border-left: 4px solid var(--navy);
-      border-radius: 14px;
-      padding: 0.95rem 1.15rem;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      border: 1px solid #c7d9e8;
+      border-top: 4px solid var(--navy);
+      border-radius: 16px;
+      padding: 1rem 1.15rem;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(18, 57, 82, 0.08);
       transition: transform 0.16s ease, box-shadow 0.16s ease;
     }
 
     .stat-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(18, 57, 82, 0.08);
+      box-shadow: 0 12px 24px rgba(18, 57, 82, 0.12);
     }
 
     .stat-card.stat-reported {
-      border-left-color: #198754;
-      background: linear-gradient(135deg, #ffffff 65%, #f0fdf4 100%);
+      border-top-color: #198754;
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 48%);
     }
 
     .stat-card.stat-leave {
-      border-left-color: #eab308;
-      background: linear-gradient(135deg, #ffffff 65%, #fefce8 100%);
+      border-top-color: #eab308;
+      background: linear-gradient(180deg, #fefce8 0%, #ffffff 48%);
     }
 
     .stat-card.stat-pending {
-      border-left-color: #dc3545;
-      background: linear-gradient(135deg, #ffffff 65%, #fef2f2 100%);
+      border-top-color: #dc3545;
+      background: linear-gradient(180deg, #fef2f2 0%, #ffffff 48%);
+    }
+
+    .stat-label {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #475569;
     }
 
     .stat-number {
-      font-size: 1.75rem;
+      font-size: 2.35rem;
       font-weight: 700;
-      line-height: 1.1;
-      margin-top: 2px;
+      line-height: 1.05;
+      margin-top: 0.25rem;
     }
 
     .loading-banner {
-      background: #f0f7fc;
-      border: 1px solid #bad7ec;
+      background: #ffffff;
+      border: 1px solid #9ec5e2;
       color: var(--navy-dark);
       border-radius: 12px;
-      padding: 0.7rem 1rem;
-      font-weight: 600;
+      padding: 0.75rem 1.05rem;
+      font-weight: 700;
+      font-size: 1.12rem;
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      justify-content: center;
+      gap: 0.65rem;
+      box-shadow: 0 6px 16px rgba(18, 57, 82, 0.08);
     }
 
     .director-table-card {
       background: #ffffff;
-      border: 1px solid #d6e2ee;
+      border: 1px solid #c7d9e8;
       border-radius: 16px;
-      padding: 0.4rem 0.6rem 0.6rem;
-      box-shadow: 0 6px 20px rgba(18, 57, 82, 0.05);
+      padding: 0.5rem 0.7rem 0.7rem;
+      box-shadow: 0 8px 22px rgba(18, 57, 82, 0.08);
     }
 
     .director-table {
@@ -346,11 +362,14 @@
     }
 
     .director-table thead th {
-      background-color: #f1f6fb;
+      background-color: #eaf2f9;
       color: var(--navy-dark);
       font-weight: 700;
-      border-bottom: 2px solid #d6e2ee;
-      padding: 0.85rem 1rem;
+      font-size: 1.12rem;
+      text-align: center;
+      border-bottom: 2px solid #c7d9e8;
+      padding: 0.9rem 1rem;
+      white-space: nowrap;
     }
 
     .director-table tbody tr {
@@ -358,13 +377,23 @@
     }
 
     .director-table tbody tr:hover {
-      background-color: #f7fbff;
+      background-color: #f4f9fd;
     }
 
     .director-table td {
-      padding: 0.85rem 1rem;
+      padding: 0.9rem 1rem;
       vertical-align: middle;
-      border-color: #edf2f7;
+      text-align: center;
+      border-color: #e6eef5;
+      font-size: 1.1rem;
+    }
+
+    .director-table td.col-name {
+      text-align: left;
+      min-width: 220px;
+      white-space: nowrap;
+      font-weight: 700;
+      color: var(--navy-dark);
     }
 
     .director-table th.col-no,
@@ -379,10 +408,11 @@
     .status-pill {
       display: inline-flex;
       align-items: center;
-      padding: 0.25rem 0.75rem;
+      justify-content: center;
+      padding: 0.25rem 0.85rem;
       border-radius: 999px;
       font-weight: 700;
-      font-size: 0.96rem;
+      font-size: 1rem;
       line-height: 1.2;
     }
 
@@ -409,8 +439,8 @@
       border: none;
       color: #fff;
       border-radius: 9px;
-      padding: 0.35rem 0.85rem;
-      font-weight: 600;
+      padding: 0.35rem 0.9rem;
+      font-weight: 700;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
@@ -426,10 +456,10 @@
 
     .deputy-mobile-card {
       background: #ffffff;
-      border: 1px solid #d6e2ee;
+      border: 1px solid #c7d9e8;
       border-radius: 15px;
       padding: 1rem 1.05rem;
-      box-shadow: 0 4px 14px rgba(18, 57, 82, 0.05);
+      box-shadow: 0 6px 16px rgba(18, 57, 82, 0.08);
     }
 
     .form-label {
@@ -525,7 +555,7 @@
     .action-bar .btn {
       border-radius: 10px;
       padding: 0.55rem 1.25rem;
-      font-weight: 600;
+      font-weight: 700;
       white-space: nowrap;
     }
 
@@ -692,6 +722,9 @@
       .director-toolbar {
         padding: 0.95rem;
         border-radius: 14px;
+      }
+      .stat-number {
+        font-size: 1.85rem;
       }
       .photo-grid {
         gap: 0.55rem;
@@ -1030,25 +1063,25 @@
       <div class="row g-2 g-md-3 mb-3">
         <div class="col-6 col-md-3">
           <div class="stat-card">
-            <div class="text-muted" style="font-size: 0.96rem;">รอง ผอ. ทั้งหมด</div>
+            <div class="stat-label">รอง ผอ. ทั้งหมด</div>
             <div class="stat-number" style="color: var(--navy-dark);" id="statTotal">๔</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="stat-card stat-reported">
-            <div class="text-muted" style="font-size: 0.96rem;">รายงานแล้ว</div>
+            <div class="stat-label">รายงานแล้ว</div>
             <div class="stat-number text-success" id="statReported">๐</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="stat-card stat-leave">
-            <div class="text-muted" style="font-size: 0.96rem;">ไปราชการ / ลา</div>
+            <div class="stat-label">ไปราชการ / ลา</div>
             <div class="stat-number" style="color: #a16207;" id="statLeave">๐</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
           <div class="stat-card stat-pending">
-            <div class="text-muted" style="font-size: 0.96rem;">ยังไม่รายงาน</div>
+            <div class="stat-label">ยังไม่รายงาน</div>
             <div class="stat-number text-danger" id="statPending">๔</div>
           </div>
         </div>
@@ -1066,10 +1099,10 @@
             <thead>
               <tr>
                 <th class="col-no">ลำดับ</th>
-                <th>ชื่อ-สกุล รองผู้อำนวยการ</th>
+                <th class="col-name">ชื่อ-สกุล</th>
                 <th class="col-status">สถานะ</th>
                 <th>เรื่อง / หมายเหตุ</th>
-                <th class="col-action text-end">ไฟล์รายงาน</th>
+                <th class="col-action">ไฟล์รายงาน</th>
               </tr>
             </thead>
             <tbody id="directorTableBody"></tbody>
@@ -1405,12 +1438,14 @@
       loginSectionEl.classList.add("d-none");
 
       if (loggedInRole === "director") {
+        document.body.classList.add("director-body-bg");
         appContainerEl.classList.add("director-wide");
         mainFormSectionEl.classList.add("d-none");
         directorSectionEl.classList.remove("d-none");
         updateDirectorDateLabel();
         loadDirectorOverview();
       } else {
+        document.body.classList.remove("director-body-bg");
         appContainerEl.classList.remove("director-wide");
         directorSectionEl.classList.add("d-none");
         mainFormSectionEl.classList.remove("d-none");
@@ -1429,6 +1464,7 @@
       sessionStorage.removeItem(SESSION_USER_KEY);
       sessionStorage.removeItem(SESSION_ROLE_KEY);
       sessionStorage.removeItem(LAST_ACTIVITY_KEY);
+      document.body.classList.remove("director-body-bg");
       appContainerEl.classList.remove("director-wide");
       document.getElementById("loginForm").reset();
       document.getElementById("loginPassword").type = "password";
@@ -1649,15 +1685,15 @@
       (data.items || []).forEach((item) => {
         const viewPdfBtn = item.pdfUrl
           ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`
-          : `<span class="text-muted" style="font-size: 0.95rem;">-</span>`;
+          : `<span class="text-muted" style="font-size: 0.98rem;">-</span>`;
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="col-no fw-semibold text-muted">${toThaiDigits(item.order)}</td>
-          <td class="fw-bold" style="color: var(--navy-dark); white-space: nowrap;">${escapeHtml(item.fullName)}</td>
+          <td class="col-no fw-bold text-muted">${toThaiDigits(item.order)}</td>
+          <td class="col-name">${escapeHtml(item.fullName)}</td>
           <td class="col-status">${renderBadgeHtml(item)}</td>
           <td>${escapeHtml(item.note || "-")}</td>
-          <td class="col-action text-end">${viewPdfBtn}</td>
+          <td class="col-action">${viewPdfBtn}</td>
         `;
         tbody.appendChild(tr);
 
@@ -1668,7 +1704,7 @@
             <div class="fw-bold" style="color: var(--navy-dark);">${toThaiDigits(item.order)}. ${escapeHtml(item.fullName)}</div>
             ${renderBadgeHtml(item)}
           </div>
-          <div class="text-muted mb-2" style="font-size: 0.95rem;">${escapeHtml(item.note || "ยังไม่มีข้อมูลรายงานหรือหมายเหตุ")}</div>
+          <div class="text-muted mb-2" style="font-size: 0.96rem;">${escapeHtml(item.note || "ยังไม่มีข้อมูลรายงานหรือหมายเหตุ")}</div>
           ${item.pdfUrl ? `<div>${viewPdfBtn}</div>` : ""}
         `;
         cardList.appendChild(card);

@@ -1380,7 +1380,7 @@
         if (generatedPdfBlobUrl) URL.revokeObjectURL(generatedPdfBlobUrl);
         generatedPdfBlobUrl = URL.createObjectURL(blob);
 
-        const pdfFileName = `รายงานการปฏิบัติงาน_${currentReportData.fileDateText}_${currentReportData.fullName}.pdf`;
+        const pdfFileName = `${currentReportData.fullName}_${currentReportData.fileDateText}.pdf`;
         const dlBtn = document.getElementById("downloadPdfBtn");
         dlBtn.href = generatedPdfBlobUrl;
         dlBtn.download = pdfFileName;

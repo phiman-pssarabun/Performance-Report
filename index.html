@@ -352,17 +352,26 @@
       white-space: nowrap;
     }
 
-    /* รูปแบบกระดาษรายงานทั้งหน้าพรีวิวและหน้าพิมพ์ PDF */
+    /* รูปแบบกระดาษรายงานมาตรฐาน A4 (794px) ทั้งพรีวิวและสร้าง PDF */
     .report-sheet {
-      background: #fff;
+      background: #ffffff;
       color: #000000;
       font-size: 16px;
-      line-height: 1.35;
-      padding: 24px 36px;
-      max-width: 794px;
+      line-height: 1.4;
+      padding: 28px 40px;
+      width: 794px;
+      max-width: 100%;
       margin: 0 auto;
       word-break: normal;
       overflow-wrap: break-word;
+    }
+
+    .pdf-render-box .report-sheet {
+      width: 794px;
+      max-width: 794px;
+      padding: 28px 40px;
+      font-size: 16px;
+      line-height: 1.4;
     }
 
     .doc-header-center {
@@ -373,15 +382,15 @@
     .doc-title {
       font-weight: 700;
       color: #000000;
-      font-size: 18px;
-      line-height: 1.3;
+      font-size: 19px;
+      line-height: 1.35;
     }
 
     .doc-date-sub {
       font-weight: 400;
       color: #000000;
       font-size: 16px;
-      line-height: 1.3;
+      line-height: 1.35;
       margin-top: 2px;
     }
 
@@ -527,23 +536,26 @@
         font-size: 0.95rem;
         text-align: center;
       }
-      .report-sheet {
+      #previewContent .report-sheet {
+        width: 100%;
         padding: 12px 14px;
         font-size: 16px;
       }
-      .doc-title {
+      #previewContent .doc-title {
         font-size: 18px;
       }
-      .doc-date-sub, .doc-row, .doc-indent-para {
+      #previewContent .doc-date-sub,
+      #previewContent .doc-row,
+      #previewContent .doc-indent-para {
         font-size: 16px;
       }
-      .doc-indent-para {
+      #previewContent .doc-indent-para {
         text-indent: 1.5em;
       }
-      .doc-photo-grid {
+      #previewContent .doc-photo-grid {
         gap: 8px;
       }
-      .doc-photo-box {
+      #previewContent .doc-photo-box {
         height: 130px;
       }
     }
@@ -1357,10 +1369,13 @@
     });
 
     async function generatePdfAssets(data) {
-      await document.fonts.ready;
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
       const { jsPDF } = window.jspdf;
 
       const tempBox = document.createElement("div");
+      tempBox.className = "pdf-render-box";
       tempBox.style.position = "fixed";
       tempBox.style.left = "-99999px";
       tempBox.style.top = "0";
@@ -1389,7 +1404,7 @@
         const usableW = pageW - margin * 2;
         const usableH = pageH - margin * 2;
 
-        const imgData = canvas.toDataURL("image/jpeg", 0.92);
+        const imgData = canvas.toDataURL("image/jpeg", 0.95);
         const imgHeightMm = (canvas.height * usableW) / canvas.width;
 
         if (imgHeightMm <= usableH) {
@@ -1410,7 +1425,7 @@
             ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
 
             if (pageIdx > 0) pdf.addPage();
-            const sliceUrl = sliceCanvas.toDataURL("image/jpeg", 0.92);
+            const sliceUrl = sliceCanvas.toDataURL("image/jpeg", 0.95);
             const slicePdfH = (sliceH * usableW) / canvas.width;
             pdf.addImage(sliceUrl, "JPEG", margin, margin, usableW, slicePdfH);
 

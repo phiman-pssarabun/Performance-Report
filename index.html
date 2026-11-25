@@ -273,18 +273,70 @@
       margin-bottom: 1rem;
     }
 
+    /* แดชบอร์ดผู้อำนวยการแบบทันสมัย */
+    .director-toolbar {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbfe 100%);
+      border: 1px solid #d6e2ee;
+      border-radius: 16px;
+      padding: 1.05rem 1.25rem;
+      box-shadow: 0 6px 18px rgba(18, 57, 82, 0.05);
+    }
+
     .stat-card {
-      background: #fff;
+      background: #ffffff;
       border: 1px solid var(--border-formal);
+      border-left: 4px solid var(--navy);
       border-radius: 14px;
-      padding: 0.95rem 1.1rem;
-      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.03);
+      padding: 0.95rem 1.15rem;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(18, 57, 82, 0.08);
+    }
+
+    .stat-card.stat-reported {
+      border-left-color: #198754;
+      background: linear-gradient(135deg, #ffffff 65%, #f0fdf4 100%);
+    }
+
+    .stat-card.stat-leave {
+      border-left-color: #eab308;
+      background: linear-gradient(135deg, #ffffff 65%, #fefce8 100%);
+    }
+
+    .stat-card.stat-pending {
+      border-left-color: #dc3545;
+      background: linear-gradient(135deg, #ffffff 65%, #fef2f2 100%);
     }
 
     .stat-number {
-      font-size: 1.7rem;
+      font-size: 1.75rem;
       font-weight: 700;
-      line-height: 1.15;
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    .loading-banner {
+      background: #f0f7fc;
+      border: 1px solid #bad7ec;
+      color: var(--navy-dark);
+      border-radius: 12px;
+      padding: 0.7rem 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .director-table-card {
+      background: #ffffff;
+      border: 1px solid #d6e2ee;
+      border-radius: 16px;
+      padding: 0.4rem 0.6rem 0.6rem;
+      box-shadow: 0 6px 20px rgba(18, 57, 82, 0.05);
     }
 
     .director-table {
@@ -293,10 +345,26 @@
       margin-bottom: 0;
     }
 
-    .director-table th,
+    .director-table thead th {
+      background-color: #f1f6fb;
+      color: var(--navy-dark);
+      font-weight: 700;
+      border-bottom: 2px solid #d6e2ee;
+      padding: 0.85rem 1rem;
+    }
+
+    .director-table tbody tr {
+      transition: background-color 0.14s ease;
+    }
+
+    .director-table tbody tr:hover {
+      background-color: #f7fbff;
+    }
+
     .director-table td {
-      padding: 0.75rem 0.9rem;
+      padding: 0.85rem 1rem;
       vertical-align: middle;
+      border-color: #edf2f7;
     }
 
     .director-table th.col-no,
@@ -308,12 +376,60 @@
       white-space: nowrap;
     }
 
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.96rem;
+      line-height: 1.2;
+    }
+
+    .status-pill-reported {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .status-pill-leave {
+      background: #fef9c3;
+      color: #854d0e;
+      border: 1px solid #fde047;
+    }
+
+    .status-pill-pending {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .view-pdf-btn {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-accent) 100%);
+      border: none;
+      color: #fff;
+      border-radius: 9px;
+      padding: 0.35rem 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      box-shadow: 0 3px 8px rgba(26, 82, 118, 0.2);
+      white-space: nowrap;
+    }
+
+    .view-pdf-btn:hover {
+      color: #fff;
+      filter: brightness(1.06);
+    }
+
     .deputy-mobile-card {
-      background: #fff;
-      border: 1px solid var(--border-formal);
-      border-radius: 14px;
-      padding: 0.95rem 1rem;
-      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.03);
+      background: #ffffff;
+      border: 1px solid #d6e2ee;
+      border-radius: 15px;
+      padding: 1rem 1.05rem;
+      box-shadow: 0 4px 14px rgba(18, 57, 82, 0.05);
     }
 
     .form-label {
@@ -572,7 +688,8 @@
       .input-icon-group .form-select {
         padding-left: 2.2rem;
       }
-      .card-box {
+      .card-box,
+      .director-toolbar {
         padding: 0.95rem;
         border-radius: 14px;
       }
@@ -893,17 +1010,17 @@
         </div>
       </div>
 
-      <div class="card-box mb-3">
+      <div class="director-toolbar mb-3">
         <div class="row g-2 align-items-end">
           <div class="col-sm-6 col-md-4 col-lg-3">
-            <label for="directorDateInput" class="form-label fw-bold">เลือกวันที่ตรวจสอบรายงาน</label>
+            <label for="directorDateInput" class="form-label fw-bold mb-1">เลือกวันที่ตรวจสอบรายงาน</label>
             <input type="date" id="directorDateInput" class="form-control" />
           </div>
-          <div class="col-sm-6 col-md-8 col-lg-9 d-flex gap-2">
+          <div class="col-sm-6 col-md-8 col-lg-9 d-flex gap-2 flex-wrap">
             <button type="button" class="btn btn-primary fw-semibold" id="refreshOverviewBtn" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
               รีเฟรชข้อมูล
             </button>
-            <button type="button" class="btn btn-outline-secondary" id="todayOverviewBtn" style="border-radius: 10px;">
+            <button type="button" class="btn btn-outline-secondary fw-semibold" id="todayOverviewBtn" style="border-radius: 10px;">
               วันนี้
             </button>
           </div>
@@ -913,37 +1030,40 @@
       <div class="row g-2 g-md-3 mb-3">
         <div class="col-6 col-md-3">
           <div class="stat-card">
-            <div class="text-muted" style="font-size: 0.94rem;">รอง ผอ. ทั้งหมด</div>
+            <div class="text-muted" style="font-size: 0.96rem;">รอง ผอ. ทั้งหมด</div>
             <div class="stat-number" style="color: var(--navy-dark);" id="statTotal">๔</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="stat-card">
-            <div class="text-muted" style="font-size: 0.94rem;">รายงานแล้ว</div>
+          <div class="stat-card stat-reported">
+            <div class="text-muted" style="font-size: 0.96rem;">รายงานแล้ว</div>
             <div class="stat-number text-success" id="statReported">๐</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="stat-card">
-            <div class="text-muted" style="font-size: 0.94rem;">ไปราชการ / ลา</div>
-            <div class="stat-number text-warning" id="statLeave">๐</div>
+          <div class="stat-card stat-leave">
+            <div class="text-muted" style="font-size: 0.96rem;">ไปราชการ / ลา</div>
+            <div class="stat-number" style="color: #a16207;" id="statLeave">๐</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div class="stat-card">
-            <div class="text-muted" style="font-size: 0.94rem;">ยังไม่รายงาน</div>
+          <div class="stat-card stat-pending">
+            <div class="text-muted" style="font-size: 0.96rem;">ยังไม่รายงาน</div>
             <div class="stat-number text-danger" id="statPending">๔</div>
           </div>
         </div>
       </div>
 
-      <div id="directorLoadingText" class="text-center text-muted py-3 d-none">กำลังโหลดข้อมูลรายงานประจำวัน...</div>
+      <div id="directorLoadingText" class="loading-banner mb-3 d-none" role="status" aria-live="polite">
+        <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+        <span>กำลังโหลดข้อมูล..</span>
+      </div>
 
       <!-- มุมมองคอมพิวเตอร์: ขยายเต็มความกว้างหน้าจอ -->
-      <div class="card-box d-none d-md-block">
+      <div class="director-table-card d-none d-md-block">
         <div class="table-responsive">
-          <table class="table table-hover align-middle director-table">
-            <thead class="table-light">
+          <table class="table align-middle director-table">
+            <thead>
               <tr>
                 <th class="col-no">ลำดับ</th>
                 <th>ชื่อ-สกุล รองผู้อำนวยการ</th>
@@ -1115,6 +1235,7 @@
     let generatedPdfBlobUrl = null;
     let loggedInUser = null;
     let loggedInRole = null;
+    let overviewRequestSeq = 0;
 
     const appContainerEl = document.getElementById("appContainer");
     const reportDateEl = document.getElementById("reportDate");
@@ -1505,12 +1626,12 @@
 
     function renderBadgeHtml(item) {
       if (item.stateKey === "leave") {
-        return `<span class="badge bg-warning text-dark">${escapeHtml(item.stateLabel)}</span>`;
+        return `<span class="status-pill status-pill-leave">${escapeHtml(item.stateLabel)}</span>`;
       }
       if (item.stateKey === "reported") {
-        return `<span class="badge bg-success">รายงานแล้ว</span>`;
+        return `<span class="status-pill status-pill-reported">รายงานแล้ว</span>`;
       }
-      return `<span class="badge bg-danger">ยังไม่รายงาน</span>`;
+      return `<span class="status-pill status-pill-pending">ยังไม่รายงาน</span>`;
     }
 
     function renderDirectorOverview(data) {
@@ -1527,13 +1648,13 @@
 
       (data.items || []).forEach((item) => {
         const viewPdfBtn = item.pdfUrl
-          ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" style="background: var(--navy); border-color: var(--navy); border-radius: 8px; white-space: nowrap;">ดูไฟล์รายงาน</a>`
-          : `<span class="text-muted" style="font-size: 0.94rem;">-</span>`;
+          ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`
+          : `<span class="text-muted" style="font-size: 0.95rem;">-</span>`;
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="col-no">${toThaiDigits(item.order)}</td>
-          <td class="fw-bold" style="white-space: nowrap;">${escapeHtml(item.fullName)}</td>
+          <td class="col-no fw-semibold text-muted">${toThaiDigits(item.order)}</td>
+          <td class="fw-bold" style="color: var(--navy-dark); white-space: nowrap;">${escapeHtml(item.fullName)}</td>
           <td class="col-status">${renderBadgeHtml(item)}</td>
           <td>${escapeHtml(item.note || "-")}</td>
           <td class="col-action text-end">${viewPdfBtn}</td>
@@ -1543,11 +1664,11 @@
         const card = document.createElement("div");
         card.className = "deputy-mobile-card";
         card.innerHTML = `
-          <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+          <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
             <div class="fw-bold" style="color: var(--navy-dark);">${toThaiDigits(item.order)}. ${escapeHtml(item.fullName)}</div>
             ${renderBadgeHtml(item)}
           </div>
-          <div class="text-muted mb-2" style="font-size: 0.94rem;">${escapeHtml(item.note || "ยังไม่มีข้อมูลรายงานหรือหมายเหตุ")}</div>
+          <div class="text-muted mb-2" style="font-size: 0.95rem;">${escapeHtml(item.note || "ยังไม่มีข้อมูลรายงานหรือหมายเหตุ")}</div>
           ${item.pdfUrl ? `<div>${viewPdfBtn}</div>` : ""}
         `;
         cardList.appendChild(card);
@@ -1557,7 +1678,14 @@
     async function loadDirectorOverview() {
       const targetDate = directorDateInputEl.value || getTodayIsoDate();
       const loadingEl = document.getElementById("directorLoadingText");
+      const refreshBtn = document.getElementById("refreshOverviewBtn");
+      const todayBtn = document.getElementById("todayOverviewBtn");
+      const currentSeq = ++overviewRequestSeq;
+
+      updateDirectorDateLabel();
       loadingEl.classList.remove("d-none");
+      refreshBtn.disabled = true;
+      todayBtn.disabled = true;
 
       try {
         const res = await fetch(GAS_WEB_APP_URL, {
@@ -1569,13 +1697,18 @@
           })
         });
         const result = await res.json();
+        if (currentSeq !== overviewRequestSeq) return;
         if (result && result.ok) {
           renderDirectorOverview(result);
         }
       } catch (err) {
         console.error(err);
       } finally {
-        loadingEl.classList.add("d-none");
+        if (currentSeq === overviewRequestSeq) {
+          loadingEl.classList.add("d-none");
+          refreshBtn.disabled = false;
+          todayBtn.disabled = false;
+        }
       }
     }
 

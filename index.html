@@ -1054,11 +1054,17 @@
             <input type="date" id="directorDateInput" class="form-control" />
           </div>
           <div class="col-sm-6 col-md-8 col-lg-9 d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-primary fw-semibold" id="refreshOverviewBtn" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
-              รีเฟรชข้อมูล
+            <button type="button" class="btn btn-outline-secondary fw-semibold" id="prevDayOverviewBtn" style="border-radius: 10px;">
+              วันก่อนหน้า
             </button>
             <button type="button" class="btn btn-outline-secondary fw-semibold" id="todayOverviewBtn" style="border-radius: 10px;">
               วันนี้
+            </button>
+            <button type="button" class="btn btn-outline-secondary fw-semibold" id="nextDayOverviewBtn" style="border-radius: 10px;">
+              วันถัดไป
+            </button>
+            <button type="button" class="btn btn-primary fw-semibold" id="refreshOverviewBtn" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
+              รีเฟรชข้อมูล
             </button>
           </div>
         </div>
@@ -1646,6 +1652,18 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
+    function shiftIsoDate(isoDateStr, deltaDays) {
+      const base = isoDateStr && /^\d{4}-\d{2}-\d{2}$/.test(isoDateStr)
+        ? isoDateStr
+        : getTodayIsoDate();
+      const [y, m, d] = base.split("-").map(Number);
+      const dt = new Date(y, m - 1, d + deltaDays);
+      const yyyy = dt.getFullYear();
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      const dd = String(dt.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
     function setTodayDefault() {
       const todayIso = getTodayIsoDate();
       reportDateEl.value = todayIso;
@@ -1719,13 +1737,17 @@
       const targetDate = directorDateInputEl.value || getTodayIsoDate();
       const loadingEl = document.getElementById("directorLoadingText");
       const refreshBtn = document.getElementById("refreshOverviewBtn");
+      const prevBtn = document.getElementById("prevDayOverviewBtn");
       const todayBtn = document.getElementById("todayOverviewBtn");
+      const nextBtn = document.getElementById("nextDayOverviewBtn");
       const currentSeq = ++overviewRequestSeq;
 
       updateDirectorDateLabel();
       loadingEl.classList.remove("d-none");
       refreshBtn.disabled = true;
+      prevBtn.disabled = true;
       todayBtn.disabled = true;
+      nextBtn.disabled = true;
 
       try {
         const res = await fetch(GAS_WEB_APP_URL, {
@@ -1747,12 +1769,29 @@
         if (currentSeq === overviewRequestSeq) {
           loadingEl.classList.add("d-none");
           refreshBtn.disabled = false;
+          prevBtn.disabled = false;
           todayBtn.disabled = false;
+          nextBtn.disabled = false;
         }
       }
     }
 
     directorDateInputEl.addEventListener("change", () => {
+      if (!directorDateInputEl.value) {
+        directorDateInputEl.value = getTodayIsoDate();
+      }
+      updateDirectorDateLabel();
+      loadDirectorOverview();
+    });
+
+    document.getElementById("prevDayOverviewBtn").addEventListener("click", () => {
+      directorDateInputEl.value = shiftIsoDate(directorDateInputEl.value, -1);
+      updateDirectorDateLabel();
+      loadDirectorOverview();
+    });
+
+    document.getElementById("nextDayOverviewBtn").addEventListener("click", () => {
+      directorDateInputEl.value = shiftIsoDate(directorDateInputEl.value, 1);
       updateDirectorDateLabel();
       loadDirectorOverview();
     });

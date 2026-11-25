@@ -7,6 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     @font-face {
       font-family: "TH Sarabun PSK";
@@ -30,13 +31,13 @@
     body {
       background-color: var(--bg-soft);
       font-family: "TH Sarabun PSK", "Sarabun", system-ui, sans-serif;
-      font-size: 1.22rem;
+      font-size: 1.25rem;
       color: #1f2937;
     }
 
     .btn, .form-control, .form-select, .badge, .modal-content {
       font-family: "TH Sarabun PSK", "Sarabun", system-ui, sans-serif;
-      font-size: 1.15rem;
+      font-size: 1.18rem;
     }
 
     .top-bar {
@@ -59,7 +60,7 @@
       resize: none;
       overflow: hidden;
       min-height: 46px;
-      line-height: 1.4;
+      line-height: 1.35;
     }
 
     .photo-grid {
@@ -107,7 +108,7 @@
       width: 28px;
       height: 28px;
       line-height: 1;
-      font-size: 1rem;
+      font-size: 1.1rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -118,42 +119,75 @@
       background: #dc2626;
     }
 
+    /* กระดาษ A4 สำหรับพรีวิวและเรนเดอร์เป็น PDF */
     .preview-paper {
       background: #fff;
       border: 1px solid #d1d5db;
-      border-radius: 6px;
-      padding: 2rem 2.25rem;
-      font-size: 1.25rem;
-      line-height: 1.45;
-      max-width: 720px;
+      border-radius: 4px;
+      padding: 42px 54px;
+      font-family: "TH Sarabun PSK", "Sarabun", sans-serif;
+      font-size: 20px;
+      line-height: 1.35;
+      color: #000;
+      width: 100%;
+      max-width: 794px;
       margin: 0 auto;
     }
 
     .doc-header-center {
       text-align: center;
-      margin-bottom: 1.1rem;
+      margin-bottom: 18px;
     }
 
     .doc-title {
       font-weight: 700;
-      font-size: 1.65rem;
+      font-size: 26px;
       line-height: 1.2;
     }
 
     .doc-date-sub {
-      font-size: 1.25rem;
-      margin-top: 0.15rem;
+      font-size: 20px;
+      margin-top: 2px;
+    }
+
+    .pdf-photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .pdf-photo-box {
+      border: 1px solid #cbd5e1;
+      height: 195px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #fafafa;
+    }
+
+    .pdf-photo-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
     }
   </style>
 </head>
 <body class="py-3 py-md-4">
   <div class="container" style="max-width: 860px;">
-    <div class="top-bar mb-3 d-flex justify-content-between align-items-center gap-2">
+    <div class="top-bar mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
       <div>
         <h1 class="h3 mb-0 fw-bold">แบบฟอร์มรายงานการปฏิบัติงาน</h1>
-        <div id="thaiDatePreview" style="font-size: 1.15rem; opacity: 0.95;">กำลังคำนวณวันที่...</div>
+        <div id="thaiDatePreview" style="font-size: 1.18rem; opacity: 0.95;">กำลังคำนวณวันที่...</div>
       </div>
-      <span class="badge bg-light text-dark px-3 py-2">ฟอนต์สารบรรณ · เลขไทย</span>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-light text-dark px-3 py-2" id="fontStatusBadge">ฟอนต์สารบรรณ · เลขไทย</span>
+        <button type="button" class="btn btn-sm btn-outline-light" id="pickFontBtn" title="เลือกไฟล์ฟอนต์ THSarabunPSK.ttf หากต้องการฝังฟอนต์ตรงใน PDF">
+          เลือกฟอนต์ .ttf
+        </button>
+        <input type="file" id="fontFileInput" accept=".ttf" class="d-none" />
+      </div>
     </div>
 
     <form id="reportForm" class="card-box">
@@ -197,12 +231,10 @@
       <div class="mb-4">
         <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-2">
           <label class="form-label fw-bold mb-0">ภาพประกอบ (ถ้ามี) — คลิกที่กรอบเพื่อเลือกรูปทีละภาพ (๒ แถว × ๒ คอลัมน์)</label>
-          <span class="text-muted" style="font-size: 1.05rem;">คลิกช่องใดก็ได้เพื่อแนบรูป หรือเลือกหลายรูปพร้อมกันได้</span>
+          <span class="text-muted" style="font-size: 1.08rem;">คลิกช่องใดก็ได้เพื่อแนบรูป หรือเลือกหลายรูปพร้อมกันได้</span>
         </div>
 
-        <!-- input ซ่อนสำหรับคลิกเลือกรายช่อง -->
         <input type="file" id="singlePhotoInput" accept="image/*" class="d-none" />
-        <!-- input สำหรับกรณีต้องการเลือกหลายรูปพร้อมกัน -->
         <input type="file" id="multiPhotoInput" accept="image/*" multiple class="d-none" />
 
         <div class="photo-grid" id="photoGrid"></div>
@@ -263,9 +295,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const GAS_WEB_APP_URL = ""; // ใส่ URL Web App ของ Google Apps Script เมื่อพร้อมเชื่อมต่อ
+    const GAS_WEB_APP_URL = "";
     const SARABUN_FONT_URL = "./fonts/THSarabunPSK.ttf";
-    const SARABUN_BOLD_FONT_URL = "./fonts/THSarabunPSK-Bold.ttf";
 
     const THAI_DIGITS = ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"];
     const THAI_DAYS = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
@@ -274,19 +305,19 @@
       "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
     ];
 
-    // เก็บ 4 ช่องแยกกัน (index 0..3)
     let photoSlots = [null, null, null, null];
     let activeSlotIndex = 0;
     let currentReportData = null;
     let generatedPdfBlobUrl = null;
-    let cachedFontRegular = null;
-    let cachedFontBold = null;
+    let uploadedFontArrayBuffer = null;
 
     const reportDateEl = document.getElementById("reportDate");
     const thaiDatePreviewEl = document.getElementById("thaiDatePreview");
     const singlePhotoInput = document.getElementById("singlePhotoInput");
     const multiPhotoInput = document.getElementById("multiPhotoInput");
     const photoGridEl = document.getElementById("photoGrid");
+    const fontStatusBadge = document.getElementById("fontStatusBadge");
+    const fontFileInput = document.getElementById("fontFileInput");
     const previewModal = new bootstrap.Modal(document.getElementById("previewModal"));
     const successModal = new bootstrap.Modal(document.getElementById("successModal"));
 
@@ -337,6 +368,23 @@
 
     reportDateEl.addEventListener("change", updateThaiDateLabel);
 
+    // รองรับการเลือกไฟล์ฟอนต์ .ttf จากเครื่องโดยตรงและใช้ในหน้าเว็บด้วย
+    document.getElementById("pickFontBtn").addEventListener("click", () => {
+      fontFileInput.value = "";
+      fontFileInput.click();
+    });
+
+    fontFileInput.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      uploadedFontArrayBuffer = await file.arrayBuffer();
+      const fontFace = new FontFace("TH Sarabun PSK", uploadedFontArrayBuffer);
+      await fontFace.load();
+      document.fonts.add(fontFace);
+      fontStatusBadge.textContent = `ฝังฟอนต์: ${file.name}`;
+      document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
+    });
+
     function readFileAsDataUrl(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -381,7 +429,7 @@
         } else {
           slot.innerHTML = `
             <div class="fw-bold text-secondary">${slotTitles[i]}</div>
-            <div class="text-muted" style="font-size: 1rem;">(คลิกเลือกจากระบบ)</div>
+            <div class="text-muted" style="font-size: 1.05rem;">(คลิกเลือกจากระบบ)</div>
           `;
         }
 
@@ -430,6 +478,34 @@
         .replace(/\n/g, "<br>");
     }
 
+    function buildDocumentHtml(data) {
+      const { dayName, dayNumThai, monthName, buddhistYearThai } = data.dateParts;
+      const photosHtml = data.photos && data.photos.length
+        ? `<div class="pdf-photo-grid">${data.photos
+            .slice(0, 4)
+            .map((p, idx) => `<div class="pdf-photo-box"><img src="${p.dataUrl}" alt="ภาพ ${idx + 1}" /></div>`)
+            .join("")}</div>`
+        : `<span style="color:#6b7280;">- ไม่มีภาพประกอบ -</span>`;
+
+      return `
+        <div class="doc-header-center">
+          <div class="doc-title">รายงานการปฏิบัติงาน</div>
+          <div class="doc-date-sub">
+            ${escapeHtml(dayName)} ที่ ${escapeHtml(dayNumThai)} เดือน${escapeHtml(monthName)} พ.ศ. ${escapeHtml(buddhistYearThai)}
+          </div>
+        </div>
+        <div style="margin-bottom: 8px;"><strong>ชื่อ-สกุล :</strong> ${escapeHtml(data.fullName)}</div>
+        <div style="margin-bottom: 8px;"><strong>การปฏิบัติ เรื่อง :</strong> ${escapeHtml(data.subject)}</div>
+        <div style="margin-bottom: 8px;"><strong>ข้อเท็จจริงการปฏิบัติ :</strong><br>${escapeHtml(data.facts)}</div>
+        <div style="margin-bottom: 8px;"><strong>ผลการปฏิบัติงาน :</strong><br>${escapeHtml(data.results)}</div>
+        <div style="margin-bottom: 10px;"><strong>ข้อเสนอแนะ :</strong><br>${data.suggestions ? escapeHtml(data.suggestions) : "-"}</div>
+        <div>
+          <strong>ภาพประกอบ (ถ้ามี) :</strong>
+          ${photosHtml}
+        </div>
+      `;
+    }
+
     document.getElementById("reportForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const dateParts = formatThaiDateParts(reportDateEl.value);
@@ -447,210 +523,94 @@
         photos: activePhotos
       };
 
-      const photosHtml = activePhotos.length
-        ? `<div class="photo-grid mt-2">${activePhotos
-            .map((p, idx) => `<div class="photo-slot" style="cursor:default;"><img src="${p.dataUrl}" alt="ภาพ ${idx + 1}" /></div>`)
-            .join("")}</div>`
-        : `<span class="text-muted">- ไม่มีภาพประกอบ -</span>`;
-
-      // วันที่อยู่ใต้หัวข้อ "รายงานการปฏิบัติงาน" ตามรูปแบบเอกสารต้นฉบับ
-      document.getElementById("previewContent").innerHTML = `
-        <div class="doc-header-center">
-          <div class="doc-title">รายงานการปฏิบัติงาน</div>
-          <div class="doc-date-sub">
-            ${escapeHtml(dateParts.dayName)} ที่ ${escapeHtml(dateParts.dayNumThai)} เดือน${escapeHtml(dateParts.monthName)} พ.ศ. ${escapeHtml(dateParts.buddhistYearThai)}
-          </div>
-        </div>
-        <p class="mb-2"><strong>ชื่อ-สกุล :</strong> ${escapeHtml(currentReportData.fullName)}</p>
-        <p class="mb-2"><strong>การปฏิบัติ เรื่อง :</strong> ${escapeHtml(currentReportData.subject)}</p>
-        <p class="mb-2"><strong>ข้อเท็จจริงการปฏิบัติ :</strong><br>${escapeHtml(currentReportData.facts)}</p>
-        <p class="mb-2"><strong>ผลการปฏิบัติงาน :</strong><br>${escapeHtml(currentReportData.results)}</p>
-        <p class="mb-2"><strong>ข้อเสนอแนะ :</strong><br>${currentReportData.suggestions ? escapeHtml(currentReportData.suggestions) : "-"}</p>
-        <div class="mt-3">
-          <strong>ภาพประกอบ (ถ้ามี) :</strong>
-          ${photosHtml}
-        </div>
-      `;
-
+      document.getElementById("previewContent").innerHTML = buildDocumentHtml(currentReportData);
       previewModal.show();
     });
 
-    async function loadSarabunFonts(pdfDoc) {
-      if (!window.fontkit) return { regular: null, bold: null };
-      pdfDoc.registerFontkit(window.fontkit);
-
-      if (!cachedFontRegular) {
-        try {
-          const res = await fetch(SARABUN_FONT_URL);
-          if (res.ok) cachedFontRegular = await res.arrayBuffer();
-        } catch (e) {
-          console.warn("โหลด THSarabunPSK.ttf ไม่สำเร็จ:", e);
-        }
-      }
-
-      if (!cachedFontBold) {
-        try {
-          const resBold = await fetch(SARABUN_BOLD_FONT_URL);
-          if (resBold.ok) cachedFontBold = await resBold.arrayBuffer();
-        } catch (e) {
-          // ใช้ฟอนต์ปกติแทนหากไม่มีไฟล์ตัวหนา
-        }
-      }
-
-      const regular = cachedFontRegular ? await pdfDoc.embedFont(cachedFontRegular, { subset: true }) : null;
-      const bold = cachedFontBold
-        ? await pdfDoc.embedFont(cachedFontBold, { subset: true })
-        : regular;
-
-      return { regular, bold };
-    }
-
+    // เรนเดอร์หน้าเอกสารเป็นภาพคุณภาพสูงแล้วบรรจุลง PDF A4 เพื่อรักษาสระ วรรณยุกต์ และเลขไทยให้ครบถ้วนเสมอ
     async function buildPdfBlob(data) {
-      const { PDFDocument, rgb } = PDFLib;
-      const pdfDoc = await PDFDocument.create();
-      const { regular: fontRegular, bold: fontBold } = await loadSarabunFonts(pdfDoc);
+      await document.fonts.ready;
 
-      let page = pdfDoc.addPage([595.28, 841.89]); // A4
-      const marginX = 56;
-      let cursorY = 785;
-      const contentWidth = 595.28 - marginX * 2;
-      const bodySize = 16;
-      const lineHeight = 22;
+      const tempContainer = document.createElement("div");
+      tempContainer.style.position = "fixed";
+      tempContainer.style.left = "-99999px";
+      tempContainer.style.top = "0";
+      tempContainer.style.width = "794px";
+      tempContainer.style.background = "#ffffff";
+      tempContainer.innerHTML = `<div class="preview-paper" style="border:none; max-width:794px; width:794px;">${buildDocumentHtml(data)}</div>`;
+      document.body.appendChild(tempContainer);
 
-      const drawTextLine = (text, x, y, size = bodySize, isBold = false) => {
-        const activeFont = isBold ? (fontBold || fontRegular) : fontRegular;
-        if (activeFont) {
-          page.drawText(String(text), {
-            x,
-            y,
-            size,
-            font: activeFont,
-            color: rgb(0, 0, 0)
+      try {
+        const paperEl = tempContainer.firstElementChild;
+        const canvas = await html2canvas(paperEl, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff"
+        });
+
+        const { PDFDocument } = PDFLib;
+        const pdfDoc = await PDFDocument.create();
+
+        // ขนาดกระดาษ A4 ในหน่วย pt (595.28 x 841.89)
+        const a4Width = 595.28;
+        const a4Height = 841.89;
+        const margin = 24;
+        const printableWidth = a4Width - margin * 2;
+        const printableHeight = a4Height - margin * 2;
+
+        const imgDataUrl = canvas.toDataURL("image/jpeg", 0.94);
+        const base64 = imgDataUrl.split(",")[1];
+        const jpgBytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+        const embeddedJpg = await pdfDoc.embedJpg(jpgBytes);
+
+        const scaledHeight = (embeddedJpg.height * printableWidth) / embeddedJpg.width;
+
+        if (scaledHeight <= printableHeight) {
+          const page = pdfDoc.addPage([a4Width, a4Height]);
+          page.drawImage(embeddedJpg, {
+            x: margin,
+            y: a4Height - margin - scaledHeight,
+            width: printableWidth,
+            height: scaledHeight
           });
         } else {
-          const safeAscii = String(text).replace(/[^\x20-\x7E]/g, " ");
-          page.drawText(safeAscii, { x, y, size: 11, color: rgb(0.25, 0.25, 0.25) });
-        }
-      };
+          // กรณีเนื้อหายาวเกิน 1 หน้า ให้แบ่งตัดเป็นหลายหน้า A4 อัตโนมัติ
+          const pxPerPage = Math.floor((printableHeight * canvas.width) / printableWidth);
+          let offsetY = 0;
 
-      const ensureSpace = (neededHeight) => {
-        if (cursorY - neededHeight < 52) {
-          page = pdfDoc.addPage([595.28, 841.89]);
-          cursorY = 785;
-        }
-      };
+          while (offsetY < canvas.height) {
+            const sliceHeight = Math.min(pxPerPage, canvas.height - offsetY);
+            const sliceCanvas = document.createElement("canvas");
+            sliceCanvas.width = canvas.width;
+            sliceCanvas.height = sliceHeight;
+            const ctx = sliceCanvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+            ctx.drawImage(canvas, 0, offsetY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
 
-      // 1. หัวข้อหลักตรงกลาง
-      const titleText = "รายงานการปฏิบัติงาน";
-      const titleSize = 20;
-      if (fontBold || fontRegular) {
-        const f = fontBold || fontRegular;
-        const w = f.widthOfTextAtSize(titleText, titleSize);
-        drawTextLine(titleText, (595.28 - w) / 2, cursorY, titleSize, true);
-      } else {
-        drawTextLine(titleText, 240, cursorY, titleSize, true);
-      }
-      cursorY -= lineHeight * 1.15;
+            const sliceUrl = sliceCanvas.toDataURL("image/jpeg", 0.94);
+            const sliceBase64 = sliceUrl.split(",")[1];
+            const sliceBytes = Uint8Array.from(atob(sliceBase64), (c) => c.charCodeAt(0));
+            const sliceImg = await pdfDoc.embedJpg(sliceBytes);
+            const slicePdfHeight = (sliceImg.height * printableWidth) / sliceImg.width;
 
-      // 2. วันที่อยู่ใต้หัวข้อ "รายงานการปฏิบัติงาน"
-      const { dayName, dayNumThai, monthName, buddhistYearThai } = data.dateParts;
-      const dateLine = `${dayName} ที่ ${dayNumThai} เดือน${monthName} พ.ศ. ${buddhistYearThai}`;
-      const dateSize = 16;
-      if (fontRegular) {
-        const w = fontRegular.widthOfTextAtSize(dateLine, dateSize);
-        drawTextLine(dateLine, (595.28 - w) / 2, cursorY, dateSize, false);
-      } else {
-        drawTextLine(dateLine, 210, cursorY, dateSize, false);
-      }
-      cursorY -= lineHeight * 1.65;
+            const page = pdfDoc.addPage([a4Width, a4Height]);
+            page.drawImage(sliceImg, {
+              x: margin,
+              y: a4Height - margin - slicePdfHeight,
+              width: printableWidth,
+              height: slicePdfHeight
+            });
 
-      // 3. เนื้อหาแต่ละหัวข้อ
-      const drawLabeledSection = (label, valueText) => {
-        const paragraphs = String(valueText || "-").split("\n");
-        let isFirstLineOfSection = true;
-
-        for (const para of paragraphs) {
-          const prefix = isFirstLineOfSection ? `${label} ` : "";
-          const fullPara = prefix + para;
-          const units = fontRegular ? fullPara.split("") : fullPara.split(" ");
-          let line = "";
-
-          for (const u of units) {
-            const sep = fontRegular ? "" : (line ? " " : "");
-            const candidate = line + sep + u;
-            const w = fontRegular ? fontRegular.widthOfTextAtSize(candidate, bodySize) : candidate.length * 6;
-            if (w > contentWidth && line) {
-              ensureSpace(lineHeight);
-              drawTextLine(line, marginX, cursorY, bodySize, false);
-              cursorY -= lineHeight;
-              line = u;
-            } else {
-              line = candidate;
-            }
+            offsetY += sliceHeight;
           }
-
-          if (line || isFirstLineOfSection) {
-            ensureSpace(lineHeight);
-            drawTextLine(line || prefix, marginX, cursorY, bodySize, false);
-            cursorY -= lineHeight;
-          }
-          isFirstLineOfSection = false;
         }
-        cursorY -= 6;
-      };
 
-      drawLabeledSection("ชื่อ-สกุล :", data.fullName);
-      drawLabeledSection("การปฏิบัติ เรื่อง :", data.subject);
-      drawLabeledSection("ข้อเท็จจริงการปฏิบัติ :", data.facts);
-      drawLabeledSection("ผลการปฏิบัติงาน :", data.results);
-      drawLabeledSection("ข้อเสนอแนะ :", data.suggestions || "-");
-
-      // 4. ภาพประกอบ 2 แถว x 2 คอลัมน์
-      if (data.photos && data.photos.length > 0) {
-        ensureSpace(lineHeight + 12);
-        drawTextLine("ภาพประกอบ (ถ้ามี) :", marginX, cursorY, bodySize, false);
-        cursorY -= 16;
-
-        const gapX = 18;
-        const gapY = 18;
-        const cellW = (contentWidth - gapX) / 2;
-        const cellH = 148;
-
-        for (let i = 0; i < Math.min(data.photos.length, 4); i++) {
-          const col = i % 2;
-          const row = Math.floor(i / 2);
-
-          if (col === 0) {
-            ensureSpace(cellH + gapY);
-          }
-
-          const cellX = marginX + col * (cellW + gapX);
-          const cellTopY = cursorY - row * (cellH + gapY);
-          const cellBottomY = cellTopY - cellH;
-
-          const p = data.photos[i];
-          const base64Data = p.dataUrl.split(",")[1];
-          const bytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
-
-          const embeddedImg = p.mimeType.includes("png")
-            ? await pdfDoc.embedPng(bytes)
-            : await pdfDoc.embedJpg(bytes);
-
-          const dims = embeddedImg.scaleToFit(cellW - 8, cellH - 8);
-          const imgX = cellX + (cellW - dims.width) / 2;
-          const imgY = cellBottomY + (cellH - dims.height) / 2;
-
-          page.drawImage(embeddedImg, {
-            x: imgX,
-            y: imgY,
-            width: dims.width,
-            height: dims.height
-          });
-        }
+        const pdfBytes = await pdfDoc.save();
+        return new Blob([pdfBytes], { type: "application/pdf" });
+      } finally {
+        document.body.removeChild(tempContainer);
       }
-
-      const pdfBytes = await pdfDoc.save();
-      return new Blob([pdfBytes], { type: "application/pdf" });
     }
 
     document.getElementById("confirmSaveBtn").addEventListener("click", async () => {
@@ -688,7 +648,7 @@
           document.getElementById("saveStatusText").textContent = "บันทึกข้อมูลและสร้างไฟล์ PDF เลขไทยเรียบร้อยแล้ว";
         } else {
           document.getElementById("saveStatusText").textContent =
-            "สร้างไฟล์ PDF ฟอนต์สารบรรณเรียบร้อยแล้ว (ยังไม่ได้เชื่อมต่อ URL หลังบ้าน Google Apps Script)";
+            "สร้างไฟล์ PDF เลขไทยเรียบร้อยแล้ว (ยังไม่ได้เชื่อมต่อ URL หลังบ้าน Google Apps Script)";
         }
 
         previewModal.hide();

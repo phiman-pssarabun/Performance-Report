@@ -396,6 +396,10 @@
       color: var(--navy-dark);
     }
 
+    .director-table td.col-note {
+      text-align: left;
+    }
+
     .director-table th.col-no,
     .director-table td.col-no,
     .director-table th.col-status,
@@ -1692,7 +1696,7 @@
           <td class="col-no fw-bold text-muted">${toThaiDigits(item.order)}</td>
           <td class="col-name">${escapeHtml(item.fullName)}</td>
           <td class="col-status">${renderBadgeHtml(item)}</td>
-          <td>${escapeHtml(item.note || "-")}</td>
+          <td class="col-note">${escapeHtml(item.note || "-")}</td>
           <td class="col-action">${viewPdfBtn}</td>
         `;
         tbody.appendChild(tr);

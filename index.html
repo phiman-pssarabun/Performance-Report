@@ -53,7 +53,7 @@
       overflow-wrap: break-word;
     }
 
-    /* แบนเนอร์บาร์สไตล์ผู้บริหารสมัยใหม่ พร้อมภาพพื้นหลังเบลอและเส้นทองบาง */
+    /* แบนเนอร์บาร์สำหรับหน้าหลักหลังเข้าระบบ */
     .top-bar {
       position: relative;
       overflow: hidden;
@@ -115,6 +115,13 @@
       min-width: 0;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-shrink: 0;
+    }
+
     .school-logo-box {
       width: 58px;
       height: 58px;
@@ -148,9 +155,87 @@
       margin-top: 2px;
     }
 
+    /* หน้าแรก: การ์ดเข้าสู่ระบบแบบไม่มีแบนเนอร์ */
+    .login-wrapper {
+      min-height: calc(100vh - 3rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .login-card {
-      max-width: 460px;
+      width: 100%;
+      max-width: 440px;
       margin: 0 auto;
+      padding: 1.75rem 1.55rem;
+      border-radius: 20px;
+      border-top: 4px solid var(--navy);
+      box-shadow: 0 12px 30px rgba(18, 57, 82, 0.08);
+    }
+
+    .login-brand-logo {
+      width: 78px;
+      height: 78px;
+      margin: 0 auto 0.85rem;
+      border-radius: 50%;
+      background: #ffffff;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--gold-light);
+      box-shadow: 0 6px 16px rgba(18, 57, 82, 0.12);
+    }
+
+    .login-brand-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .input-icon-group {
+      position: relative;
+    }
+
+    .input-icon-leading {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .input-icon-group .form-control,
+    .input-icon-group .form-select {
+      padding-left: 2.35rem;
+    }
+
+    .password-toggle-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #64748b;
+      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .password-toggle-btn:hover {
+      color: var(--navy-dark);
+    }
+
+    .input-with-toggle .form-control {
+      padding-right: 2.45rem;
     }
 
     .card-box {
@@ -346,13 +431,25 @@
         padding-left: 0.75rem;
         padding-right: 0.75rem;
       }
+      .login-wrapper {
+        min-height: auto;
+        padding-top: 0.5rem;
+      }
+      .login-card {
+        padding: 1.3rem 1.05rem;
+        border-radius: 16px;
+      }
+      .login-brand-logo {
+        width: 66px;
+        height: 66px;
+      }
       h1.h3 {
-        font-size: 1.22rem;
+        font-size: 1.2rem;
         line-height: 1.25;
       }
       .banner-subtitle,
       #thaiDatePreview {
-        font-size: 0.94rem !important;
+        font-size: 0.92rem !important;
         line-height: 1.3;
         margin-top: 2px;
       }
@@ -363,17 +460,29 @@
         padding: 0.42rem 0.65rem;
         border-radius: 9px;
       }
+      .input-icon-group .form-control,
+      .input-icon-group .form-select {
+        padding-left: 2.2rem;
+      }
       .top-bar {
-        padding: 0.85rem 0.95rem;
+        padding: 0.85rem 0.9rem;
         border-radius: 14px;
         margin-bottom: 0.75rem !important;
       }
       .banner-content, .banner-left {
-        gap: 0.7rem;
+        gap: 0.6rem;
+      }
+      .header-actions {
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .header-actions .btn {
+        font-size: 0.88rem;
+        padding: 0.3rem 0.6rem;
       }
       .school-logo-box {
-        width: 46px;
-        height: 46px;
+        width: 44px;
+        height: 44px;
         padding: 3px;
       }
       .card-box {
@@ -454,58 +563,109 @@
 </head>
 <body class="py-3 py-md-4">
   <div class="container" style="max-width: 860px;">
-    <div class="top-bar mb-3">
-      <div class="banner-bg-layer" id="bannerBgLayer"></div>
-      <div class="banner-content">
-        <div class="banner-left">
-          <div class="school-logo-box" id="schoolLogoBox">
-            <img id="schoolLogoImg" src="./logo.png" alt="โลโก้โรงเรียน" />
+
+    <!-- หน้าแรก: เข้าสู่ระบบ (ไม่มีแบนเนอร์ มีโลโก้ ชื่อระบบ ช่องเลือกชื่อ และรหัสผ่าน) -->
+    <div id="loginSection" class="login-wrapper">
+      <div class="card-box login-card">
+        <div class="text-center mb-3">
+          <div class="login-brand-logo" id="loginLogoBox">
+            <img id="loginLogoImg" src="./logo.png" alt="โลโก้โรงเรียน" />
           </div>
-          <div>
-            <h1 class="h3 mb-0 fw-bold banner-title">แบบฟอร์มรายงานการปฏิบัติงาน</h1>
-            <div id="thaiDatePreview" class="banner-subtitle">กำลังคำนวณวันที่...</div>
+          <div class="d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill mb-1" style="background: #eef4f8; color: var(--navy-dark); font-size: 0.92rem; font-weight: 600;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>ฝ่ายบริหาร</span>
           </div>
+          <h1 class="h4 fw-bold mb-1" style="color: var(--navy-dark);">ระบบรายงานการปฏิบัติงาน</h1>
+          <p class="text-muted mb-0" style="font-size: 0.98rem;">เข้าสู่ระบบสำหรับรองผู้อำนวยการ</p>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-light d-none" id="logoutBtn" style="border-radius: 9px; white-space: nowrap;">
-          ออกจากระบบ
-        </button>
+
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="loginFullName" class="form-label fw-bold">ชื่อ-สกุล <span class="text-danger">*</span></label>
+            <div class="input-icon-group">
+              <span class="input-icon-leading">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+              <select id="loginFullName" name="loginFullName" class="form-select" required>
+                <option value="" selected disabled>-- เลือกรายชื่อรองผู้อำนวยการ --</option>
+                <option value="นางวนิดา แดงคง">นางวนิดา แดงคง</option>
+                <option value="นางเขมิกา ทองสี">นางเขมิกา ทองสี</option>
+                <option value="นายคุณานนต์ ทองกรด">นายคุณานนต์ ทองกรด</option>
+                <option value="นายภูริพัฒน์ ยานา">นายภูริพัฒน์ ยานา</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="loginPassword" class="form-label fw-bold">รหัสผ่าน <span class="text-danger">*</span></label>
+            <div class="input-icon-group input-with-toggle">
+              <span class="input-icon-leading">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </span>
+              <input type="password" id="loginPassword" name="loginPassword" class="form-control" required />
+              <button type="button" class="password-toggle-btn" id="toggleLoginPassBtn" title="แสดง/ซ่อนรหัสผ่าน" aria-label="แสดงหรือซ่อนรหัสผ่าน">
+                <svg id="eyeIconLogin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="loginAlert" class="alert alert-danger py-2 px-3 d-none" style="font-size: 0.96rem;"></div>
+
+          <div class="d-grid mt-3">
+            <button type="submit" id="loginSubmitBtn" class="btn btn-primary py-2 fw-bold d-inline-flex align-items-center justify-content-center gap-2" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+              </svg>
+              <span>เข้าสู่ระบบ</span>
+            </button>
+          </div>
+        </form>
       </div>
-    </div>
-
-    <!-- หน้าแรก: เข้าสู่ระบบ -->
-    <div id="loginSection" class="card-box login-card">
-      <h2 class="h4 fw-bold text-center mb-1" style="color: var(--navy-dark);">เข้าสู่ระบบผู้ใช้งาน</h2>
-      <p class="text-center text-muted mb-3" style="font-size: 0.98rem;">กรุณาเลือกรายชื่อและกรอกรหัสผ่านประจำตัว</p>
-
-      <form id="loginForm">
-        <div class="mb-3">
-          <label for="loginFullName" class="form-label fw-bold">ชื่อ-สกุล <span class="text-danger">*</span></label>
-          <select id="loginFullName" name="loginFullName" class="form-select" required>
-            <option value="" selected disabled>-- เลือกรายชื่อรองผู้อำนวยการ --</option>
-            <option value="นางวนิดา แดงคง">นางวนิดา แดงคง</option>
-            <option value="นางเขมิกา ทองสี">นางเขมิกา ทองสี</option>
-            <option value="นายคุณานนต์ ทองกรด">นายคุณานนต์ ทองกรด</option>
-            <option value="นายภูริพัฒน์ ยานา">นายภูริพัฒน์ ยานา</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label for="loginPassword" class="form-label fw-bold">รหัสผ่าน <span class="text-danger">*</span></label>
-          <input type="password" id="loginPassword" name="loginPassword" class="form-control" required />
-        </div>
-
-        <div id="loginAlert" class="alert alert-danger py-2 px-3 d-none" style="font-size: 0.96rem;"></div>
-
-        <div class="d-grid mt-3">
-          <button type="submit" id="loginSubmitBtn" class="btn btn-primary py-2 fw-bold" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
-            เข้าสู่ระบบ
-          </button>
-        </div>
-      </form>
     </div>
 
     <!-- หน้าแบบฟอร์มรายงาน (ซ่อนจนกว่าจะเข้าสู่ระบบสำเร็จ) -->
     <div id="mainFormSection" class="d-none">
+      <div class="top-bar mb-3">
+        <div class="banner-bg-layer" id="bannerBgLayer"></div>
+        <div class="banner-content">
+          <div class="banner-left">
+            <div class="school-logo-box" id="schoolLogoBox">
+              <img id="schoolLogoImg" src="./logo.png" alt="โลโก้โรงเรียน" />
+            </div>
+            <div>
+              <h2 class="h3 mb-0 fw-bold banner-title">แบบฟอร์มรายงานการปฏิบัติงาน</h2>
+              <div id="thaiDatePreview" class="banner-subtitle">กำลังคำนวณวันที่...</div>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            <button type="button" class="btn btn-sm btn-light fw-semibold d-inline-flex align-items-center gap-1" id="profileBtn" style="border-radius: 9px; color: var(--navy-dark); white-space: nowrap;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>ดูโปรไฟล์</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-light d-none" id="logoutBtn" style="border-radius: 9px; white-space: nowrap;">
+              ออกจากระบบ
+            </button>
+          </div>
+        </div>
+      </div>
+
       <form id="reportForm" class="card-box">
         <div class="row g-2 g-md-3 mb-3">
           <div class="col-md-5">
@@ -572,6 +732,65 @@
     </div>
   </div>
 
+  <!-- Modal โปรไฟล์ผู้ใช้งานและแก้ไขรหัสผ่าน -->
+  <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius: 16px;">
+        <div class="modal-header" style="background: var(--navy-dark); color: #fff; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+          <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>โปรไฟล์ผู้ใช้งาน</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3 p-sm-4">
+          <div class="p-3 rounded-3 mb-3" style="background: #f1f5f9; border: 1px solid #e2e8f0;">
+            <div class="text-muted" style="font-size: 0.92rem;">ผู้ใช้งานที่เข้าสู่ระบบ</div>
+            <div class="fw-bold fs-5" id="profileFullNameText" style="color: var(--navy-dark);">-</div>
+            <div class="text-muted" style="font-size: 0.94rem;">ตำแหน่ง : รองผู้อำนวยการสถานศึกษา</div>
+          </div>
+
+          <hr class="my-3" />
+
+          <h6 class="fw-bold mb-2 d-flex align-items-center gap-1" style="color: var(--navy-dark);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>เปลี่ยนรหัสผ่านใหม่</span>
+          </h6>
+
+          <form id="changePasswordForm">
+            <div class="mb-2">
+              <label for="currentPasswordInput" class="form-label fw-bold">รหัสผ่านเดิม <span class="text-danger">*</span></label>
+              <input type="password" id="currentPasswordInput" class="form-control" required />
+            </div>
+            <div class="mb-2">
+              <label for="newPasswordInput" class="form-label fw-bold">รหัสผ่านใหม่ <span class="text-danger">*</span></label>
+              <input type="password" id="newPasswordInput" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="confirmPasswordInput" class="form-label fw-bold">ยืนยันรหัสผ่านใหม่ <span class="text-danger">*</span></label>
+              <input type="password" id="confirmPasswordInput" class="form-control" required />
+            </div>
+
+            <div id="changePassAlert" class="alert py-2 px-3 d-none" style="font-size: 0.95rem;"></div>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">ปิด</button>
+              <button type="submit" id="saveNewPassBtn" class="btn btn-primary px-4 fw-bold" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
+                บันทึกรหัสผ่านใหม่
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- โซนสำหรับพิมพ์ -->
   <div id="printArea"></div>
 
@@ -624,16 +843,28 @@
     function initBannerBranding() {
       const logoBox = document.getElementById("schoolLogoBox");
       const logoImg = document.getElementById("schoolLogoImg");
+      const loginLogoBox = document.getElementById("loginLogoBox");
+      const loginLogoImg = document.getElementById("loginLogoImg");
       const bgLayer = document.getElementById("bannerBgLayer");
 
       if (SCHOOL_LOGO_URL && SCHOOL_LOGO_URL.trim()) {
-        logoImg.src = SCHOOL_LOGO_URL.trim();
+        const cleanLogo = SCHOOL_LOGO_URL.trim();
+        logoImg.src = cleanLogo;
         logoBox.style.display = "flex";
         logoImg.onerror = () => {
           logoBox.style.display = "none";
         };
+
+        if (loginLogoImg && loginLogoBox) {
+          loginLogoImg.src = cleanLogo;
+          loginLogoBox.style.display = "flex";
+          loginLogoImg.onerror = () => {
+            loginLogoBox.style.display = "none";
+          };
+        }
       } else {
         logoBox.style.display = "none";
+        if (loginLogoBox) loginLogoBox.style.display = "none";
       }
 
       if (SCHOOL_BANNER_BG_URL && SCHOOL_BANNER_BG_URL.trim()) {
@@ -673,10 +904,13 @@
     const photoGridEl = document.getElementById("photoGrid");
     const previewModal = new bootstrap.Modal(document.getElementById("previewModal"));
     const successModal = new bootstrap.Modal(document.getElementById("successModal"));
+    const profileModal = new bootstrap.Modal(document.getElementById("profileModal"));
     const loginSectionEl = document.getElementById("loginSection");
     const mainFormSectionEl = document.getElementById("mainFormSection");
     const logoutBtnEl = document.getElementById("logoutBtn");
+    const profileBtnEl = document.getElementById("profileBtn");
     const loginAlertEl = document.getElementById("loginAlert");
+    const changePassAlertEl = document.getElementById("changePassAlert");
 
     function showLoginAlert(msg) {
       loginAlertEl.textContent = msg;
@@ -686,6 +920,16 @@
     function hideLoginAlert() {
       loginAlertEl.classList.add("d-none");
       loginAlertEl.textContent = "";
+    }
+
+    function showChangePassAlert(msg, type = "danger") {
+      changePassAlertEl.textContent = msg;
+      changePassAlertEl.className = `alert alert-${type} py-2 px-3`;
+    }
+
+    function hideChangePassAlert() {
+      changePassAlertEl.className = "alert py-2 px-3 d-none";
+      changePassAlertEl.textContent = "";
     }
 
     function applyAuthenticatedState(userFullName) {
@@ -701,11 +945,17 @@
       loggedInUser = null;
       sessionStorage.removeItem("perfReportUser");
       document.getElementById("loginForm").reset();
+      document.getElementById("loginPassword").type = "password";
       hideLoginAlert();
       mainFormSectionEl.classList.add("d-none");
       logoutBtnEl.classList.add("d-none");
       loginSectionEl.classList.remove("d-none");
     }
+
+    document.getElementById("toggleLoginPassBtn").addEventListener("click", () => {
+      const passInput = document.getElementById("loginPassword");
+      passInput.type = passInput.type === "password" ? "text" : "password";
+    });
 
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -721,7 +971,7 @@
       }
 
       submitBtn.disabled = true;
-      submitBtn.textContent = "กำลังตรวจสอบรหัสผ่าน...";
+      submitBtn.querySelector("span").textContent = "กำลังตรวจสอบรหัสผ่าน...";
 
       try {
         const res = await fetch(GAS_WEB_APP_URL, {
@@ -744,7 +994,67 @@
         showLoginAlert("ไม่สามารถเชื่อมต่อระบบตรวจสอบสิทธิ์ได้ กรุณาลองใหม่อีกครั้ง");
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "เข้าสู่ระบบ";
+        submitBtn.querySelector("span").textContent = "เข้าสู่ระบบ";
+      }
+    });
+
+    profileBtnEl.addEventListener("click", () => {
+      document.getElementById("profileFullNameText").textContent = loggedInUser || fullNameEl.value || "-";
+      document.getElementById("changePasswordForm").reset();
+      hideChangePassAlert();
+      profileModal.show();
+    });
+
+    document.getElementById("changePasswordForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideChangePassAlert();
+
+      const targetUser = loggedInUser || fullNameEl.value;
+      const oldPassword = document.getElementById("currentPasswordInput").value.trim();
+      const newPassword = document.getElementById("newPasswordInput").value.trim();
+      const confirmPassword = document.getElementById("confirmPasswordInput").value.trim();
+      const saveBtn = document.getElementById("saveNewPassBtn");
+
+      if (!oldPassword || !newPassword || !confirmPassword) {
+        showChangePassAlert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        showChangePassAlert("รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกัน");
+        return;
+      }
+      if (newPassword.length < 4) {
+        showChangePassAlert("รหัสผ่านใหม่ควรมีอย่างน้อย ๔ ตัวอักษร");
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "กำลังบันทึก...";
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "changePassword",
+            fullName: targetUser,
+            oldPassword,
+            newPassword
+          })
+        });
+
+        const result = await res.json();
+        if (result && result.ok) {
+          showChangePassAlert(result.message || "เปลี่ยนรหัสผ่านเรียบร้อยแล้ว", "success");
+          document.getElementById("changePasswordForm").reset();
+        } else {
+          showChangePassAlert((result && result.message) || "ไม่สามารถเปลี่ยนรหัสผ่านได้");
+        }
+      } catch (err) {
+        showChangePassAlert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ");
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "บันทึกรหัสผ่านใหม่";
       }
     });
 

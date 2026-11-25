@@ -104,7 +104,15 @@
       z-index: 2;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 0.95rem;
+    }
+
+    .banner-left {
+      display: flex;
+      align-items: center;
+      gap: 0.95rem;
+      min-width: 0;
     }
 
     .school-logo-box {
@@ -138,6 +146,11 @@
       font-size: 1.02rem;
       color: rgba(255, 255, 255, 0.92);
       margin-top: 2px;
+    }
+
+    .login-card {
+      max-width: 460px;
+      margin: 0 auto;
     }
 
     .card-box {
@@ -355,7 +368,7 @@
         border-radius: 14px;
         margin-bottom: 0.75rem !important;
       }
-      .banner-content {
+      .banner-content, .banner-left {
         gap: 0.7rem;
       }
       .school-logo-box {
@@ -444,25 +457,30 @@
     <div class="top-bar mb-3">
       <div class="banner-bg-layer" id="bannerBgLayer"></div>
       <div class="banner-content">
-        <div class="school-logo-box" id="schoolLogoBox">
-          <img id="schoolLogoImg" src="./logo.png" alt="โลโก้โรงเรียน" />
+        <div class="banner-left">
+          <div class="school-logo-box" id="schoolLogoBox">
+            <img id="schoolLogoImg" src="./logo.png" alt="โลโก้โรงเรียน" />
+          </div>
+          <div>
+            <h1 class="h3 mb-0 fw-bold banner-title">แบบฟอร์มรายงานการปฏิบัติงาน</h1>
+            <div id="thaiDatePreview" class="banner-subtitle">กำลังคำนวณวันที่...</div>
+          </div>
         </div>
-        <div>
-          <h1 class="h3 mb-0 fw-bold banner-title">แบบฟอร์มรายงานการปฏิบัติงาน</h1>
-          <div id="thaiDatePreview" class="banner-subtitle">กำลังคำนวณวันที่...</div>
-        </div>
+        <button type="button" class="btn btn-sm btn-outline-light d-none" id="logoutBtn" style="border-radius: 9px; white-space: nowrap;">
+          ออกจากระบบ
+        </button>
       </div>
     </div>
 
-    <form id="reportForm" class="card-box">
-      <div class="row g-2 g-md-3 mb-3">
-        <div class="col-md-5">
-          <label for="reportDate" class="form-label fw-bold">เลือกวันที่ปฏิบัติงาน <span class="text-danger">*</span></label>
-          <input type="date" id="reportDate" name="reportDate" class="form-control" required />
-        </div>
-        <div class="col-md-7">
-          <label for="fullName" class="form-label fw-bold">ชื่อ-สกุล <span class="text-danger">*</span></label>
-          <select id="fullName" name="fullName" class="form-select" required>
+    <!-- หน้าแรก: เข้าสู่ระบบ -->
+    <div id="loginSection" class="card-box login-card">
+      <h2 class="h4 fw-bold text-center mb-1" style="color: var(--navy-dark);">เข้าสู่ระบบผู้ใช้งาน</h2>
+      <p class="text-center text-muted mb-3" style="font-size: 0.98rem;">กรุณาเลือกรายชื่อและกรอกรหัสผ่านประจำตัว</p>
+
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="loginFullName" class="form-label fw-bold">ชื่อ-สกุล <span class="text-danger">*</span></label>
+          <select id="loginFullName" name="loginFullName" class="form-select" required>
             <option value="" selected disabled>-- เลือกรายชื่อรองผู้อำนวยการ --</option>
             <option value="นางวนิดา แดงคง">นางวนิดา แดงคง</option>
             <option value="นางเขมิกา ทองสี">นางเขมิกา ทองสี</option>
@@ -470,53 +488,88 @@
             <option value="นายภูริพัฒน์ ยานา">นายภูริพัฒน์ ยานา</option>
           </select>
         </div>
-      </div>
 
-      <div class="mb-3">
-        <label for="subject" class="form-label fw-bold">การปฏิบัติ เรื่อง <span class="text-danger">*</span></label>
-        <textarea id="subject" name="subject" class="form-control auto-expand" rows="1" placeholder="" required></textarea>
-      </div>
-
-      <div class="mb-3">
-        <label for="facts" class="form-label fw-bold">ข้อเท็จจริงการปฏิบัติ <span class="text-danger">*</span></label>
-        <textarea id="facts" name="facts" class="form-control auto-expand" rows="2" placeholder="" required></textarea>
-      </div>
-
-      <div class="mb-3">
-        <label for="results" class="form-label fw-bold">ผลการปฏิบัติงาน <span class="text-danger">*</span></label>
-        <textarea id="results" name="results" class="form-control auto-expand" rows="2" placeholder="" required></textarea>
-      </div>
-
-      <div class="mb-3">
-        <label for="suggestions" class="form-label fw-bold">ข้อเสนอแนะ (ถ้ามี)</label>
-        <textarea id="suggestions" name="suggestions" class="form-control auto-expand" rows="2" placeholder=""></textarea>
-      </div>
-
-      <div class="mb-3">
-        <div class="mb-2">
-          <label class="form-label fw-bold d-block mb-1">ภาพประกอบ (ถ้ามี)</label>
-          <div class="text-muted" style="font-size: 0.95rem; line-height: 1.35;">คลิกที่กรอบเพื่อแนบรูปทีละภาพ หรือเลือกหลายรูปพร้อมกันได้</div>
+        <div class="mb-3">
+          <label for="loginPassword" class="form-label fw-bold">รหัสผ่าน <span class="text-danger">*</span></label>
+          <input type="password" id="loginPassword" name="loginPassword" class="form-control" required />
         </div>
 
-        <input type="file" id="singlePhotoInput" accept="image/*" class="d-none" />
-        <input type="file" id="multiPhotoInput" accept="image/*" multiple class="d-none" />
+        <div id="loginAlert" class="alert alert-danger py-2 px-3 d-none" style="font-size: 0.96rem;"></div>
 
-        <div class="photo-grid" id="photoGrid"></div>
-
-        <div class="mt-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="pickMultiBtn" style="border-radius: 8px;">
-            เลือกหลายรูปพร้อมกัน (สูงสุด ๔ รูป)
+        <div class="d-grid mt-3">
+          <button type="submit" id="loginSubmitBtn" class="btn btn-primary py-2 fw-bold" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
+            เข้าสู่ระบบ
           </button>
         </div>
-      </div>
+      </form>
+    </div>
 
-      <div class="action-bar">
-        <button type="reset" class="btn btn-outline-secondary" id="resetBtn">ล้างข้อมูล</button>
-        <button type="submit" class="btn btn-primary" style="background: var(--navy); border-color: var(--navy);">
-          ตรวจสอบข้อมูลก่อนบันทึก
-        </button>
-      </div>
-    </form>
+    <!-- หน้าแบบฟอร์มรายงาน (ซ่อนจนกว่าจะเข้าสู่ระบบสำเร็จ) -->
+    <div id="mainFormSection" class="d-none">
+      <form id="reportForm" class="card-box">
+        <div class="row g-2 g-md-3 mb-3">
+          <div class="col-md-5">
+            <label for="reportDate" class="form-label fw-bold">เลือกวันที่ปฏิบัติงาน <span class="text-danger">*</span></label>
+            <input type="date" id="reportDate" name="reportDate" class="form-control" required />
+          </div>
+          <div class="col-md-7">
+            <label for="fullName" class="form-label fw-bold">ชื่อ-สกุล <span class="text-danger">*</span></label>
+            <select id="fullName" name="fullName" class="form-select" required>
+              <option value="" selected disabled>-- เลือกรายชื่อรองผู้อำนวยการ --</option>
+              <option value="นางวนิดา แดงคง">นางวนิดา แดงคง</option>
+              <option value="นางเขมิกา ทองสี">นางเขมิกา ทองสี</option>
+              <option value="นายคุณานนต์ ทองกรด">นายคุณานนต์ ทองกรด</option>
+              <option value="นายภูริพัฒน์ ยานา">นายภูริพัฒน์ ยานา</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="subject" class="form-label fw-bold">การปฏิบัติ เรื่อง <span class="text-danger">*</span></label>
+          <textarea id="subject" name="subject" class="form-control auto-expand" rows="1" placeholder="" required></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="facts" class="form-label fw-bold">ข้อเท็จจริงการปฏิบัติ <span class="text-danger">*</span></label>
+          <textarea id="facts" name="facts" class="form-control auto-expand" rows="2" placeholder="" required></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="results" class="form-label fw-bold">ผลการปฏิบัติงาน <span class="text-danger">*</span></label>
+          <textarea id="results" name="results" class="form-control auto-expand" rows="2" placeholder="" required></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="suggestions" class="form-label fw-bold">ข้อเสนอแนะ (ถ้ามี)</label>
+          <textarea id="suggestions" name="suggestions" class="form-control auto-expand" rows="2" placeholder=""></textarea>
+        </div>
+
+        <div class="mb-3">
+          <div class="mb-2">
+            <label class="form-label fw-bold d-block mb-1">ภาพประกอบ (ถ้ามี)</label>
+            <div class="text-muted" style="font-size: 0.95rem; line-height: 1.35;">คลิกที่กรอบเพื่อแนบรูปทีละภาพ หรือเลือกหลายรูปพร้อมกันได้</div>
+          </div>
+
+          <input type="file" id="singlePhotoInput" accept="image/*" class="d-none" />
+          <input type="file" id="multiPhotoInput" accept="image/*" multiple class="d-none" />
+
+          <div class="photo-grid" id="photoGrid"></div>
+
+          <div class="mt-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="pickMultiBtn" style="border-radius: 8px;">
+              เลือกหลายรูปพร้อมกัน (สูงสุด ๔ รูป)
+            </button>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button type="reset" class="btn btn-outline-secondary" id="resetBtn">ล้างข้อมูล</button>
+          <button type="submit" class="btn btn-primary" style="background: var(--navy); border-color: var(--navy);">
+            ตรวจสอบข้อมูลก่อนบันทึก
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- โซนสำหรับพิมพ์ -->
@@ -610,14 +663,94 @@
     let activeSlotIndex = 0;
     let currentReportData = null;
     let generatedPdfBlobUrl = null;
+    let loggedInUser = null;
 
     const reportDateEl = document.getElementById("reportDate");
+    const fullNameEl = document.getElementById("fullName");
     const thaiDatePreviewEl = document.getElementById("thaiDatePreview");
     const singlePhotoInput = document.getElementById("singlePhotoInput");
     const multiPhotoInput = document.getElementById("multiPhotoInput");
     const photoGridEl = document.getElementById("photoGrid");
     const previewModal = new bootstrap.Modal(document.getElementById("previewModal"));
     const successModal = new bootstrap.Modal(document.getElementById("successModal"));
+    const loginSectionEl = document.getElementById("loginSection");
+    const mainFormSectionEl = document.getElementById("mainFormSection");
+    const logoutBtnEl = document.getElementById("logoutBtn");
+    const loginAlertEl = document.getElementById("loginAlert");
+
+    function showLoginAlert(msg) {
+      loginAlertEl.textContent = msg;
+      loginAlertEl.classList.remove("d-none");
+    }
+
+    function hideLoginAlert() {
+      loginAlertEl.classList.add("d-none");
+      loginAlertEl.textContent = "";
+    }
+
+    function applyAuthenticatedState(userFullName) {
+      loggedInUser = userFullName;
+      sessionStorage.setItem("perfReportUser", userFullName);
+      loginSectionEl.classList.add("d-none");
+      mainFormSectionEl.classList.remove("d-none");
+      logoutBtnEl.classList.remove("d-none");
+      fullNameEl.value = userFullName;
+    }
+
+    function clearAuthenticatedState() {
+      loggedInUser = null;
+      sessionStorage.removeItem("perfReportUser");
+      document.getElementById("loginForm").reset();
+      hideLoginAlert();
+      mainFormSectionEl.classList.add("d-none");
+      logoutBtnEl.classList.add("d-none");
+      loginSectionEl.classList.remove("d-none");
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideLoginAlert();
+
+      const selectedName = document.getElementById("loginFullName").value.trim();
+      const enteredPass = document.getElementById("loginPassword").value.trim();
+      const submitBtn = document.getElementById("loginSubmitBtn");
+
+      if (!selectedName || !enteredPass) {
+        showLoginAlert("กรุณาเลือกรายชื่อและกรอกรหัสผ่าน");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "กำลังตรวจสอบรหัสผ่าน...";
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "login",
+            fullName: selectedName,
+            password: enteredPass
+          })
+        });
+
+        const result = await res.json();
+        if (result && result.ok) {
+          applyAuthenticatedState(result.fullName || selectedName);
+        } else {
+          showLoginAlert((result && result.message) || "ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
+        }
+      } catch (err) {
+        showLoginAlert("ไม่สามารถเชื่อมต่อระบบตรวจสอบสิทธิ์ได้ กรุณาลองใหม่อีกครั้ง");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "เข้าสู่ระบบ";
+      }
+    });
+
+    logoutBtnEl.addEventListener("click", () => {
+      clearAuthenticatedState();
+    });
 
     function toThaiDigits(str) {
       return String(str ?? "").replace(/\d/g, (d) => THAI_DIGITS[Number(d)]);
@@ -829,7 +962,7 @@
         fileDateText: formatFileDateDDMMBE(reportDateEl.value),
         dateParts,
         thaiDateText: dateParts.fullText,
-        fullName: document.getElementById("fullName").value.trim(),
+        fullName: fullNameEl.value.trim(),
         subject: toThaiDigits(document.getElementById("subject").value.trim()),
         facts: toThaiDigits(document.getElementById("facts").value.trim()),
         results: toThaiDigits(document.getElementById("results").value.trim()),
@@ -964,6 +1097,9 @@
     document.getElementById("doneBtn").addEventListener("click", () => {
       document.title = "ระบบรายงานการปฏิบัติงาน";
       document.getElementById("reportForm").reset();
+      if (loggedInUser) {
+        fullNameEl.value = loggedInUser;
+      }
       photoSlots = [null, null, null, null];
       renderPhotoGrid();
       setTodayDefault();
@@ -973,6 +1109,11 @@
     initBannerBranding();
     renderPhotoGrid();
     setTodayDefault();
+
+    const savedUser = sessionStorage.getItem("perfReportUser");
+    if (savedUser) {
+      applyAuthenticatedState(savedUser);
+    }
   </script>
 </body>
 </html>

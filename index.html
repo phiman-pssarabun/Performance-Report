@@ -60,7 +60,8 @@
       padding-right: 0.75rem;
     }
 
-    .app-container.director-wide {
+    .app-container.director-wide,
+    .app-container.form-wide {
       max-width: 1320px;
     }
 
@@ -70,6 +71,12 @@
       max-width: 100%;
       word-break: normal;
       overflow-wrap: break-word;
+    }
+
+    .form-select:disabled {
+      background-color: #f1f5f9;
+      color: var(--navy-dark);
+      opacity: 1;
     }
 
     .top-bar {
@@ -268,7 +275,7 @@
       background: #fff;
       border: 1px solid var(--border-formal);
       border-radius: 16px;
-      padding: 1.35rem;
+      padding: 1.45rem 1.6rem;
       box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
     }
 
@@ -413,26 +420,30 @@
       background: #fff;
       border: 1px solid var(--border-formal);
       border-radius: 16px;
-      padding: 1.25rem;
+      padding: 1.35rem 1.5rem;
       box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    .my-reports-table {
+      width: 100%;
     }
 
     .my-reports-table thead th {
       background-color: #f1f5f9;
       color: var(--navy-dark);
       font-weight: 700;
-      font-size: 1.06rem;
+      font-size: 1.08rem;
       text-align: center;
       border-bottom: 2px solid #cbd5e1;
-      padding: 0.75rem 0.85rem;
+      padding: 0.8rem 1rem;
       white-space: nowrap;
     }
 
     .my-reports-table td {
-      padding: 0.75rem 0.85rem;
+      padding: 0.8rem 1rem;
       vertical-align: middle;
       border-color: #e2e8f0;
-      font-size: 1.05rem;
+      font-size: 1.06rem;
     }
 
     .status-pill {
@@ -512,11 +523,19 @@
     textarea.auto-expand {
       resize: vertical;
       overflow-y: auto;
-      line-height: 1.4;
+      line-height: 1.38;
+    }
+
+    textarea.subject-field {
+      min-height: 42px;
     }
 
     textarea.large-field {
       min-height: 120px;
+    }
+
+    textarea.suggestion-field {
+      min-height: 78px;
     }
 
     .photo-grid {
@@ -683,104 +702,138 @@
 
     @media (max-width: 576px) {
       body {
-        font-size: 0.98rem;
+        font-size: 0.92rem;
       }
       .login-wrapper {
         min-height: auto;
         padding-top: 0.5rem;
       }
       .login-card {
-        padding: 1.3rem 1.05rem;
+        padding: 1.25rem 1rem;
         border-radius: 16px;
       }
       .login-brand-logo {
-        width: 66px;
-        height: 66px;
+        width: 64px;
+        height: 64px;
       }
       .top-bar {
-        padding: 0.75rem 0.85rem;
+        padding: 0.7rem 0.8rem;
         border-radius: 14px;
         margin-bottom: 0.75rem !important;
       }
       .banner-content {
         flex-direction: column;
         align-items: stretch;
-        gap: 0.5rem;
+        gap: 0.45rem;
       }
       .banner-left {
         align-items: center;
         gap: 0.5rem;
       }
       .school-logo-box {
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
         padding: 3px;
       }
       .banner-title {
-        font-size: 1.04rem;
-        line-height: 1.25;
+        font-size: 0.98rem;
+        line-height: 1.2;
         white-space: nowrap;
       }
       .banner-subtitle,
       #thaiDatePreview,
       #directorDatePreview {
-        font-size: 0.86rem !important;
-        line-height: 1.25;
+        font-size: 0.8rem !important;
+        line-height: 1.2;
         margin-top: 2px;
+        white-space: nowrap;
       }
       .header-actions {
         flex-direction: row;
         justify-content: flex-end;
-        flex-wrap: wrap;
-        gap: 0.45rem;
+        flex-wrap: nowrap;
+        gap: 0.35rem;
         padding-top: 0.25rem;
         border-top: 1px solid rgba(255, 255, 255, 0.16);
       }
       .header-actions .btn {
-        font-size: 0.88rem;
-        padding: 0.3rem 0.7rem;
-        line-height: 1.25;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        line-height: 1.2;
       }
       .btn, .form-control, .form-select, .modal-content, label, textarea, .form-label {
-        font-size: 0.96rem;
+        font-size: 0.9rem;
       }
       .form-control, .form-select {
-        padding: 0.42rem 0.65rem;
+        padding: 0.38rem 0.6rem;
         border-radius: 9px;
       }
       .input-icon-group .form-control,
       .input-icon-group .form-select {
-        padding-left: 2.2rem;
+        padding-left: 2.1rem;
       }
       .card-box,
       .director-toolbar,
       .my-reports-card {
-        padding: 0.95rem;
+        padding: 0.85rem;
         border-radius: 14px;
       }
+      .my-reports-card h5 {
+        font-size: 1rem;
+        white-space: nowrap;
+      }
+      .my-reports-card .text-muted {
+        font-size: 0.8rem !important;
+      }
+      textarea.subject-field {
+        min-height: 38px;
+      }
       textarea.large-field {
-        min-height: 100px;
+        min-height: 96px;
+      }
+      textarea.suggestion-field {
+        min-height: 66px;
+      }
+      .stat-label {
+        font-size: 0.88rem;
+        white-space: nowrap;
       }
       .stat-number {
-        font-size: 1.85rem;
+        font-size: 1.7rem;
+      }
+      .deputy-mobile-card {
+        padding: 0.8rem 0.85rem;
+      }
+      .deputy-mobile-card .fw-bold,
+      .my-reports-card .fw-bold {
+        font-size: 0.9rem !important;
+      }
+      .status-pill {
+        font-size: 0.82rem;
+        padding: 0.18rem 0.6rem;
+        white-space: nowrap;
+      }
+      .view-pdf-btn {
+        font-size: 0.84rem;
+        padding: 0.25rem 0.65rem;
       }
       .photo-grid {
-        gap: 0.55rem;
+        gap: 0.5rem;
       }
       .photo-slot {
         border-radius: 10px;
-        font-size: 0.92rem;
+        font-size: 0.84rem;
       }
       .action-bar {
         display: grid;
         grid-template-columns: 1fr 1.45fr;
-        gap: 0.55rem;
-        margin-top: 0.75rem;
+        gap: 0.5rem;
+        margin-top: 0.7rem;
       }
       .action-bar .btn {
         width: 100%;
-        padding: 0.55rem 0.6rem;
-        font-size: 0.95rem;
+        padding: 0.5rem 0.55rem;
+        font-size: 0.88rem;
         text-align: center;
       }
       #previewContent .report-sheet {
@@ -960,7 +1013,7 @@
           </div>
           <div class="col-md-4">
             <label for="fullName" class="form-label fw-bold">ชื่อ-สกุล <span class="text-danger">*</span></label>
-            <select id="fullName" name="fullName" class="form-select" required>
+            <select id="fullName" name="fullName" class="form-select" required disabled>
               <option value="" selected disabled>-- เลือกรายชื่อผู้บริหาร --</option>
               <option value="นายสิรวุฒิ ยุนุ้ย">นายสิรวุฒิ ยุนุ้ย</option>
               <option value="นางวนิดา แดงคง">นางวนิดา แดงคง</option>
@@ -1008,7 +1061,7 @@
         <div id="reportDetailsSection">
           <div class="mb-3">
             <label for="subject" class="form-label fw-bold">การปฏิบัติ เรื่อง <span class="text-danger">*</span></label>
-            <textarea id="subject" name="subject" class="form-control auto-expand" rows="2" placeholder="" required></textarea>
+            <textarea id="subject" name="subject" class="form-control auto-expand subject-field" rows="1" placeholder="" required></textarea>
           </div>
 
           <div class="mb-3">
@@ -1023,7 +1076,7 @@
 
           <div class="mb-3">
             <label for="suggestions" class="form-label fw-bold">ข้อเสนอแนะ (ถ้ามี)</label>
-            <textarea id="suggestions" name="suggestions" class="form-control auto-expand large-field" rows="5" placeholder=""></textarea>
+            <textarea id="suggestions" name="suggestions" class="form-control auto-expand suggestion-field" rows="3" placeholder=""></textarea>
           </div>
 
           <div class="mb-3">
@@ -1053,7 +1106,7 @@
         </div>
       </form>
 
-      <!-- ตารางรายละเอียดการรายงานทั้งหมดของตนเอง (แสดงสำหรับรอง ผอ. เรียงล่าสุดขึ้นด้านบน) -->
+      <!-- ตารางรายละเอียดการรายงานทั้งหมดของตนเอง (แสดงสำหรับผู้บริหารที่ล็อกอิน เรียงล่าสุดขึ้นด้านบน) -->
       <div id="deputyReportsHistorySection" class="my-reports-card mt-3 d-none">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
           <div>
@@ -1073,10 +1126,10 @@
           <table class="table align-middle my-reports-table mb-0">
             <thead>
               <tr>
-                <th style="width: 70px;">ลำดับ</th>
-                <th style="width: 240px;">วันที่ปฏิบัติงาน</th>
+                <th style="width: 75px;">ลำดับ</th>
+                <th style="width: 260px;">วันที่ปฏิบัติงาน</th>
                 <th>การปฏิบัติ เรื่อง</th>
-                <th style="width: 140px;">ไฟล์รายงาน</th>
+                <th style="width: 145px;">ไฟล์รายงาน</th>
               </tr>
             </thead>
             <tbody id="myReportsTableBody"></tbody>
@@ -1383,6 +1436,12 @@
     const loginAlertEl = document.getElementById("loginAlert");
     const changePassAlertEl = document.getElementById("changePassAlert");
 
+    function lockFullNameToLoggedInUser() {
+      if (!loggedInUser) return;
+      fullNameEl.value = loggedInUser;
+      fullNameEl.disabled = true;
+    }
+
     function updateDailyStatusModeUI() {
       const subjectEl = document.getElementById("subject");
       const factsEl = document.getElementById("facts");
@@ -1433,7 +1492,7 @@
     dailyStatusSelectEl.addEventListener("change", updateDailyStatusModeUI);
 
     async function submitStatusOnly(statusType, noteText, triggerBtn) {
-      const targetName = fullNameEl.value || loggedInUser || "";
+      const targetName = loggedInUser || fullNameEl.value || "";
       const isoDate = reportDateEl.value || getTodayIsoDate();
 
       if (!targetName) {
@@ -1527,25 +1586,22 @@
     function openFormForAuthenticatedUser(userFullName, fromDirectorView = false) {
       document.body.classList.remove("director-body-bg");
       appContainerEl.classList.remove("director-wide");
+      appContainerEl.classList.add("form-wide");
       directorSectionEl.classList.add("d-none");
       mainFormSectionEl.classList.remove("d-none");
       logoutBtnEl.classList.remove("d-none");
-      fullNameEl.value = userFullName;
+      lockFullNameToLoggedInUser();
 
       if (fromDirectorView && loggedInRole === "director") {
         backToDirectorBtnEl.classList.remove("d-none");
         dailyStatusColEl.classList.add("d-none");
-        deputyReportsHistorySectionEl.classList.add("d-none");
       } else {
         backToDirectorBtnEl.classList.add("d-none");
         dailyStatusColEl.classList.remove("d-none");
-        if (loggedInRole === "deputy") {
-          deputyReportsHistorySectionEl.classList.remove("d-none");
-          loadMyReportsHistory(userFullName);
-        } else {
-          deputyReportsHistorySectionEl.classList.add("d-none");
-        }
       }
+
+      deputyReportsHistorySectionEl.classList.remove("d-none");
+      loadMyReportsHistory(userFullName);
 
       dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
       updateDailyStatusModeUI();
@@ -1561,6 +1617,7 @@
 
       if (loggedInRole === "director") {
         document.body.classList.add("director-body-bg");
+        appContainerEl.classList.remove("form-wide");
         appContainerEl.classList.add("director-wide");
         mainFormSectionEl.classList.add("d-none");
         backToDirectorBtnEl.classList.add("d-none");
@@ -1583,6 +1640,9 @@
       sessionStorage.removeItem(LAST_ACTIVITY_KEY);
       document.body.classList.remove("director-body-bg");
       appContainerEl.classList.remove("director-wide");
+      appContainerEl.classList.remove("form-wide");
+      fullNameEl.disabled = false;
+      fullNameEl.value = "";
       document.getElementById("loginForm").reset();
       document.getElementById("loginPassword").type = "password";
       hideLoginAlert();
@@ -1846,7 +1906,7 @@
             <div class="fw-bold" style="color: var(--navy-dark);">${toThaiDigits(item.order)}. ${escapeHtml(item.fullName)}</div>
             ${renderBadgeHtml(item)}
           </div>
-          <div class="text-muted mb-2" style="font-size: 0.96rem;">${escapeHtml(item.note || "ยังไม่มีข้อมูลรายงานหรือหมายเหตุ")}</div>
+          <div class="text-muted mb-2" style="font-size: 0.88rem;">${escapeHtml(item.note || "ยังไม่มีข้อมูลรายงานหรือหมายเหตุ")}</div>
           ${item.pdfUrl ? `<div>${viewPdfBtn}</div>` : ""}
         `;
         cardList.appendChild(card);
@@ -1904,7 +1964,7 @@
 
       if (!items || !items.length) {
         tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">ยังไม่มีรายงานที่บันทึกไว้</td></tr>`;
-        cardList.innerHTML = `<div class="text-center text-muted py-2" style="font-size: 0.96rem;">ยังไม่มีรายงานที่บันทึกไว้</div>`;
+        cardList.innerHTML = `<div class="text-center text-muted py-2" style="font-size: 0.88rem;">ยังไม่มีรายงานที่บันทึกไว้</div>`;
         return;
       }
 
@@ -1928,8 +1988,8 @@
         const card = document.createElement("div");
         card.className = "border rounded-3 p-2 bg-light";
         card.innerHTML = `
-          <div class="fw-bold mb-1" style="color: var(--navy-dark); font-size: 0.98rem;">${toThaiDigits(idx + 1)}. ${escapeHtml(row.subject || "-")}</div>
-          <div class="text-muted mb-2" style="font-size: 0.92rem;">${escapeHtml(dateLabel)}</div>
+          <div class="fw-bold mb-1" style="color: var(--navy-dark); font-size: 0.9rem;">${toThaiDigits(idx + 1)}. ${escapeHtml(row.subject || "-")}</div>
+          <div class="text-muted mb-2" style="font-size: 0.82rem;">${escapeHtml(dateLabel)}</div>
           ${row.pdfUrl ? `<div>${pdfBtn}</div>` : ""}
         `;
         cardList.appendChild(card);
@@ -1937,7 +1997,7 @@
     }
 
     async function loadMyReportsHistory(targetName) {
-      const personName = targetName || fullNameEl.value || loggedInUser || "";
+      const personName = loggedInUser || targetName || fullNameEl.value || "";
       if (!personName) return;
 
       const loadingEl = document.getElementById("myReportsLoadingText");
@@ -1972,13 +2032,7 @@
     }
 
     document.getElementById("refreshMyReportsBtn").addEventListener("click", () => {
-      loadMyReportsHistory(fullNameEl.value || loggedInUser);
-    });
-
-    fullNameEl.addEventListener("change", () => {
-      if (loggedInRole === "deputy") {
-        loadMyReportsHistory(fullNameEl.value);
-      }
+      loadMyReportsHistory(loggedInUser || fullNameEl.value);
     });
 
     directorDateInputEl.addEventListener("change", () => {
@@ -2009,7 +2063,14 @@
     });
 
     function autoExpandTextarea(el) {
-      const minH = el.classList.contains("large-field") ? 120 : 54;
+      let minH = 54;
+      if (el.classList.contains("subject-field")) {
+        minH = window.innerWidth <= 576 ? 38 : 42;
+      } else if (el.classList.contains("suggestion-field")) {
+        minH = window.innerWidth <= 576 ? 66 : 78;
+      } else if (el.classList.contains("large-field")) {
+        minH = window.innerWidth <= 576 ? 96 : 120;
+      }
       el.style.height = "auto";
       el.style.height = `${Math.max(el.scrollHeight, minH)}px`;
     }
@@ -2017,6 +2078,10 @@
     document.querySelectorAll("textarea.auto-expand").forEach((el) => {
       el.addEventListener("input", () => autoExpandTextarea(el));
       autoExpandTextarea(el);
+    });
+
+    window.addEventListener("resize", () => {
+      document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
     });
 
     reportDateEl.addEventListener("change", updateThaiDateLabel);
@@ -2065,7 +2130,7 @@
         } else {
           slot.innerHTML = `
             <div class="fw-bold text-secondary">${slotTitles[i]}</div>
-            <div class="text-muted" style="font-size: 0.92rem;">(คลิกเลือกจากระบบ)</div>
+            <div class="text-muted" style="font-size: 0.88rem;">(คลิกเลือกจากระบบ)</div>
           `;
         }
 
@@ -2182,6 +2247,7 @@
       const officialPlace = selectedStatus === "ไปราชการ" ? toThaiDigits(officialNoteInputEl.value.trim()) : "";
       const officialOrganizer = selectedStatus === "ไปราชการ" ? toThaiDigits(officialOrganizerInputEl.value.trim()) : "";
       const subjectText = toThaiDigits(document.getElementById("subject").value.trim());
+      const resolvedFullName = (loggedInUser || fullNameEl.value || "").trim();
 
       let statusNoteText = "";
       if (selectedStatus === "ไปราชการ") {
@@ -2197,7 +2263,7 @@
         fileDateText: formatFileDateDDMMBE(reportDateEl.value),
         dateParts,
         thaiDateText: dateParts.fullText,
-        fullName: fullNameEl.value.trim(),
+        fullName: resolvedFullName,
         dailyStatus: selectedStatus,
         officialPlace,
         officialOrganizer,
@@ -2332,11 +2398,9 @@
         previewModal.hide();
         successModal.show();
 
-        if (loggedInRole === "deputy") {
-          setTimeout(() => {
-            loadMyReportsHistory(currentReportData.fullName);
-          }, 1200);
-        }
+        setTimeout(() => {
+          loadMyReportsHistory(currentReportData.fullName);
+        }, 1200);
       } catch (err) {
         alert("เกิดข้อผิดพลาด: " + err.message);
       } finally {
@@ -2348,18 +2412,26 @@
     document.getElementById("doneBtn").addEventListener("click", () => {
       document.title = "ระบบรายงานการปฏิบัติงาน";
       document.getElementById("reportForm").reset();
-      if (loggedInUser) {
-        fullNameEl.value = loggedInUser;
-      }
+      lockFullNameToLoggedInUser();
       dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
       photoSlots = [null, null, null, null];
       renderPhotoGrid();
       setTodayDefault();
       updateDailyStatusModeUI();
       document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
-      if (loggedInRole === "deputy") {
-        loadMyReportsHistory(fullNameEl.value || loggedInUser);
-      }
+      loadMyReportsHistory(loggedInUser || fullNameEl.value);
+    });
+
+    document.getElementById("reportForm").addEventListener("reset", () => {
+      setTimeout(() => {
+        lockFullNameToLoggedInUser();
+        dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
+        photoSlots = [null, null, null, null];
+        renderPhotoGrid();
+        setTodayDefault();
+        updateDailyStatusModeUI();
+        document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
+      }, 0);
     });
 
     initBannerBranding();

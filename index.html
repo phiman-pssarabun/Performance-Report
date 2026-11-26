@@ -439,6 +439,19 @@
       white-space: nowrap;
     }
 
+    .my-reports-table th.col-report-date,
+    .my-reports-table td.col-report-date {
+      min-width: 310px;
+      white-space: nowrap;
+    }
+
+    .my-reports-table th.col-report-no,
+    .my-reports-table td.col-report-no,
+    .my-reports-table th.col-report-file,
+    .my-reports-table td.col-report-file {
+      white-space: nowrap;
+    }
+
     .my-reports-table td {
       padding: 0.8rem 1rem;
       vertical-align: middle;
@@ -1111,7 +1124,6 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
           <div>
             <h5 class="fw-bold mb-0" style="color: var(--navy-dark);">รายการรายงานการปฏิบัติงานของตนเอง</h5>
-            <div class="text-muted" style="font-size: 0.94rem;">แสดงเฉพาะรายงานที่ได้บันทึกไว้แล้ว (เรียงจากอัปเดตล่าสุดอยู่ด้านบน)</div>
           </div>
           <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" id="refreshMyReportsBtn" style="border-radius: 9px;">
             รีเฟรชรายการ
@@ -1126,10 +1138,10 @@
           <table class="table align-middle my-reports-table mb-0">
             <thead>
               <tr>
-                <th style="width: 75px;">ลำดับ</th>
-                <th style="width: 260px;">วันที่ปฏิบัติงาน</th>
+                <th class="col-report-no" style="width: 75px;">ลำดับ</th>
+                <th class="col-report-date">วันที่ปฏิบัติงาน</th>
                 <th>การปฏิบัติ เรื่อง</th>
-                <th style="width: 145px;">ไฟล์รายงาน</th>
+                <th class="col-report-file" style="width: 145px;">ไฟล์รายงาน</th>
               </tr>
             </thead>
             <tbody id="myReportsTableBody"></tbody>
@@ -1978,10 +1990,10 @@
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="text-center fw-bold text-muted">${toThaiDigits(idx + 1)}</td>
-          <td>${escapeHtml(dateLabel)}</td>
+          <td class="col-report-no text-center fw-bold text-muted">${toThaiDigits(idx + 1)}</td>
+          <td class="col-report-date">${escapeHtml(dateLabel)}</td>
           <td>${escapeHtml(row.subject || "-")}</td>
-          <td class="text-center">${pdfBtn}</td>
+          <td class="col-report-file text-center">${pdfBtn}</td>
         `;
         tbody.appendChild(tr);
 

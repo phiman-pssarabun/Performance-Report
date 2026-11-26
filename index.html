@@ -440,7 +440,9 @@
 
     .my-reports-table {
       width: 100%;
-      table-layout: fixed;
+      table-layout: auto;
+      border-collapse: separate;
+      border-spacing: 0;
     }
 
     .my-reports-table thead th {
@@ -450,42 +452,49 @@
       font-size: 1.08rem;
       text-align: center;
       border-bottom: 2px solid #cbd5e1;
-      padding: 0.8rem 0.65rem;
+      padding: 0.8rem 0.85rem;
       white-space: nowrap;
     }
 
     .my-reports-table th.col-report-no,
     .my-reports-table td.col-report-no {
-      width: 66px;
+      width: 68px;
       white-space: nowrap;
     }
 
     .my-reports-table th.col-report-date,
     .my-reports-table td.col-report-date {
-      width: 165px;
+      width: 225px;
+      min-width: 225px;
       white-space: nowrap;
-      font-size: 1rem;
+      font-size: 1.02rem;
+      padding-right: 1.25rem;
     }
 
     .my-reports-table th.col-report-subject,
     .my-reports-table td.col-report-subject {
-      width: auto;
+      min-width: 320px;
+      padding-left: 1.25rem;
+      padding-right: 1.15rem;
       word-break: normal;
       overflow-wrap: break-word;
       font-weight: 700;
       color: var(--navy-dark);
+      text-align: left;
     }
 
     .my-reports-table th.col-report-actions,
     .my-reports-table td.col-report-actions {
       width: 225px;
+      min-width: 225px;
       white-space: nowrap;
+      padding-left: 0.75rem;
     }
 
     .my-reports-table td {
-      padding: 0.8rem 0.65rem;
+      padding: 0.85rem 0.85rem;
       vertical-align: middle;
-      border-color: #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
       font-size: 1.06rem;
     }
 

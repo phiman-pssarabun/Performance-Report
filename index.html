@@ -293,6 +293,60 @@
       flex-wrap: wrap;
     }
 
+    .inline-delete-banner {
+      background: linear-gradient(135deg, #fff5f5 0%, #fffaf0 100%);
+      border: 1px solid #f5c2c7;
+      border-left: 4px solid #c92a2a;
+      border-radius: 14px;
+      padding: 0.8rem 1.05rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+      box-shadow: 0 6px 16px rgba(18, 57, 82, 0.06);
+      animation: fadeSlideDown 0.18s ease-out;
+    }
+
+    .inline-delete-banner.is-feedback {
+      background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+      border-color: #bae6fd;
+      border-left-color: var(--navy);
+    }
+
+    @keyframes fadeSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .inline-delete-title {
+      font-weight: 700;
+      color: var(--navy-dark);
+      font-size: 1.06rem;
+      line-height: 1.3;
+    }
+
+    .inline-delete-sub {
+      color: #475569;
+      font-size: 0.96rem;
+      line-height: 1.35;
+      margin-top: 2px;
+    }
+
+    .inline-delete-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
     .status-panel-box {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
@@ -856,6 +910,20 @@
         padding: 0.85rem;
         border-radius: 14px;
       }
+      .inline-delete-banner {
+        padding: 0.65rem 0.75rem;
+        border-radius: 12px;
+      }
+      .inline-delete-title {
+        font-size: 0.92rem;
+      }
+      .inline-delete-sub {
+        font-size: 0.82rem;
+      }
+      .inline-delete-actions .btn {
+        font-size: 0.82rem;
+        padding: 0.25rem 0.55rem;
+      }
       .my-reports-card h5 {
         font-size: 1rem;
         white-space: nowrap;
@@ -1207,6 +1275,22 @@
           </button>
         </div>
 
+        <!-- แถบยืนยันการลบแบบฝังในหน้า (ไม่ใช้หน้าต่างเด้ง) -->
+        <div id="inlineDeleteBanner" class="inline-delete-banner d-none" role="region" aria-live="polite">
+          <div>
+            <div class="inline-delete-title" id="inlineDeleteTitle">ยืนยันการลบรายการรายงาน</div>
+            <div class="inline-delete-sub" id="inlineDeleteSub">รายการและไฟล์ PDF ที่เกี่ยวข้องจะถูกย้ายไปยังถังขยะ</div>
+          </div>
+          <div class="inline-delete-actions" id="inlineDeleteActions">
+            <button type="button" class="btn btn-sm btn-outline-secondary fw-bold" id="cancelDeleteBtn" style="border-radius: 8px;">
+              ยกเลิก
+            </button>
+            <button type="button" class="btn btn-sm btn-danger fw-bold" id="confirmDeleteInlineBtn" style="border-radius: 8px;">
+              ยืนยันลบรายงาน
+            </button>
+          </div>
+        </div>
+
         <div id="myReportsLoadingText" class="text-center text-muted py-3 d-none">
           <span class="spinner-border spinner-border-sm me-1"></span> กำลังโหลดรายการรายงาน...
         </div>
@@ -1493,6 +1577,8 @@
     let myReportsRequestSeq = 0;
     let myReportsCache = [];
     let editingTarget = null;
+    let pendingDeleteRow = null;
+    let deleteFeedbackTimer = null;
 
     const appContainerEl = document.getElementById("appContainer");
     const reportDateEl = document.getElementById("reportDate");
@@ -1509,6 +1595,12 @@
     const editingBannerEl = document.getElementById("editingBanner");
     const editingBannerLabelEl = document.getElementById("editingBannerLabel");
     const submitFormBtnEl = document.getElementById("submitFormBtn");
+    const inlineDeleteBannerEl = document.getElementById("inlineDeleteBanner");
+    const inlineDeleteTitleEl = document.getElementById("inlineDeleteTitle");
+    const inlineDeleteSubEl = document.getElementById("inlineDeleteSub");
+    const inlineDeleteActionsEl = document.getElementById("inlineDeleteActions");
+    const confirmDeleteInlineBtnEl = document.getElementById("confirmDeleteInlineBtn");
+    const cancelDeleteBtnEl = document.getElementById("cancelDeleteBtn");
     const thaiDatePreviewEl = document.getElementById("thaiDatePreview");
     const directorDateInputEl = document.getElementById("directorDateInput");
     const directorDatePreviewEl = document.getElementById("directorDatePreview");
@@ -1529,6 +1621,32 @@
     const directorProfileBtnEl = document.getElementById("directorProfileBtn");
     const loginAlertEl = document.getElementById("loginAlert");
     const changePassAlertEl = document.getElementById("changePassAlert");
+
+    function hideInlineDeleteBanner() {
+      if (deleteFeedbackTimer) {
+        clearTimeout(deleteFeedbackTimer);
+        deleteFeedbackTimer = null;
+      }
+      pendingDeleteRow = null;
+      inlineDeleteBannerEl.classList.add("d-none");
+      inlineDeleteBannerEl.classList.remove("is-feedback");
+    }
+
+    function showInlineDeleteFeedback(titleText, subText) {
+      if (deleteFeedbackTimer) {
+        clearTimeout(deleteFeedbackTimer);
+        deleteFeedbackTimer = null;
+      }
+      pendingDeleteRow = null;
+      inlineDeleteBannerEl.classList.remove("d-none");
+      inlineDeleteBannerEl.classList.add("is-feedback");
+      inlineDeleteTitleEl.textContent = titleText;
+      inlineDeleteSubEl.textContent = subText;
+      inlineDeleteActionsEl.classList.add("d-none");
+      deleteFeedbackTimer = setTimeout(() => {
+        hideInlineDeleteBanner();
+      }, 3500);
+    }
 
     function updateEditingBannerUI() {
       if (editingTarget) {
@@ -1726,6 +1844,7 @@
       }
 
       deputyReportsHistorySectionEl.classList.remove("d-none");
+      hideInlineDeleteBanner();
       loadMyReportsHistory(userFullName);
 
       if (!editingTarget) {
@@ -1763,6 +1882,7 @@
       loggedInUser = null;
       loggedInRole = null;
       editingTarget = null;
+      hideInlineDeleteBanner();
       updateEditingBannerUI();
       sessionStorage.removeItem(SESSION_USER_KEY);
       sessionStorage.removeItem(SESSION_ROLE_KEY);
@@ -2086,6 +2206,7 @@
     }
 
     function populateFormForEdit(row) {
+      hideInlineDeleteBanner();
       editingTarget = {
         reportId: row.reportId || row.id || "",
         rowIndex: row.rowIndex || "",
@@ -2132,13 +2253,36 @@
       document.getElementById("reportForm").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    async function handleDeleteReport(row) {
+    function promptInlineDelete(row) {
+      if (deleteFeedbackTimer) {
+        clearTimeout(deleteFeedbackTimer);
+        deleteFeedbackTimer = null;
+      }
+      pendingDeleteRow = row;
       const labelDate = row.thaiDateText || row.isoDate || "";
-      const confirmMsg = `ยืนยันการลบรายงานเรื่อง "${row.subject || "-"}"${labelDate ? ` (${labelDate})` : ""} ใช่หรือไม่?\nการลบจะไม่สามารถกู้คืนได้`;
-      if (!confirm(confirmMsg)) return;
+      inlineDeleteBannerEl.classList.remove("d-none", "is-feedback");
+      inlineDeleteActionsEl.classList.remove("d-none");
+      inlineDeleteTitleEl.textContent = `ยืนยันลบรายงานเรื่อง "${row.subject || "-"}"${labelDate ? ` (${labelDate})` : ""}`;
+      inlineDeleteSubEl.textContent = "รายการและไฟล์ PDF ในระบบจะถูกลบออกทันทีและไม่สามารถเรียกคืนได้";
+      confirmDeleteInlineBtnEl.disabled = false;
+      confirmDeleteInlineBtnEl.textContent = "ยืนยันลบรายงาน";
+      cancelDeleteBtnEl.disabled = false;
+      inlineDeleteBannerEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
 
+    cancelDeleteBtnEl.addEventListener("click", () => {
+      hideInlineDeleteBanner();
+    });
+
+    confirmDeleteInlineBtnEl.addEventListener("click", async () => {
+      if (!pendingDeleteRow) return;
+      const row = pendingDeleteRow;
       const personName = loggedInUser || fullNameEl.value || "";
       const loadingEl = document.getElementById("myReportsLoadingText");
+
+      confirmDeleteInlineBtnEl.disabled = true;
+      cancelDeleteBtnEl.disabled = true;
+      confirmDeleteInlineBtnEl.textContent = "กำลังลบ...";
       loadingEl.classList.remove("d-none");
 
       try {
@@ -2165,14 +2309,22 @@
           clearEditingMode(true);
         }
 
+        showInlineDeleteFeedback(
+          "ลบรายงานเรียบร้อยแล้ว",
+          `กำลังอัปเดตรายการ "${row.subject || "-"}" ล่าสุด...`
+        );
+
         setTimeout(() => {
           loadMyReportsHistory(personName);
         }, 1000);
       } catch (err) {
-        alert("เกิดข้อผิดพลาดในการลบรายงาน: " + err.message);
         loadingEl.classList.add("d-none");
+        showInlineDeleteFeedback(
+          "ไม่สามารถลบรายงานได้",
+          err && err.message ? err.message : "กรุณาลองใหม่อีกครั้ง"
+        );
       }
-    }
+    });
 
     function renderMyReportsHistory(items) {
       myReportsCache = Array.isArray(items) ? items : [];
@@ -2232,7 +2384,7 @@
       document.querySelectorAll(".delete-report-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
           const item = myReportsCache[Number(btn.dataset.idx)];
-          if (item) handleDeleteReport(item);
+          if (item) promptInlineDelete(item);
         });
       });
     }
@@ -2598,7 +2750,6 @@
             let cutY = Math.min(offsetY + pxPerPage, canvas.height);
 
             if (cutY < canvas.height) {
-              // หากจุดตัดไปพาดกลางบล็อกใด ให้เลื่อนจุดตัดถอยขึ้นไปก่อนขอบบนของบล็อกนั้น
               let adjustedCutY = cutY;
               for (let i = 0; i < blocks.length; i++) {
                 const b = blocks[i];

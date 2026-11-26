@@ -548,8 +548,8 @@
 
     .my-reports-table th.col-report-actions,
     .my-reports-table td.col-report-actions {
-      width: 225px;
-      min-width: 225px;
+      width: 235px;
+      min-width: 235px;
       white-space: nowrap;
       padding-left: 0.75rem;
     }
@@ -559,6 +559,21 @@
       vertical-align: middle;
       border-bottom: 1px solid #e2e8f0;
       font-size: 1.06rem;
+    }
+
+    .signed-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.35rem;
+      padding: 0.16rem 0.65rem;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #6ee7b7;
+      font-size: 0.86rem;
+      font-weight: 700;
+      line-height: 1.2;
     }
 
     .report-action-group {
@@ -772,9 +787,9 @@
       text-align: center;
       cursor: move;
       z-index: 10;
-      min-width: 175px;
+      min-width: 185px;
       color: #000000;
-      line-height: 1.32;
+      line-height: 1.45;
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
     }
 
@@ -788,14 +803,14 @@
     }
 
     .sign-stamp-name {
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 400;
       color: #000000;
-      white-space: nowrap;
+      white-space: pre;
     }
 
     .sign-stamp-role {
-      font-size: 12px;
+      font-size: 15px;
       font-weight: 400;
       color: #000000;
       white-space: nowrap;
@@ -1112,6 +1127,10 @@
       }
       .my-reports-card .text-muted {
         font-size: 0.8rem !important;
+      }
+      .signed-badge {
+        font-size: 0.78rem;
+        padding: 0.12rem 0.5rem;
       }
       textarea.subject-field {
         min-height: 38px;
@@ -1738,7 +1757,7 @@
               <canvas id="signPdfCanvas"></canvas>
               <div class="sign-stamp-box d-none" id="signStampOverlay">
                 <img id="signStampSigImg" alt="ลายเซ็น" />
-                <div class="sign-stamp-name">(นายสิรวุฒิ ยุนุ้ย)</div>
+                <div class="sign-stamp-name">(นายสิรวุฒิ  ยุนุ้ย)</div>
                 <div class="sign-stamp-role">ผู้อำนวยการโรงเรียนพิมานพิทยาสรรค์</div>
               </div>
             </div>
@@ -1803,7 +1822,7 @@
     const SCHOOL_BANNER_BG_URL = "./picture/bn.png";
 
     const DIRECTOR_SIGNATURE_STORAGE_KEY = "directorSignatureDataUrl";
-    const DIRECTOR_STAMP_NAME = "(นายสิรวุฒิ ยุนุ้ย)";
+    const DIRECTOR_STAMP_NAME = "(นายสิรวุฒิ  ยุนุ้ย)";
     const DIRECTOR_STAMP_ROLE = "ผู้อำนวยการโรงเรียนพิมานพิทยาสรรค์";
 
     if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
@@ -2001,6 +2020,13 @@
 
     function normalizePersonName(name) {
       return String(name || "").replace(/\s+/g, " ").trim();
+    }
+
+    function isItemSigned(item) {
+      if (!item) return false;
+      if (Boolean(item.isSigned)) return true;
+      const st = String(item.statusText || item.stateLabel || "").trim();
+      return st.includes("ผอ. ลงนามแล้ว") || st.includes("ลงนามแล้ว");
     }
 
     function hideInlineDeleteBanner() {
@@ -2670,6 +2696,10 @@
           ? ``
           : `${renderBadgeHtml(item)}`;
 
+        const signedTagHtml = isItemSigned(item)
+          ? `<div><span class="signed-badge">✓ ผอ. ลงนามแล้ว</span></div>`
+          : "";
+
         const actionCellHtml = buildDirectorActionHtml(item.pdfUrl, idx, false);
 
         const tr = document.createElement("tr");
@@ -2678,7 +2708,7 @@
           <td class="col-no">${orderCellHtml}</td>
           <td class="col-name">${nameCellHtml}</td>
           <td class="col-status">${statusCellHtml}</td>
-          <td class="col-note">${escapeHtml(item.note || "-")}</td>
+          <td class="col-note">${escapeHtml(item.note || "-")}${signedTagHtml}</td>
           <td class="col-action">${actionCellHtml}</td>
         `;
         tbody.appendChild(tr);
@@ -2711,6 +2741,7 @@
           grp.entries.push({
             text: item.note || "-",
             pdfUrl: item.pdfUrl || "",
+            isSigned: isItemSigned(item),
             cacheIndex: idx
           });
         }
@@ -2726,9 +2757,12 @@
             const actionButtons = entry.pdfUrl
               ? `<div class="mobile-entry-actions">${buildDirectorActionHtml(entry.pdfUrl, entry.cacheIndex, true)}</div>`
               : "";
+            const signedBadge = entry.isSigned
+              ? `<div><span class="signed-badge">✓ ผอ. ลงนามแล้ว</span></div>`
+              : "";
             return `
               <div class="mobile-report-entry">
-                <div class="mobile-report-subject">${escapeHtml(entry.text)}</div>
+                <div class="mobile-report-subject">${escapeHtml(entry.text)}${signedBadge}</div>
                 ${actionButtons}
               </div>
             `;
@@ -2861,6 +2895,9 @@
 
       items.forEach((item, idx) => {
         const actionCellHtml = buildDirectorActionHtml(item.pdfUrl, idx, false);
+        const signedTagHtml = isItemSigned(item)
+          ? `<div><span class="signed-badge">✓ ผอ. ลงนามแล้ว</span></div>`
+          : "";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -2868,7 +2905,7 @@
           <td class="col-date-monthly">${escapeHtml(item.thaiDateLabel)}</td>
           <td class="col-name">${escapeHtml(item.fullName)}</td>
           <td class="col-status">${renderBadgeHtml(item)}</td>
-          <td class="col-note">${escapeHtml(item.note || "-")}</td>
+          <td class="col-note">${escapeHtml(item.note || "-")}${signedTagHtml}</td>
           <td class="col-action">${actionCellHtml}</td>
         `;
         tbody.appendChild(tr);
@@ -2898,6 +2935,7 @@
           grp.entries.push({
             text: item.note || "-",
             pdfUrl: item.pdfUrl || "",
+            isSigned: isItemSigned(item),
             cacheIndex: idx
           });
         }
@@ -2913,9 +2951,12 @@
             const actionButtons = entry.pdfUrl
               ? `<div class="mobile-entry-actions">${buildDirectorActionHtml(entry.pdfUrl, entry.cacheIndex, true)}</div>`
               : "";
+            const signedBadge = entry.isSigned
+              ? `<div><span class="signed-badge">✓ ผอ. ลงนามแล้ว</span></div>`
+              : "";
             return `
               <div class="mobile-report-entry">
-                <div class="mobile-report-subject">${escapeHtml(entry.text)}</div>
+                <div class="mobile-report-subject">${escapeHtml(entry.text)}${signedBadge}</div>
                 ${actionButtons}
               </div>
             `;
@@ -3002,7 +3043,12 @@
     function updateSignStampOverlayDom() {
       const stampEl = document.getElementById("signStampOverlay");
       const sigImgEl = document.getElementById("signStampSigImg");
+      const nameEl = stampEl.querySelector(".sign-stamp-name");
+      const roleEl = stampEl.querySelector(".sign-stamp-role");
       const canvasEl = document.getElementById("signPdfCanvas");
+
+      if (nameEl) nameEl.textContent = DIRECTOR_STAMP_NAME;
+      if (roleEl) roleEl.textContent = DIRECTOR_STAMP_ROLE;
 
       if (!signStampPlacement || signStampPlacement.page !== signCurrentPage) {
         stampEl.classList.add("d-none");
@@ -3220,6 +3266,10 @@
         throw new Error("กรุณาอัปโหลดลายเซ็นในหน้าโปรไฟล์ก่อนค่ะ");
       }
 
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+
       const sigImg = await loadImageElement(savedSig);
       const { jsPDF } = window.jspdf;
       let signedPdf = null;
@@ -3247,16 +3297,15 @@
           const drawSigW = Math.max(40, Math.round(natW * ratio));
           const drawSigH = Math.max(18, Math.round(natH * ratio));
 
-          const nameFontSize = Math.max(16, Math.round(pageCanvas.width * 0.0185));
-          const roleFontSize = Math.max(14, Math.round(pageCanvas.width * 0.0165));
-          const lineGap = Math.round(roleFontSize * 0.35);
+          const stampFontSize = Math.max(18, Math.round(pageCanvas.width * 0.0202));
+          const lineGap = Math.round(stampFontSize * 0.36);
 
           ctx.save();
           ctx.textAlign = "center";
           ctx.textBaseline = "top";
           ctx.fillStyle = "#000000";
 
-          const totalBlockH = drawSigH + 4 + nameFontSize + lineGap + roleFontSize;
+          const totalBlockH = drawSigH + 4 + stampFontSize + lineGap + stampFontSize;
           let currentY = cy - totalBlockH / 2;
 
           const minY = 12;
@@ -3271,11 +3320,11 @@
           ctx.drawImage(sigImg, drawCenterX - drawSigW / 2, currentY, drawSigW, drawSigH);
           currentY += drawSigH + 4;
 
-          ctx.font = `700 ${nameFontSize}px "Sarabun", sans-serif`;
+          ctx.font = `400 ${stampFontSize}px "Sarabun", sans-serif`;
           ctx.fillText(DIRECTOR_STAMP_NAME, drawCenterX, currentY);
-          currentY += nameFontSize + lineGap;
+          currentY += stampFontSize + lineGap;
 
-          ctx.font = `400 ${roleFontSize}px "Sarabun", sans-serif`;
+          ctx.font = `400 ${stampFontSize}px "Sarabun", sans-serif`;
           ctx.fillText(DIRECTOR_STAMP_ROLE, drawCenterX, currentY);
           ctx.restore();
         }
@@ -3322,7 +3371,7 @@
             fullName: signTargetItem.fullName || "",
             isoDate: signTargetItem.isoDate || "",
             subject: signTargetItem.note || signTargetItem.subject || "",
-            signedBy: loggedInUser || "นายสิรวุฒิ ยุนุ้ย",
+            signedBy: loggedInUser || "นายสิรวุฒิ  ยุนุ้ย",
             signedPdfBase64: signedBase64
           })
         });
@@ -3528,6 +3577,9 @@
         const dateLabel = row.thaiDateText || (row.isoDate && /^\d{4}-\d{2}-\d{2}$/.test(row.isoDate)
           ? formatThaiDateParts(row.isoDate).fullText
           : "-");
+        const signedBadgeHtml = isItemSigned(row)
+          ? `<div><span class="signed-badge">✓ ผอ. ลงนามแล้ว</span></div>`
+          : "";
         const pdfBtn = row.pdfUrl
           ? `<a href="${row.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดู PDF</a>`
           : "";
@@ -3544,7 +3596,7 @@
         tr.innerHTML = `
           <td class="col-report-no text-center fw-bold text-muted">${toThaiDigits(idx + 1)}</td>
           <td class="col-report-date text-center">${escapeHtml(dateLabel)}</td>
-          <td class="col-report-subject">${escapeHtml(row.subject || "-")}</td>
+          <td class="col-report-subject">${escapeHtml(row.subject || "-")}${signedBadgeHtml}</td>
           <td class="col-report-actions text-center">${actionGroupHtml}</td>
         `;
         tbody.appendChild(tr);
@@ -3553,8 +3605,9 @@
         card.className = "border rounded-3 p-2 bg-light";
         card.innerHTML = `
           <div class="fw-bold mb-1" style="color: var(--navy-dark); font-size: 0.9rem;">${toThaiDigits(idx + 1)}. ${escapeHtml(row.subject || "-")}</div>
-          <div class="text-muted mb-2" style="font-size: 0.82rem;">${escapeHtml(dateLabel)}</div>
-          ${actionGroupHtml}
+          <div class="text-muted mb-1" style="font-size: 0.82rem;">${escapeHtml(dateLabel)}</div>
+          ${signedBadgeHtml}
+          <div class="mt-2">${actionGroupHtml}</div>
         `;
         cardList.appendChild(card);
       });

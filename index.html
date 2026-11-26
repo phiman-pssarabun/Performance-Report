@@ -409,6 +409,32 @@
       white-space: nowrap;
     }
 
+    .my-reports-card {
+      background: #fff;
+      border: 1px solid var(--border-formal);
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    .my-reports-table thead th {
+      background-color: #f1f5f9;
+      color: var(--navy-dark);
+      font-weight: 700;
+      font-size: 1.06rem;
+      text-align: center;
+      border-bottom: 2px solid #cbd5e1;
+      padding: 0.75rem 0.85rem;
+      white-space: nowrap;
+    }
+
+    .my-reports-table td {
+      padding: 0.75rem 0.85rem;
+      vertical-align: middle;
+      border-color: #e2e8f0;
+      font-size: 1.05rem;
+    }
+
     .status-pill {
       display: inline-flex;
       align-items: center;
@@ -484,10 +510,13 @@
     }
 
     textarea.auto-expand {
-      resize: none;
-      overflow: hidden;
-      min-height: 42px;
-      line-height: 1.35;
+      resize: vertical;
+      overflow-y: auto;
+      line-height: 1.4;
+    }
+
+    textarea.large-field {
+      min-height: 120px;
     }
 
     .photo-grid {
@@ -702,6 +731,7 @@
       .header-actions {
         flex-direction: row;
         justify-content: flex-end;
+        flex-wrap: wrap;
         gap: 0.45rem;
         padding-top: 0.25rem;
         border-top: 1px solid rgba(255, 255, 255, 0.16);
@@ -723,9 +753,13 @@
         padding-left: 2.2rem;
       }
       .card-box,
-      .director-toolbar {
+      .director-toolbar,
+      .my-reports-card {
         padding: 0.95rem;
         border-radius: 14px;
+      }
+      textarea.large-field {
+        min-height: 100px;
       }
       .stat-number {
         font-size: 1.85rem;
@@ -885,7 +919,7 @@
       </div>
     </div>
 
-    <!-- หน้าแบบฟอร์มรายงาน สำหรับรองผู้อำนวยการ -->
+    <!-- หน้าแบบฟอร์มรายงาน สำหรับผู้บริหาร -->
     <div id="mainFormSection" class="d-none">
       <div class="top-bar mb-3">
         <div class="banner-bg-layer" id="bannerBgLayer"></div>
@@ -901,6 +935,9 @@
           </div>
 
           <div class="header-actions">
+            <button type="button" class="btn btn-sm btn-warning fw-bold d-none" id="backToDirectorBtn" style="border-radius: 9px; color: #1e293b; white-space: nowrap;">
+              กลับหน้าแดชบอร์ด
+            </button>
             <button type="button" class="btn btn-sm btn-light fw-semibold d-inline-flex align-items-center justify-content-center gap-1" id="profileBtn" style="border-radius: 9px; color: var(--navy-dark); white-space: nowrap;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -924,17 +961,18 @@
           <div class="col-md-4">
             <label for="fullName" class="form-label fw-bold">ชื่อ-สกุล <span class="text-danger">*</span></label>
             <select id="fullName" name="fullName" class="form-select" required>
-              <option value="" selected disabled>-- เลือกรายชื่อรองผู้อำนวยการ --</option>
+              <option value="" selected disabled>-- เลือกรายชื่อผู้บริหาร --</option>
+              <option value="นายสิรวุฒิ ยุนุ้ย">นายสิรวุฒิ ยุนุ้ย</option>
               <option value="นางวนิดา แดงคง">นางวนิดา แดงคง</option>
               <option value="นางเขมิกา ทองสี">นางเขมิกา ทองสี</option>
               <option value="นายคุณานนต์ ทองกรด">นายคุณานนต์ ทองกรด</option>
               <option value="นายภูริพัฒน์ ยานา">นายภูริพัฒน์ ยานา</option>
             </select>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-4" id="dailyStatusCol">
             <label for="dailyStatusSelect" class="form-label fw-bold">สถานะประจำวัน <span class="text-danger">*</span></label>
             <select id="dailyStatusSelect" name="dailyStatusSelect" class="form-select" required>
-              <option value="ปฏิบัติงานปกติ" selected>ปฏิบัติงานปกติ</option>
+              <option value="ปฏิบัติงานสำคัญ" selected>ปฏิบัติงานสำคัญ</option>
               <option value="ไปราชการ">ไปราชการ</option>
               <option value="ลากิจ">ลากิจ</option>
               <option value="ลาป่วย">ลาป่วย</option>
@@ -944,28 +982,23 @@
 
         <div id="officialTravelBox" class="status-panel-box d-none">
           <div class="fw-bold mb-2" style="color: var(--navy-dark);">การปฏิบัติราชการนอกสถานที่ / ไปราชการ</div>
-          <div class="mb-2">
-            <label for="officialNoteInput" class="form-label fw-bold mb-1">สถานที่ / รายละเอียดไปราชการ (ถ้ามี)</label>
-            <input type="text" id="officialNoteInput" class="form-control" placeholder="เช่น ไปราชการ สพม.สตูล" />
-          </div>
-          <div class="form-check mt-2">
-            <input class="form-check-input" type="checkbox" id="attachReportCheckbox" />
-            <label class="form-check-label fw-semibold" for="attachReportCheckbox">
-              แนบไฟล์รายงานการปฏิบัติงาน (ไม่บังคับ)
-            </label>
-          </div>
-          <div id="directOfficialSaveWrap" class="mt-3">
-            <button type="button" id="saveOfficialWithoutReportBtn" class="btn btn-primary fw-bold" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
-              บันทึกสถานะไปราชการ
-            </button>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label for="officialNoteInput" class="form-label fw-bold mb-1">สถานที่ไปราชการ <span class="text-danger">*</span></label>
+              <input type="text" id="officialNoteInput" class="form-control" placeholder="ระบุสถานที่ไปราชการ" />
+            </div>
+            <div class="col-md-6">
+              <label for="officialOrganizerInput" class="form-label fw-bold mb-1">หน่วยงานที่จัด <span class="text-danger">*</span></label>
+              <input type="text" id="officialOrganizerInput" class="form-control" placeholder="ระบุหน่วยงานที่จัด" />
+            </div>
           </div>
         </div>
 
         <div id="leaveStatusBox" class="status-panel-box d-none">
           <div class="fw-bold mb-2" style="color: var(--navy-dark);" id="leaveBoxTitle">บันทึกสถานะลากิจ / ลาป่วย</div>
           <div class="mb-3">
-            <label for="leaveNoteInput" class="form-label fw-bold mb-1">หมายเหตุ (ถ้ามี)</label>
-            <input type="text" id="leaveNoteInput" class="form-control" placeholder="ระบุเหตุผลหรือหมายเหตุสั้น ๆ" />
+            <label for="leaveNoteInput" class="form-label fw-bold mb-1">เนื่องจาก</label>
+            <input type="text" id="leaveNoteInput" class="form-control" placeholder="ระบุสาเหตุหรือรายละเอียด" />
           </div>
           <button type="button" id="saveLeaveStatusBtn" class="btn btn-primary fw-bold" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
             บันทึกสถานะ
@@ -975,22 +1008,22 @@
         <div id="reportDetailsSection">
           <div class="mb-3">
             <label for="subject" class="form-label fw-bold">การปฏิบัติ เรื่อง <span class="text-danger">*</span></label>
-            <textarea id="subject" name="subject" class="form-control auto-expand" rows="1" placeholder="" required></textarea>
+            <textarea id="subject" name="subject" class="form-control auto-expand" rows="2" placeholder="" required></textarea>
           </div>
 
           <div class="mb-3">
             <label for="facts" class="form-label fw-bold">ข้อเท็จจริงการปฏิบัติ <span class="text-danger">*</span></label>
-            <textarea id="facts" name="facts" class="form-control auto-expand" rows="2" placeholder="" required></textarea>
+            <textarea id="facts" name="facts" class="form-control auto-expand large-field" rows="6" placeholder="" required></textarea>
           </div>
 
           <div class="mb-3">
             <label for="results" class="form-label fw-bold">ผลการปฏิบัติงาน <span class="text-danger">*</span></label>
-            <textarea id="results" name="results" class="form-control auto-expand" rows="2" placeholder="" required></textarea>
+            <textarea id="results" name="results" class="form-control auto-expand large-field" rows="6" placeholder="" required></textarea>
           </div>
 
           <div class="mb-3">
             <label for="suggestions" class="form-label fw-bold">ข้อเสนอแนะ (ถ้ามี)</label>
-            <textarea id="suggestions" name="suggestions" class="form-control auto-expand" rows="2" placeholder=""></textarea>
+            <textarea id="suggestions" name="suggestions" class="form-control auto-expand large-field" rows="5" placeholder=""></textarea>
           </div>
 
           <div class="mb-3">
@@ -1019,6 +1052,39 @@
           </div>
         </div>
       </form>
+
+      <!-- ตารางรายละเอียดการรายงานทั้งหมดของตนเอง (แสดงสำหรับรอง ผอ. เรียงล่าสุดขึ้นด้านบน) -->
+      <div id="deputyReportsHistorySection" class="my-reports-card mt-3 d-none">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <div>
+            <h5 class="fw-bold mb-0" style="color: var(--navy-dark);">รายการรายงานการปฏิบัติงานของตนเอง</h5>
+            <div class="text-muted" style="font-size: 0.94rem;">แสดงเฉพาะรายงานที่ได้บันทึกไว้แล้ว (เรียงจากอัปเดตล่าสุดอยู่ด้านบน)</div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" id="refreshMyReportsBtn" style="border-radius: 9px;">
+            รีเฟรชรายการ
+          </button>
+        </div>
+
+        <div id="myReportsLoadingText" class="text-center text-muted py-3 d-none">
+          <span class="spinner-border spinner-border-sm me-1"></span> กำลังโหลดรายการรายงาน...
+        </div>
+
+        <div class="table-responsive d-none d-md-block">
+          <table class="table align-middle my-reports-table mb-0">
+            <thead>
+              <tr>
+                <th style="width: 70px;">ลำดับ</th>
+                <th style="width: 240px;">วันที่ปฏิบัติงาน</th>
+                <th>การปฏิบัติ เรื่อง</th>
+                <th style="width: 140px;">ไฟล์รายงาน</th>
+              </tr>
+            </thead>
+            <tbody id="myReportsTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="d-md-none d-flex flex-column gap-2" id="myReportsCardList"></div>
+      </div>
     </div>
 
     <!-- หน้าแดชบอร์ด สำหรับผู้อำนวยการ -->
@@ -1037,6 +1103,9 @@
           </div>
 
           <div class="header-actions">
+            <button type="button" class="btn btn-sm btn-warning fw-bold d-inline-flex align-items-center justify-content-center gap-1" id="directorReportBtn" style="border-radius: 9px; color: #1e293b; white-space: nowrap;">
+              <span>รายงานการปฏิบัติงาน</span>
+            </button>
             <button type="button" class="btn btn-sm btn-light fw-semibold d-inline-flex align-items-center justify-content-center gap-1" id="directorProfileBtn" style="border-radius: 9px; color: var(--navy-dark); white-space: nowrap;">
               <span>ดูโปรไฟล์</span>
             </button>
@@ -1279,16 +1348,20 @@
     let loggedInUser = null;
     let loggedInRole = null;
     let overviewRequestSeq = 0;
+    let myReportsRequestSeq = 0;
 
     const appContainerEl = document.getElementById("appContainer");
     const reportDateEl = document.getElementById("reportDate");
     const fullNameEl = document.getElementById("fullName");
+    const dailyStatusColEl = document.getElementById("dailyStatusCol");
     const dailyStatusSelectEl = document.getElementById("dailyStatusSelect");
     const officialTravelBoxEl = document.getElementById("officialTravelBox");
-    const attachReportCheckboxEl = document.getElementById("attachReportCheckbox");
-    const directOfficialSaveWrapEl = document.getElementById("directOfficialSaveWrap");
+    const officialNoteInputEl = document.getElementById("officialNoteInput");
+    const officialOrganizerInputEl = document.getElementById("officialOrganizerInput");
     const leaveStatusBoxEl = document.getElementById("leaveStatusBox");
+    const leaveNoteInputEl = document.getElementById("leaveNoteInput");
     const reportDetailsSectionEl = document.getElementById("reportDetailsSection");
+    const deputyReportsHistorySectionEl = document.getElementById("deputyReportsHistorySection");
     const thaiDatePreviewEl = document.getElementById("thaiDatePreview");
     const directorDateInputEl = document.getElementById("directorDateInput");
     const directorDatePreviewEl = document.getElementById("directorDatePreview");
@@ -1303,34 +1376,50 @@
     const directorSectionEl = document.getElementById("directorSection");
     const logoutBtnEl = document.getElementById("logoutBtn");
     const directorLogoutBtnEl = document.getElementById("directorLogoutBtn");
+    const directorReportBtnEl = document.getElementById("directorReportBtn");
+    const backToDirectorBtnEl = document.getElementById("backToDirectorBtn");
     const profileBtnEl = document.getElementById("profileBtn");
     const directorProfileBtnEl = document.getElementById("directorProfileBtn");
     const loginAlertEl = document.getElementById("loginAlert");
     const changePassAlertEl = document.getElementById("changePassAlert");
 
     function updateDailyStatusModeUI() {
-      const mode = dailyStatusSelectEl.value;
       const subjectEl = document.getElementById("subject");
       const factsEl = document.getElementById("facts");
       const resultsEl = document.getElementById("results");
 
+      if (loggedInRole === "director") {
+        dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
+        officialTravelBoxEl.classList.add("d-none");
+        leaveStatusBoxEl.classList.add("d-none");
+        reportDetailsSectionEl.classList.remove("d-none");
+        officialNoteInputEl.required = false;
+        officialOrganizerInputEl.required = false;
+        subjectEl.required = true;
+        factsEl.required = true;
+        resultsEl.required = true;
+        return;
+      }
+
+      const mode = dailyStatusSelectEl.value;
       officialTravelBoxEl.classList.add("d-none");
       leaveStatusBoxEl.classList.add("d-none");
+      officialNoteInputEl.required = false;
+      officialOrganizerInputEl.required = false;
 
-      if (mode === "ปฏิบัติงานปกติ") {
-        attachReportCheckboxEl.checked = false;
+      if (mode === "ปฏิบัติงานสำคัญ") {
         reportDetailsSectionEl.classList.remove("d-none");
         subjectEl.required = true;
         factsEl.required = true;
         resultsEl.required = true;
       } else if (mode === "ไปราชการ") {
         officialTravelBoxEl.classList.remove("d-none");
-        const wantAttach = attachReportCheckboxEl.checked;
-        directOfficialSaveWrapEl.classList.toggle("d-none", wantAttach);
-        reportDetailsSectionEl.classList.toggle("d-none", !wantAttach);
-        subjectEl.required = wantAttach;
-        factsEl.required = wantAttach;
-        resultsEl.required = wantAttach;
+        reportDetailsSectionEl.classList.remove("d-none");
+        officialNoteInputEl.required = true;
+        officialOrganizerInputEl.required = true;
+        subjectEl.required = true;
+        factsEl.required = true;
+        resultsEl.required = true;
       } else {
         document.getElementById("leaveBoxTitle").textContent = `บันทึกสถานะ${mode}`;
         leaveStatusBoxEl.classList.remove("d-none");
@@ -1342,14 +1431,13 @@
     }
 
     dailyStatusSelectEl.addEventListener("change", updateDailyStatusModeUI);
-    attachReportCheckboxEl.addEventListener("change", updateDailyStatusModeUI);
 
     async function submitStatusOnly(statusType, noteText, triggerBtn) {
       const targetName = fullNameEl.value || loggedInUser || "";
       const isoDate = reportDateEl.value || getTodayIsoDate();
 
       if (!targetName) {
-        alert("กรุณาเลือกรายชื่อรองผู้อำนวยการ");
+        alert("กรุณาเลือกรายชื่อผู้บริหาร");
         return;
       }
 
@@ -1383,15 +1471,11 @@
       }
     }
 
-    document.getElementById("saveOfficialWithoutReportBtn").addEventListener("click", (e) => {
-      const note = document.getElementById("officialNoteInput").value.trim();
-      submitStatusOnly("ไปราชการ", note, e.currentTarget);
-    });
-
     document.getElementById("saveLeaveStatusBtn").addEventListener("click", (e) => {
       const statusType = dailyStatusSelectEl.value;
-      const note = document.getElementById("leaveNoteInput").value.trim();
-      submitStatusOnly(statusType, note, e.currentTarget);
+      const reasonText = leaveNoteInputEl.value.trim();
+      const formattedNote = reasonText ? `เนื่องจาก ${reasonText}` : statusType;
+      submitStatusOnly(statusType, formattedNote, e.currentTarget);
     });
 
     function showLoginAlert(msg) {
@@ -1440,6 +1524,34 @@
       return (Date.now() - lastTime) >= IDLE_TIMEOUT_MS;
     }
 
+    function openFormForAuthenticatedUser(userFullName, fromDirectorView = false) {
+      document.body.classList.remove("director-body-bg");
+      appContainerEl.classList.remove("director-wide");
+      directorSectionEl.classList.add("d-none");
+      mainFormSectionEl.classList.remove("d-none");
+      logoutBtnEl.classList.remove("d-none");
+      fullNameEl.value = userFullName;
+
+      if (fromDirectorView && loggedInRole === "director") {
+        backToDirectorBtnEl.classList.remove("d-none");
+        dailyStatusColEl.classList.add("d-none");
+        deputyReportsHistorySectionEl.classList.add("d-none");
+      } else {
+        backToDirectorBtnEl.classList.add("d-none");
+        dailyStatusColEl.classList.remove("d-none");
+        if (loggedInRole === "deputy") {
+          deputyReportsHistorySectionEl.classList.remove("d-none");
+          loadMyReportsHistory(userFullName);
+        } else {
+          deputyReportsHistorySectionEl.classList.add("d-none");
+        }
+      }
+
+      dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
+      updateDailyStatusModeUI();
+      updateThaiDateLabel();
+    }
+
     function applyAuthenticatedState(userFullName, role = "deputy") {
       loggedInUser = userFullName;
       loggedInRole = role === "director" ? "director" : "deputy";
@@ -1451,18 +1563,13 @@
         document.body.classList.add("director-body-bg");
         appContainerEl.classList.add("director-wide");
         mainFormSectionEl.classList.add("d-none");
+        backToDirectorBtnEl.classList.add("d-none");
+        deputyReportsHistorySectionEl.classList.add("d-none");
         directorSectionEl.classList.remove("d-none");
         updateDirectorDateLabel();
         loadDirectorOverview();
       } else {
-        document.body.classList.remove("director-body-bg");
-        appContainerEl.classList.remove("director-wide");
-        directorSectionEl.classList.add("d-none");
-        mainFormSectionEl.classList.remove("d-none");
-        logoutBtnEl.classList.remove("d-none");
-        fullNameEl.value = userFullName;
-        dailyStatusSelectEl.value = "ปฏิบัติงานปกติ";
-        updateDailyStatusModeUI();
+        openFormForAuthenticatedUser(userFullName, false);
       }
       resetIdleTimer();
     }
@@ -1482,8 +1589,21 @@
       mainFormSectionEl.classList.add("d-none");
       directorSectionEl.classList.add("d-none");
       logoutBtnEl.classList.add("d-none");
+      backToDirectorBtnEl.classList.add("d-none");
+      deputyReportsHistorySectionEl.classList.add("d-none");
       loginSectionEl.classList.remove("d-none");
     }
+
+    directorReportBtnEl.addEventListener("click", () => {
+      if (!loggedInUser) return;
+      openFormForAuthenticatedUser(loggedInUser, true);
+      resetIdleTimer();
+    });
+
+    backToDirectorBtnEl.addEventListener("click", () => {
+      if (!loggedInUser || loggedInRole !== "director") return;
+      applyAuthenticatedState(loggedInUser, "director");
+    });
 
     ["pointerdown", "keydown", "scroll", "touchstart", "input"].forEach((evtName) => {
       document.addEventListener(evtName, () => {
@@ -1776,6 +1896,91 @@
       }
     }
 
+    function renderMyReportsHistory(items) {
+      const tbody = document.getElementById("myReportsTableBody");
+      const cardList = document.getElementById("myReportsCardList");
+      tbody.innerHTML = "";
+      cardList.innerHTML = "";
+
+      if (!items || !items.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">ยังไม่มีรายงานที่บันทึกไว้</td></tr>`;
+        cardList.innerHTML = `<div class="text-center text-muted py-2" style="font-size: 0.96rem;">ยังไม่มีรายงานที่บันทึกไว้</div>`;
+        return;
+      }
+
+      items.forEach((row, idx) => {
+        const dateLabel = row.thaiDateText || (row.isoDate && /^\d{4}-\d{2}-\d{2}$/.test(row.isoDate)
+          ? formatThaiDateParts(row.isoDate).fullText
+          : "-");
+        const pdfBtn = row.pdfUrl
+          ? `<a href="${row.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์ PDF</a>`
+          : `<span class="text-muted">-</span>`;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="text-center fw-bold text-muted">${toThaiDigits(idx + 1)}</td>
+          <td>${escapeHtml(dateLabel)}</td>
+          <td>${escapeHtml(row.subject || "-")}</td>
+          <td class="text-center">${pdfBtn}</td>
+        `;
+        tbody.appendChild(tr);
+
+        const card = document.createElement("div");
+        card.className = "border rounded-3 p-2 bg-light";
+        card.innerHTML = `
+          <div class="fw-bold mb-1" style="color: var(--navy-dark); font-size: 0.98rem;">${toThaiDigits(idx + 1)}. ${escapeHtml(row.subject || "-")}</div>
+          <div class="text-muted mb-2" style="font-size: 0.92rem;">${escapeHtml(dateLabel)}</div>
+          ${row.pdfUrl ? `<div>${pdfBtn}</div>` : ""}
+        `;
+        cardList.appendChild(card);
+      });
+    }
+
+    async function loadMyReportsHistory(targetName) {
+      const personName = targetName || fullNameEl.value || loggedInUser || "";
+      if (!personName) return;
+
+      const loadingEl = document.getElementById("myReportsLoadingText");
+      const refreshBtn = document.getElementById("refreshMyReportsBtn");
+      const currentSeq = ++myReportsRequestSeq;
+
+      loadingEl.classList.remove("d-none");
+      refreshBtn.disabled = true;
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "getUserReports",
+            fullName: personName
+          })
+        });
+        const result = await res.json();
+        if (currentSeq !== myReportsRequestSeq) return;
+        if (result && result.ok) {
+          renderMyReportsHistory(result.items || []);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (currentSeq === myReportsRequestSeq) {
+          loadingEl.classList.add("d-none");
+          refreshBtn.disabled = false;
+        }
+      }
+    }
+
+    document.getElementById("refreshMyReportsBtn").addEventListener("click", () => {
+      loadMyReportsHistory(fullNameEl.value || loggedInUser);
+    });
+
+    fullNameEl.addEventListener("change", () => {
+      if (loggedInRole === "deputy") {
+        loadMyReportsHistory(fullNameEl.value);
+      }
+    });
+
     directorDateInputEl.addEventListener("change", () => {
       if (!directorDateInputEl.value) {
         directorDateInputEl.value = getTodayIsoDate();
@@ -1804,8 +2009,9 @@
     });
 
     function autoExpandTextarea(el) {
+      const minH = el.classList.contains("large-field") ? 120 : 54;
       el.style.height = "auto";
-      el.style.height = `${Math.max(el.scrollHeight, 42)}px`;
+      el.style.height = `${Math.max(el.scrollHeight, minH)}px`;
     }
 
     document.querySelectorAll("textarea.auto-expand").forEach((el) => {
@@ -1930,6 +2136,13 @@
             .join("")}</div>`
         : `<div class="doc-indent-para" style="color:#000000;">- ไม่มีภาพประกอบ -</div>`;
 
+      const travelRowsHtml = data.dailyStatus === "ไปราชการ"
+        ? `
+          <div class="doc-row"><span class="doc-label">สถานที่ไปราชการ :</span> <span class="doc-body-text">${escapeHtml(data.officialPlace || "-")}</span></div>
+          <div class="doc-row"><span class="doc-label">หน่วยงานที่จัด :</span> <span class="doc-body-text">${escapeHtml(data.officialOrganizer || "-")}</span></div>
+        `
+        : "";
+
       return `
         <div class="report-sheet">
           <div class="doc-header-center">
@@ -1939,6 +2152,7 @@
             </div>
           </div>
           <div class="doc-row"><span class="doc-label">ชื่อ-สกุล :</span> <span class="doc-body-text">${escapeHtml(data.fullName)}</span></div>
+          ${travelRowsHtml}
           <div class="doc-row"><span class="doc-label">การปฏิบัติ เรื่อง :</span> <span class="doc-body-text">${escapeHtml(data.subject)}</span></div>
           <div class="doc-row">
             <div class="doc-label">ข้อเท็จจริงการปฏิบัติ :</div>
@@ -1964,8 +2178,19 @@
       e.preventDefault();
       const dateParts = formatThaiDateParts(reportDateEl.value);
       const activePhotos = photoSlots.filter(Boolean);
-      const selectedStatus = dailyStatusSelectEl.value;
-      const officialNote = document.getElementById("officialNoteInput").value.trim();
+      const selectedStatus = loggedInRole === "director" ? "ปฏิบัติงานสำคัญ" : dailyStatusSelectEl.value;
+      const officialPlace = selectedStatus === "ไปราชการ" ? toThaiDigits(officialNoteInputEl.value.trim()) : "";
+      const officialOrganizer = selectedStatus === "ไปราชการ" ? toThaiDigits(officialOrganizerInputEl.value.trim()) : "";
+      const subjectText = toThaiDigits(document.getElementById("subject").value.trim());
+
+      let statusNoteText = "";
+      if (selectedStatus === "ไปราชการ") {
+        const parts = [];
+        if (officialPlace) parts.push(`สถานที่: ${officialPlace}`);
+        if (officialOrganizer) parts.push(`หน่วยงานที่จัด: ${officialOrganizer}`);
+        if (subjectText) parts.push(`เรื่อง: ${subjectText}`);
+        statusNoteText = parts.join(" | ");
+      }
 
       currentReportData = {
         isoDate: reportDateEl.value,
@@ -1974,8 +2199,10 @@
         thaiDateText: dateParts.fullText,
         fullName: fullNameEl.value.trim(),
         dailyStatus: selectedStatus,
-        statusNote: selectedStatus === "ไปราชการ" ? officialNote : "",
-        subject: toThaiDigits(document.getElementById("subject").value.trim()),
+        officialPlace,
+        officialOrganizer,
+        statusNote: statusNoteText,
+        subject: subjectText,
         facts: toThaiDigits(document.getElementById("facts").value.trim()),
         results: toThaiDigits(document.getElementById("results").value.trim()),
         suggestions: toThaiDigits(document.getElementById("suggestions").value.trim()),
@@ -2104,6 +2331,12 @@
         document.getElementById("saveStatusText").textContent = "สร้างไฟล์ PDF เรียบร้อยแล้ว";
         previewModal.hide();
         successModal.show();
+
+        if (loggedInRole === "deputy") {
+          setTimeout(() => {
+            loadMyReportsHistory(currentReportData.fullName);
+          }, 1200);
+        }
       } catch (err) {
         alert("เกิดข้อผิดพลาด: " + err.message);
       } finally {
@@ -2118,12 +2351,15 @@
       if (loggedInUser) {
         fullNameEl.value = loggedInUser;
       }
-      dailyStatusSelectEl.value = "ปฏิบัติงานปกติ";
+      dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
       photoSlots = [null, null, null, null];
       renderPhotoGrid();
       setTodayDefault();
       updateDailyStatusModeUI();
       document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
+      if (loggedInRole === "deputy") {
+        loadMyReportsHistory(fullNameEl.value || loggedInUser);
+      }
     });
 
     initBannerBranding();

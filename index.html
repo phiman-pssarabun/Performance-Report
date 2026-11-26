@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <style>
     :root {
       --navy: #1a5276;
@@ -631,6 +632,34 @@
       filter: brightness(1.06);
     }
 
+    .sign-pdf-btn {
+      background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.32rem 0.72rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      box-shadow: 0 3px 8px rgba(180, 83, 9, 0.2);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .sign-pdf-btn:hover {
+      color: #fff;
+      filter: brightness(1.06);
+    }
+
+    .director-action-cell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      flex-wrap: nowrap;
+    }
+
     .deputy-mobile-card {
       background: #ffffff;
       border: 1px solid #c7d9e8;
@@ -681,6 +710,95 @@
       flex: 1;
       min-width: 0;
       word-break: break-word;
+    }
+
+    .mobile-entry-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .signature-profile-box {
+      background: #f8fafc;
+      border: 1.5px dashed #94a3b8;
+      border-radius: 12px;
+      padding: 0.85rem;
+      text-align: center;
+    }
+
+    .signature-preview-img {
+      max-height: 78px;
+      max-width: 100%;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 0.5rem;
+    }
+
+    .sign-stage-scroll {
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 1rem;
+      overflow: auto;
+      max-height: 65vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .sign-page-wrapper {
+      position: relative;
+      display: inline-block;
+      background: #ffffff;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+      cursor: crosshair;
+      user-select: none;
+    }
+
+    .sign-page-wrapper canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .sign-stamp-box {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1.5px dashed var(--navy);
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+      cursor: move;
+      z-index: 10;
+      min-width: 175px;
+      color: #000000;
+      line-height: 1.32;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
+    }
+
+    .sign-stamp-box img {
+      max-height: 44px;
+      max-width: 145px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 2px;
+      pointer-events: none;
+    }
+
+    .sign-stamp-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #000000;
+      white-space: nowrap;
+    }
+
+    .sign-stamp-role {
+      font-size: 12px;
+      font-weight: 400;
+      color: #000000;
+      white-space: nowrap;
     }
 
     .form-label {
@@ -817,7 +935,7 @@
     }
 
     .pdf-render-box .doc-photo-box {
-      height: 220px;
+      height: 205px;
     }
 
     .doc-header-center {
@@ -1024,6 +1142,7 @@
         white-space: nowrap;
       }
       .view-pdf-btn,
+      .sign-pdf-btn,
       .edit-report-btn,
       .delete-report-btn {
         font-size: 0.82rem;
@@ -1535,6 +1654,27 @@
             <div class="text-muted" id="profileRoleText" style="font-size: 0.94rem;">ตำแหน่ง : ผู้บริหารสถานศึกษา</div>
           </div>
 
+          <!-- ส่วนจัดการลายเซ็นอิเล็กทรอนิกส์สำหรับผู้อำนวยการ -->
+          <div id="directorSignatureSection" class="d-none mb-3">
+            <hr class="my-3" />
+            <h6 class="fw-bold mb-2" style="color: var(--navy-dark);">ลายเซ็นอิเล็กทรอนิกส์สำหรับลงนามเอกสาร</h6>
+            <div class="signature-profile-box">
+              <img id="directorSignaturePreview" class="signature-preview-img d-none" alt="ตัวอย่างลายเซ็น" />
+              <div id="directorSignatureEmptyText" class="text-muted mb-2" style="font-size: 0.92rem;">
+                ยังไม่ได้อัปโหลดลายเซ็น (อัปโหลดครั้งเดียวใช้ได้ตลอด)
+              </div>
+              <input type="file" id="directorSignatureInput" accept="image/*" class="d-none" />
+              <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <button type="button" class="btn btn-sm btn-primary fw-bold" id="uploadSignatureBtn" style="background: var(--navy); border-color: var(--navy); border-radius: 8px;">
+                  อัปโหลด / เปลี่ยนลายเซ็น
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger fw-bold d-none" id="removeSignatureBtn" style="border-radius: 8px;">
+                  ลบลายเซ็น
+                </button>
+              </div>
+            </div>
+          </div>
+
           <hr class="my-3" />
 
           <h6 class="fw-bold mb-2" style="color: var(--navy-dark);">เปลี่ยนรหัสผ่านใหม่</h6>
@@ -1562,6 +1702,59 @@
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal ลงนามเอกสาร PDF สำหรับผู้อำนวยการ -->
+  <div class="modal fade" id="signPdfModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius: 16px;">
+        <div class="modal-header" style="background: var(--navy-dark); color: #fff; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+          <h5 class="modal-title fw-bold">ลงนามเอกสารรายงานการปฏิบัติงาน</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+            <div>
+              <div class="fw-bold" id="signDocTitleText" style="color: var(--navy-dark);">-</div>
+              <div class="text-muted" id="signGuideText" style="font-size: 0.92rem;">คลิกบนหน้าเอกสารเพื่อวางตราประทับลงนาม หรือลากกล่องตราประทับเพื่อปรับตำแหน่ง</div>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold" id="prevSignPageBtn" style="border-radius: 8px;">หน้าก่อนหน้า</button>
+              <span class="fw-bold" id="signPageIndicator" style="font-size: 0.94rem;">หน้า ๑ / ๑</span>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold" id="nextSignPageBtn" style="border-radius: 8px;">หน้าถัดไป</button>
+              <button type="button" class="btn btn-sm btn-outline-dark fw-bold" id="clearSignStampBtn" style="border-radius: 8px;">ล้างจุดลงนาม</button>
+              <button type="button" class="btn btn-sm btn-outline-danger fw-bold d-none" id="revertOriginalPdfBtn" style="border-radius: 8px;">
+                ย้อนกลับฉบับก่อนลงนาม
+              </button>
+            </div>
+          </div>
+
+          <div id="signModalAlert" class="alert alert-warning py-2 px-3 d-none mb-2" style="font-size: 0.94rem;"></div>
+
+          <div id="signLoadingBox" class="text-center py-5 d-none">
+            <span class="spinner-border spinner-border-sm text-primary me-2"></span>
+            <span class="fw-bold">กำลังโหลดหน้าเอกสาร PDF...</span>
+          </div>
+
+          <div class="sign-stage-scroll" id="signStageScroll">
+            <div class="sign-page-wrapper" id="signPageWrapper">
+              <canvas id="signPdfCanvas"></canvas>
+              <div class="sign-stamp-box d-none" id="signStampOverlay">
+                <img id="signStampSigImg" alt="ลายเซ็น" />
+                <div class="sign-stamp-name">(นายสิรวุฒิ ยุนุ้ย)</div>
+                <div class="sign-stamp-role">ผู้อำนวยการโรงเรียนพิมานพิทยาสรรค์</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">ปิด</button>
+          <button type="button" class="btn btn-success px-4 fw-bold" id="confirmSignSaveBtn" style="border-radius: 10px;">
+            บันทึกการลงนามทับไฟล์เดิม
+          </button>
         </div>
       </div>
     </div>
@@ -1614,6 +1807,15 @@
 
     const SCHOOL_LOGO_URL = "./picture/logo.png";
     const SCHOOL_BANNER_BG_URL = "./picture/bn.png";
+
+    const DIRECTOR_SIGNATURE_STORAGE_KEY = "directorSignatureDataUrl";
+    const DIRECTOR_STAMP_NAME = "(นายสิรวุฒิ ยุนุ้ย)";
+    const DIRECTOR_STAMP_ROLE = "ผู้อำนวยการโรงเรียนพิมานพิทยาสรรค์";
+
+    if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+    }
 
     const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
     const LAST_ACTIVITY_KEY = "perfReportLastActivity";
@@ -1675,9 +1877,18 @@
     let overviewRequestSeq = 0;
     let myReportsRequestSeq = 0;
     let myReportsCache = [];
+    let directorRowItemsCache = [];
     let editingTarget = null;
     let pendingDeleteRow = null;
     let deleteFeedbackTimer = null;
+
+    let signPdfDoc = null;
+    let signCurrentPage = 1;
+    let signTotalPages = 1;
+    let signTargetItem = null;
+    let signStampPlacement = null;
+    let isDraggingStamp = false;
+    let didDragStampMove = false;
 
     const appContainerEl = document.getElementById("appContainer");
     const reportDateEl = document.getElementById("reportDate");
@@ -1717,6 +1928,7 @@
     const previewModal = new bootstrap.Modal(document.getElementById("previewModal"));
     const successModal = new bootstrap.Modal(document.getElementById("successModal"));
     const profileModal = new bootstrap.Modal(document.getElementById("profileModal"));
+    const signPdfModal = new bootstrap.Modal(document.getElementById("signPdfModal"));
     const loginSectionEl = document.getElementById("loginSection");
     const mainFormSectionEl = document.getElementById("mainFormSection");
     const directorSectionEl = document.getElementById("directorSection");
@@ -1728,6 +1940,65 @@
     const directorProfileBtnEl = document.getElementById("directorProfileBtn");
     const loginAlertEl = document.getElementById("loginAlert");
     const changePassAlertEl = document.getElementById("changePassAlert");
+
+    const directorSignatureSectionEl = document.getElementById("directorSignatureSection");
+    const directorSignaturePreviewEl = document.getElementById("directorSignaturePreview");
+    const directorSignatureEmptyTextEl = document.getElementById("directorSignatureEmptyText");
+    const directorSignatureInputEl = document.getElementById("directorSignatureInput");
+    const uploadSignatureBtnEl = document.getElementById("uploadSignatureBtn");
+    const removeSignatureBtnEl = document.getElementById("removeSignatureBtn");
+
+    function getSavedDirectorSignature() {
+      try {
+        return localStorage.getItem(DIRECTOR_SIGNATURE_STORAGE_KEY) || "";
+      } catch (err) {
+        return "";
+      }
+    }
+
+    function saveDirectorSignature(dataUrl) {
+      try {
+        if (dataUrl) {
+          localStorage.setItem(DIRECTOR_SIGNATURE_STORAGE_KEY, dataUrl);
+        } else {
+          localStorage.removeItem(DIRECTOR_SIGNATURE_STORAGE_KEY);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      renderDirectorSignatureUI();
+    }
+
+    function renderDirectorSignatureUI() {
+      const sig = getSavedDirectorSignature();
+      if (sig) {
+        directorSignaturePreviewEl.src = sig;
+        directorSignaturePreviewEl.classList.remove("d-none");
+        directorSignatureEmptyTextEl.classList.add("d-none");
+        removeSignatureBtnEl.classList.remove("d-none");
+      } else {
+        directorSignaturePreviewEl.removeAttribute("src");
+        directorSignaturePreviewEl.classList.add("d-none");
+        directorSignatureEmptyTextEl.classList.remove("d-none");
+        removeSignatureBtnEl.classList.add("d-none");
+      }
+    }
+
+    uploadSignatureBtnEl.addEventListener("click", () => {
+      directorSignatureInputEl.value = "";
+      directorSignatureInputEl.click();
+    });
+
+    directorSignatureInputEl.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const dataUrl = await readFileAsDataUrl(file);
+      saveDirectorSignature(String(dataUrl || ""));
+    });
+
+    removeSignatureBtnEl.addEventListener("click", () => {
+      saveDirectorSignature("");
+    });
 
     function normalizePersonName(name) {
       return String(name || "").replace(/\s+/g, " ").trim();
@@ -2092,6 +2363,14 @@
       document.getElementById("profileFullNameText").textContent = loggedInUser || fullNameEl.value || "-";
       document.getElementById("profileRoleText").textContent =
         loggedInRole === "director" ? "ตำแหน่ง : ผู้อำนวยการสถานศึกษา" : "ตำแหน่ง : รองผู้อำนวยการสถานศึกษา";
+
+      if (loggedInRole === "director") {
+        directorSignatureSectionEl.classList.remove("d-none");
+        renderDirectorSignatureUI();
+      } else {
+        directorSignatureSectionEl.classList.add("d-none");
+      }
+
       document.getElementById("changePasswordForm").reset();
       hideChangePassAlert();
       profileModal.show();
@@ -2339,6 +2618,18 @@
       return expanded;
     }
 
+    function buildDirectorActionHtml(pdfUrl, cacheIndex, compactMobile = false) {
+      if (!pdfUrl) {
+        return compactMobile ? "" : `<span class="text-muted" style="font-size: 0.98rem;">-</span>`;
+      }
+      const viewBtn = `<a href="${pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`;
+      if (loggedInRole === "director") {
+        const signBtn = `<button type="button" class="sign-pdf-btn director-sign-trigger" data-dir-idx="${cacheIndex}">ลงนาม</button>`;
+        return `<span class="director-action-cell">${viewBtn}${signBtn}</span>`;
+      }
+      return viewBtn;
+    }
+
     function renderDirectorOverview(data) {
       const sum = data.summary || { total: 4, reported: 0, leaveOrOfficial: 0, pending: 4 };
       document.getElementById("statTotal").textContent = toThaiDigits(sum.total);
@@ -2353,8 +2644,12 @@
 
       const rawList = Array.isArray(data.items) ? data.items : [];
       const displayItems = expandOverviewItems(rawList);
+      directorRowItemsCache = displayItems.map((it) => ({
+        ...it,
+        isoDate: it.isoDate || directorDateInputEl.value || getTodayIsoDate()
+      }));
 
-      displayItems.forEach((item) => {
+      directorRowItemsCache.forEach((item, idx) => {
         const isSubRow = Boolean(item.isSubRow);
         const orderCellHtml = isSubRow
           ? `<span class="sub-report-marker">↳</span>`
@@ -2368,9 +2663,7 @@
           ? ``
           : `${renderBadgeHtml(item)}`;
 
-        const viewPdfBtn = item.pdfUrl
-          ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`
-          : `<span class="text-muted" style="font-size: 0.98rem;">-</span>`;
+        const actionCellHtml = buildDirectorActionHtml(item.pdfUrl, idx, false);
 
         const tr = document.createElement("tr");
         if (isSubRow) tr.classList.add("sub-report-row");
@@ -2379,7 +2672,7 @@
           <td class="col-name">${nameCellHtml}</td>
           <td class="col-status">${statusCellHtml}</td>
           <td class="col-note">${escapeHtml(item.note || "-")}</td>
-          <td class="col-action">${viewPdfBtn}</td>
+          <td class="col-action">${actionCellHtml}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -2387,7 +2680,7 @@
       const groupedMobile = [];
       const groupByName = new Map();
 
-      displayItems.forEach((item) => {
+      directorRowItemsCache.forEach((item, idx) => {
         const personKey = normalizePersonName(item.fullName || "") || `__idx_${groupedMobile.length}`;
         let grp = groupByName.get(personKey);
 
@@ -2410,7 +2703,8 @@
         if (hasContentOrPdf) {
           grp.entries.push({
             text: item.note || "-",
-            pdfUrl: item.pdfUrl || ""
+            pdfUrl: item.pdfUrl || "",
+            cacheIndex: idx
           });
         }
       });
@@ -2422,13 +2716,13 @@
         let entriesHtml = "";
         if (grp.entries.length > 0) {
           const rowsHtml = grp.entries.map((entry) => {
-            const pdfBtn = entry.pdfUrl
-              ? `<a href="${entry.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn flex-shrink-0">ดูไฟล์รายงาน</a>`
+            const actionButtons = entry.pdfUrl
+              ? `<div class="mobile-entry-actions">${buildDirectorActionHtml(entry.pdfUrl, entry.cacheIndex, true)}</div>`
               : "";
             return `
               <div class="mobile-report-entry">
                 <div class="mobile-report-subject">${escapeHtml(entry.text)}</div>
-                ${pdfBtn}
+                ${actionButtons}
               </div>
             `;
           }).join("");
@@ -2446,6 +2740,8 @@
         `;
         cardList.appendChild(card);
       });
+
+      bindDirectorSignButtons();
     }
 
     function normalizeMonthlyItems(rawItems) {
@@ -2505,15 +2801,16 @@
       cardList.innerHTML = "";
 
       if (!items.length) {
+        directorRowItemsCache = [];
         tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">ไม่พบข้อมูลการรายงานในเดือนที่เลือก</td></tr>`;
         cardList.innerHTML = `<div class="deputy-mobile-card text-center text-muted py-3">ไม่พบข้อมูลการรายงานในเดือนที่เลือก</div>`;
         return;
       }
 
+      directorRowItemsCache = items;
+
       items.forEach((item, idx) => {
-        const viewPdfBtn = item.pdfUrl
-          ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`
-          : `<span class="text-muted" style="font-size: 0.98rem;">-</span>`;
+        const actionCellHtml = buildDirectorActionHtml(item.pdfUrl, idx, false);
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -2522,7 +2819,7 @@
           <td class="col-name">${escapeHtml(item.fullName)}</td>
           <td class="col-status">${renderBadgeHtml(item)}</td>
           <td class="col-note">${escapeHtml(item.note || "-")}</td>
-          <td class="col-action">${viewPdfBtn}</td>
+          <td class="col-action">${actionCellHtml}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -2530,7 +2827,7 @@
       const groupedMobile = [];
       const groupMap = new Map();
 
-      items.forEach((item) => {
+      items.forEach((item, idx) => {
         const key = `${item.isoDate || item.thaiDateLabel}__${normalizePersonName(item.fullName)}`;
         let grp = groupMap.get(key);
         if (!grp) {
@@ -2550,7 +2847,8 @@
         if (hasContentOrPdf) {
           grp.entries.push({
             text: item.note || "-",
-            pdfUrl: item.pdfUrl || ""
+            pdfUrl: item.pdfUrl || "",
+            cacheIndex: idx
           });
         }
       });
@@ -2562,13 +2860,13 @@
         let entriesHtml = "";
         if (grp.entries.length > 0) {
           const rowsHtml = grp.entries.map((entry) => {
-            const pdfBtn = entry.pdfUrl
-              ? `<a href="${entry.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn flex-shrink-0">ดูไฟล์รายงาน</a>`
+            const actionButtons = entry.pdfUrl
+              ? `<div class="mobile-entry-actions">${buildDirectorActionHtml(entry.pdfUrl, entry.cacheIndex, true)}</div>`
               : "";
             return `
               <div class="mobile-report-entry">
                 <div class="mobile-report-subject">${escapeHtml(entry.text)}</div>
-                ${pdfBtn}
+                ${actionButtons}
               </div>
             `;
           }).join("");
@@ -2589,75 +2887,421 @@
         `;
         cardList.appendChild(card);
       });
+
+      bindDirectorSignButtons();
     }
 
-    async function loadDirectorOverview() {
-      const targetDate = directorDateInputEl.value || getTodayIsoDate();
-      const loadingEl = document.getElementById("directorLoadingText");
-      const refreshBtn = document.getElementById("refreshOverviewBtn");
-      const currentSeq = ++overviewRequestSeq;
+    function bindDirectorSignButtons() {
+      document.querySelectorAll(".director-sign-trigger").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = directorRowItemsCache[Number(btn.dataset.dirIdx)];
+          if (item) openSignPdfModal(item);
+        });
+      });
+    }
 
-      updateDirectorDateLabel();
-      loadingEl.classList.remove("d-none");
-      refreshBtn.disabled = true;
+    function showSignAlert(msg, type = "warning") {
+      const alertEl = document.getElementById("signModalAlert");
+      alertEl.textContent = msg;
+      alertEl.className = `alert alert-${type} py-2 px-3 mb-2`;
+    }
+
+    function hideSignAlert() {
+      const alertEl = document.getElementById("signModalAlert");
+      alertEl.className = "alert alert-warning py-2 px-3 d-none mb-2";
+      alertEl.textContent = "";
+    }
+
+    function updateSignStampOverlayDom() {
+      const stampEl = document.getElementById("signStampOverlay");
+      const sigImgEl = document.getElementById("signStampSigImg");
+      const canvasEl = document.getElementById("signPdfCanvas");
+
+      if (!signStampPlacement || signStampPlacement.page !== signCurrentPage) {
+        stampEl.classList.add("d-none");
+        return;
+      }
+
+      const savedSig = getSavedDirectorSignature();
+      if (savedSig) {
+        sigImgEl.src = savedSig;
+        sigImgEl.classList.remove("d-none");
+      } else {
+        sigImgEl.removeAttribute("src");
+        sigImgEl.classList.add("d-none");
+      }
+
+      const rect = canvasEl.getBoundingClientRect();
+      const leftPx = signStampPlacement.nx * rect.width;
+      const topPx = signStampPlacement.ny * rect.height;
+
+      stampEl.style.left = `${leftPx}px`;
+      stampEl.style.top = `${topPx}px`;
+      stampEl.classList.remove("d-none");
+    }
+
+    async function renderSignPdfPage(pageNum) {
+      if (!signPdfDoc) return;
+      signCurrentPage = Math.max(1, Math.min(pageNum, signTotalPages));
+      const page = await signPdfDoc.getPage(signCurrentPage);
+      const viewport = page.getViewport({ scale: 1.35 });
+      const canvasEl = document.getElementById("signPdfCanvas");
+      const ctx = canvasEl.getContext("2d");
+
+      canvasEl.width = Math.round(viewport.width);
+      canvasEl.height = Math.round(viewport.height);
+
+      await page.render({
+        canvasContext: ctx,
+        viewport
+      }).promise;
+
+      document.getElementById("signPageIndicator").textContent =
+        `หน้า ${toThaiDigits(signCurrentPage)} / ${toThaiDigits(signTotalPages)}`;
+      document.getElementById("prevSignPageBtn").disabled = signCurrentPage <= 1;
+      document.getElementById("nextSignPageBtn").disabled = signCurrentPage >= signTotalPages;
+
+      updateSignStampOverlayDom();
+    }
+
+    async function fetchPdfArrayBufferForSigning(pdfUrl) {
+      try {
+        const directRes = await fetch(pdfUrl);
+        if (directRes.ok) {
+          const buf = await directRes.arrayBuffer();
+          if (buf && buf.byteLength > 100) return buf;
+        }
+      } catch (err) {}
+
+      const gasRes = await fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "getPdfBase64",
+          pdfUrl
+        })
+      });
+      const gasJson = await gasRes.json();
+      if (!gasJson || !gasJson.ok || !gasJson.base64) {
+        throw new Error((gasJson && gasJson.message) || "ไม่สามารถเปิดไฟล์ PDF เพื่อลงนามได้");
+      }
+      const binaryStr = atob(gasJson.base64);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    async function openSignPdfModal(item) {
+      signTargetItem = { ...item };
+      signStampPlacement = null;
+      signPdfDoc = null;
+      signCurrentPage = 1;
+      signTotalPages = 1;
+      hideSignAlert();
+
+      document.getElementById("signDocTitleText").textContent =
+        `${item.fullName || "-"} — ${item.note || item.subject || "รายงานการปฏิบัติงาน"}`;
+      document.getElementById("signStampOverlay").classList.add("d-none");
+
+      const revertBtn = document.getElementById("revertOriginalPdfBtn");
+      if (item.hasBackup || item.originalPdfUrl) {
+        revertBtn.classList.remove("d-none");
+      } else {
+        revertBtn.classList.add("d-none");
+      }
+
+      const savedSig = getSavedDirectorSignature();
+      if (!savedSig) {
+        showSignAlert("ยังไม่ได้อัปโหลดลายเซ็นในหน้าโปรไฟล์ กรุณาไปที่ 'ดูโปรไฟล์' เพื่ออัปโหลดลายเซ็นก่อนบันทึกการลงนาม", "warning");
+      }
+
+      const loadingBox = document.getElementById("signLoadingBox");
+      const stageScroll = document.getElementById("signStageScroll");
+      loadingBox.classList.remove("d-none");
+      stageScroll.classList.add("d-none");
+      signPdfModal.show();
 
       try {
-        const res = await fetch(GAS_WEB_APP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            action: "getDailyOverview",
-            isoDate: targetDate
-          })
-        });
-        const result = await res.json();
-        if (currentSeq !== overviewRequestSeq) return;
-        if (result && result.ok && overviewMode === "daily") {
-          renderDirectorOverview(result);
+        const pdfArrayBuffer = await fetchPdfArrayBufferForSigning(item.pdfUrl);
+        if (!window.pdfjsLib) {
+          throw new Error("ไม่พบไลบรารีแสดงผล PDF");
         }
+        const loadingTask = window.pdfjsLib.getDocument({ data: pdfArrayBuffer });
+        signPdfDoc = await loadingTask.promise;
+        signTotalPages = signPdfDoc.numPages || 1;
+        loadingBox.classList.add("d-none");
+        stageScroll.classList.remove("d-none");
+        await renderSignPdfPage(1);
       } catch (err) {
-        console.error(err);
-      } finally {
-        if (currentSeq === overviewRequestSeq) {
-          loadingEl.classList.add("d-none");
-          refreshBtn.disabled = false;
-        }
+        loadingBox.classList.add("d-none");
+        stageScroll.classList.remove("d-none");
+        showSignAlert("เกิดข้อผิดพลาดในการโหลดไฟล์ PDF: " + err.message, "danger");
       }
     }
 
-    async function loadDirectorMonthlyOverview() {
-      const targetMonth = directorMonthInputEl.value || getCurrentYearMonth();
-      const loadingEl = document.getElementById("directorLoadingText");
-      const refreshBtn = document.getElementById("refreshMonthlyBtn");
-      const currentSeq = ++overviewRequestSeq;
+    document.getElementById("prevSignPageBtn").addEventListener("click", () => {
+      if (signCurrentPage > 1) renderSignPdfPage(signCurrentPage - 1);
+    });
 
-      updateDirectorDateLabel();
-      loadingEl.classList.remove("d-none");
-      refreshBtn.disabled = true;
+    document.getElementById("nextSignPageBtn").addEventListener("click", () => {
+      if (signCurrentPage < signTotalPages) renderSignPdfPage(signCurrentPage + 1);
+    });
+
+    document.getElementById("clearSignStampBtn").addEventListener("click", () => {
+      signStampPlacement = null;
+      document.getElementById("signStampOverlay").classList.add("d-none");
+      hideSignAlert();
+    });
+
+    document.getElementById("signPageWrapper").addEventListener("click", (e) => {
+      if (didDragStampMove) {
+        didDragStampMove = false;
+        return;
+      }
+      if (e.target.closest("#signStampOverlay")) return;
+      if (!signPdfDoc) return;
+
+      const canvasEl = document.getElementById("signPdfCanvas");
+      const rect = canvasEl.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+
+      const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+      const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+
+      signStampPlacement = {
+        page: signCurrentPage,
+        nx: x / rect.width,
+        ny: y / rect.height
+      };
+      updateSignStampOverlayDom();
+    });
+
+    const signStampOverlayEl = document.getElementById("signStampOverlay");
+    signStampOverlayEl.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      isDraggingStamp = true;
+      didDragStampMove = false;
+      signStampOverlayEl.setPointerCapture(e.pointerId);
+    });
+
+    signStampOverlayEl.addEventListener("pointermove", (e) => {
+      if (!isDraggingStamp || !signStampPlacement) return;
+      didDragStampMove = true;
+      const canvasEl = document.getElementById("signPdfCanvas");
+      const rect = canvasEl.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+
+      const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+      const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+
+      signStampPlacement.page = signCurrentPage;
+      signStampPlacement.nx = x / rect.width;
+      signStampPlacement.ny = y / rect.height;
+      updateSignStampOverlayDom();
+    });
+
+    function finishStampDrag(e) {
+      if (!isDraggingStamp) return;
+      isDraggingStamp = false;
+      try {
+        if (e && e.pointerId !== undefined) {
+          signStampOverlayEl.releasePointerCapture(e.pointerId);
+        }
+      } catch (err) {}
+    }
+
+    signStampOverlayEl.addEventListener("pointerup", finishStampDrag);
+    signStampOverlayEl.addEventListener("pointercancel", finishStampDrag);
+
+    function loadImageElement(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    async function renderSignedPdfBase64() {
+      if (!signPdfDoc || !signStampPlacement) {
+        throw new Error("กรุณาคลิกเลือกตำแหน่งลงนามบนเอกสารก่อนค่ะ");
+      }
+      const savedSig = getSavedDirectorSignature();
+      if (!savedSig) {
+        throw new Error("กรุณาอัปโหลดลายเซ็นในหน้าโปรไฟล์ก่อนค่ะ");
+      }
+
+      const sigImg = await loadImageElement(savedSig);
+      const { jsPDF } = window.jspdf;
+      let signedPdf = null;
+
+      for (let p = 1; p <= signTotalPages; p++) {
+        const page = await signPdfDoc.getPage(p);
+        const renderScale = 2.0;
+        const viewport = page.getViewport({ scale: renderScale });
+
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = Math.round(viewport.width);
+        pageCanvas.height = Math.round(viewport.height);
+        const ctx = pageCanvas.getContext("2d");
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        if (signStampPlacement.page === p) {
+          const cx = signStampPlacement.nx * pageCanvas.width;
+          const cy = signStampPlacement.ny * pageCanvas.height;
+
+          const sigMaxW = Math.round(pageCanvas.width * 0.22);
+          const sigMaxH = Math.round(pageCanvas.height * 0.055);
+          const natW = sigImg.naturalWidth || 200;
+          const natH = sigImg.naturalHeight || 80;
+          const ratio = Math.min(sigMaxW / natW, sigMaxH / natH, 1);
+          const drawSigW = Math.max(40, Math.round(natW * ratio));
+          const drawSigH = Math.max(18, Math.round(natH * ratio));
+
+          const nameFontSize = Math.max(16, Math.round(pageCanvas.width * 0.0185));
+          const roleFontSize = Math.max(14, Math.round(pageCanvas.width * 0.0165));
+          const lineGap = Math.round(roleFontSize * 0.35);
+
+          ctx.save();
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          ctx.fillStyle = "#000000";
+
+          const totalBlockH = drawSigH + 4 + nameFontSize + lineGap + roleFontSize;
+          let currentY = cy - totalBlockH / 2;
+
+          const minY = 12;
+          const maxY = pageCanvas.height - totalBlockH - 12;
+          if (currentY < minY) currentY = minY;
+          if (currentY > maxY) currentY = Math.max(minY, maxY);
+
+          const minX = Math.max(drawSigW / 2 + 12, pageCanvas.width * 0.16);
+          const maxX = Math.min(pageCanvas.width - drawSigW / 2 - 12, pageCanvas.width * 0.84);
+          const drawCenterX = Math.max(minX, Math.min(maxX, cx));
+
+          ctx.drawImage(sigImg, drawCenterX - drawSigW / 2, currentY, drawSigW, drawSigH);
+          currentY += drawSigH + 4;
+
+          ctx.font = `700 ${nameFontSize}px "Sarabun", sans-serif`;
+          ctx.fillText(DIRECTOR_STAMP_NAME, drawCenterX, currentY);
+          currentY += nameFontSize + lineGap;
+
+          ctx.font = `400 ${roleFontSize}px "Sarabun", sans-serif`;
+          ctx.fillText(DIRECTOR_STAMP_ROLE, drawCenterX, currentY);
+          ctx.restore();
+        }
+
+        const pageWpt = viewport.width / renderScale;
+        const pageHpt = viewport.height / renderScale;
+        const orientation = pageWpt > pageHpt ? "landscape" : "portrait";
+
+        if (!signedPdf) {
+          signedPdf = new jsPDF({
+            orientation,
+            unit: "pt",
+            format: [pageWpt, pageHpt]
+          });
+        } else {
+          signedPdf.addPage([pageWpt, pageHpt], orientation);
+        }
+
+        const imgData = pageCanvas.toDataURL("image/jpeg", 0.94);
+        signedPdf.addImage(imgData, "JPEG", 0, 0, pageWpt, pageHpt);
+      }
+
+      const dataUri = signedPdf.output("datauristring");
+      return dataUri.includes(",") ? dataUri.split(",")[1] : "";
+    }
+
+    document.getElementById("confirmSignSaveBtn").addEventListener("click", async () => {
+      if (!signTargetItem || !signTargetItem.pdfUrl) return;
+      const saveBtn = document.getElementById("confirmSignSaveBtn");
+      hideSignAlert();
 
       try {
-        const res = await fetch(GAS_WEB_APP_URL, {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "กำลังบันทึกทับไฟล์เดิม...";
+
+        const signedBase64 = await renderSignedPdfBase64();
+        await fetch(GAS_WEB_APP_URL, {
           method: "POST",
+          mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({
-            action: "getMonthlyOverview",
-            yearMonth: targetMonth
+            action: "signOverwritePdf",
+            pdfUrl: signTargetItem.pdfUrl,
+            fullName: signTargetItem.fullName || "",
+            isoDate: signTargetItem.isoDate || "",
+            subject: signTargetItem.note || signTargetItem.subject || "",
+            signedBy: loggedInUser || "นายสิรวุฒิ ยุนุ้ย",
+            signedPdfBase64: signedBase64
           })
         });
-        const result = await res.json();
-        if (currentSeq !== overviewRequestSeq) return;
-        if (result && result.ok && overviewMode === "monthly") {
-          renderDirectorMonthlyOverview(result);
-        }
+
+        signPdfModal.hide();
+        document.getElementById("downloadPdfBtn").classList.add("d-none");
+        document.getElementById("saveStatusText").textContent =
+          "บันทึกการลงนามทับไฟล์เดิมเรียบร้อยแล้ว (สำรองฉบับก่อนลงนามไว้ให้แล้วหากต้องการย้อนกลับ)";
+        successModal.show();
+
+        setTimeout(() => {
+          if (overviewMode === "monthly") {
+            loadDirectorMonthlyOverview();
+          } else {
+            loadDirectorOverview();
+          }
+        }, 1200);
       } catch (err) {
-        console.error(err);
+        showSignAlert(err && err.message ? err.message : "เกิดข้อผิดพลาดในการบันทึกการลงนาม", "danger");
       } finally {
-        if (currentSeq === overviewRequestSeq) {
-          loadingEl.classList.add("d-none");
-          refreshBtn.disabled = false;
-        }
+        saveBtn.disabled = false;
+        saveBtn.textContent = "บันทึกการลงนามทับไฟล์เดิม";
       }
-    }
+    });
+
+    document.getElementById("revertOriginalPdfBtn").addEventListener("click", async () => {
+      if (!signTargetItem || !signTargetItem.pdfUrl) return;
+      const revertBtn = document.getElementById("revertOriginalPdfBtn");
+      hideSignAlert();
+
+      try {
+        revertBtn.disabled = true;
+        revertBtn.textContent = "กำลังย้อนกลับ...";
+
+        await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "revertOriginalPdf",
+            pdfUrl: signTargetItem.pdfUrl,
+            fullName: signTargetItem.fullName || "",
+            isoDate: signTargetItem.isoDate || ""
+          })
+        });
+
+        signPdfModal.hide();
+        document.getElementById("downloadPdfBtn").classList.add("d-none");
+        document.getElementById("saveStatusText").textContent =
+          "ย้อนกลับเป็นฉบับก่อนลงนามเรียบร้อยแล้ว";
+        successModal.show();
+
+        setTimeout(() => {
+          if (overviewMode === "monthly") {
+            loadDirectorMonthlyOverview();
+          } else {
+            loadDirectorOverview();
+          }
+        }, 1200);
+      } catch (err) {
+        showSignAlert(err && err.message ? err.message : "ไม่สามารถย้อนกลับฉบับก่อนลงนามได้", "danger");
+      } finally {
+        revertBtn.disabled = false;
+        revertBtn.textContent = "ย้อนกลับฉบับก่อนลงนาม";
+      }
+    });
 
     function populateFormForEdit(row) {
       hideInlineDeleteBanner();
@@ -2922,6 +3566,9 @@
 
     window.addEventListener("resize", () => {
       document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
+      if (signStampPlacement && document.getElementById("signPdfModal").classList.contains("show")) {
+        updateSignStampOverlayDom();
+      }
     });
 
     reportDateEl.addEventListener("change", updateThaiDateLabel);

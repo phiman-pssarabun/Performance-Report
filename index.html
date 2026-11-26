@@ -1458,7 +1458,6 @@
           </button>
         </div>
 
-        <!-- แถบยืนยันการลบแบบฝังในหน้า (ไม่ใช้หน้าต่างเด้ง) -->
         <div id="inlineDeleteBanner" class="inline-delete-banner d-none" role="region" aria-live="polite">
           <div>
             <div class="inline-delete-title" id="inlineDeleteTitle">ยืนยันการลบรายการรายงาน</div>
@@ -1534,7 +1533,6 @@
           </div>
         </div>
 
-        <!-- แถบควบคุมโหมดรายวัน -->
         <div id="dailyControlsRow" class="row g-2 align-items-end">
           <div class="col-sm-6 col-md-4 col-lg-3">
             <label for="directorDateInput" class="form-label fw-bold mb-1">เลือกวันที่ตรวจสอบรายงาน</label>
@@ -1547,7 +1545,6 @@
           </div>
         </div>
 
-        <!-- แถบควบคุมโหมดประจำเดือน -->
         <div id="monthlyControlsRow" class="row g-2 align-items-end d-none">
           <div class="col-sm-6 col-md-4 col-lg-3">
             <label for="directorMonthInput" class="form-label fw-bold mb-1">เลือกเดือนและปีที่ต้องการดู</label>
@@ -1614,7 +1611,6 @@
         <span>กำลังโหลดข้อมูล..</span>
       </div>
 
-      <!-- มุมมองคอมพิวเตอร์: ขยายเต็มความกว้างหน้าจอ -->
       <div class="director-table-card d-none d-md-block">
         <div class="table-responsive">
           <table class="table align-middle director-table">
@@ -1632,7 +1628,6 @@
         </div>
       </div>
 
-      <!-- มุมมองมือถือ: แสดงเป็นการ์ด -->
       <div class="d-md-none d-flex flex-column gap-2" id="directorCardList"></div>
     </div>
   </div>
@@ -1654,7 +1649,6 @@
             <div class="text-muted" id="profileRoleText" style="font-size: 0.94rem;">ตำแหน่ง : ผู้บริหารสถานศึกษา</div>
           </div>
 
-          <!-- ส่วนจัดการลายเซ็นอิเล็กทรอนิกส์สำหรับผู้อำนวยการ -->
           <div id="directorSignatureSection" class="d-none mb-3">
             <hr class="my-3" />
             <h6 class="fw-bold mb-2" style="color: var(--navy-dark);">ลายเซ็นอิเล็กทรอนิกส์สำหรับลงนามเอกสาร</h6>
@@ -1842,8 +1836,8 @@
             img.parentElement.style.display = "none";
           };
         });
-        logoBox.style.display = "flex";
-        dirLogoBox.style.display = "flex";
+        if (logoBox) logoBox.style.display = "flex";
+        if (dirLogoBox) dirLogoBox.style.display = "flex";
         if (loginLogoBox) loginLogoBox.style.display = "flex";
       }
 
@@ -1851,10 +1845,14 @@
         const cleanUrl = SCHOOL_BANNER_BG_URL.trim().replace(/"/g, "%22");
         const testImg = new Image();
         testImg.onload = () => {
-          bgLayer.style.backgroundImage = `url("${cleanUrl}")`;
-          bgLayer.style.display = "block";
-          dirBgLayer.style.backgroundImage = `url("${cleanUrl}")`;
-          dirBgLayer.style.display = "block";
+          if (bgLayer) {
+            bgLayer.style.backgroundImage = `url("${cleanUrl}")`;
+            bgLayer.style.display = "block";
+          }
+          if (dirBgLayer) {
+            dirBgLayer.style.backgroundImage = `url("${cleanUrl}")`;
+            dirBgLayer.style.display = "block";
+          }
         };
         testImg.src = cleanUrl;
       }
@@ -1922,6 +1920,7 @@
     const directorMonthInputEl = document.getElementById("directorMonthInput");
     const directorDatePreviewEl = document.getElementById("directorDatePreview");
     const directorTableHeadEl = document.getElementById("directorTableHead");
+    const directorLoadingTextEl = document.getElementById("directorLoadingText");
     const singlePhotoInput = document.getElementById("singlePhotoInput");
     const multiPhotoInput = document.getElementById("multiPhotoInput");
     const photoGridEl = document.getElementById("photoGrid");
@@ -2251,8 +2250,7 @@
         backToDirectorBtnEl.classList.add("d-none");
         deputyReportsHistorySectionEl.classList.add("d-none");
         directorSectionEl.classList.remove("d-none");
-        updateDirectorDateLabel();
-        loadDirectorOverview();
+        setOverviewMode("daily");
       } else {
         openFormForAuthenticatedUser(userFullName, false);
       }
@@ -2440,7 +2438,16 @@
     }
 
     function formatThaiDateParts(isoDateStr) {
-      const [y, m, d] = isoDateStr.split("-").map(Number);
+      const [y, m, d] = String(isoDateStr || "").split("-").map(Number);
+      if (!y || !m || !d) {
+        return {
+          dayName: "",
+          dayNumThai: "",
+          monthName: "",
+          buddhistYearThai: "",
+          fullText: "-"
+        };
+      }
       const dt = new Date(y, m - 1, d);
       const dayName = THAI_DAYS[dt.getDay()];
       const dayNumThai = toThaiDigits(d);
@@ -2466,10 +2473,10 @@
     }
 
     function formatFileDateDDMMBE(isoDateStr) {
-      const [y, m, d] = isoDateStr.split("-").map(Number);
-      const dd = String(d).padStart(2, "0");
-      const mm = String(m).padStart(2, "0");
-      const beYear = y + 543;
+      const [y, m, d] = String(isoDateStr || "").split("-").map(Number);
+      const dd = String(d || 1).padStart(2, "0");
+      const mm = String(m || 1).padStart(2, "0");
+      const beYear = (y || new Date().getFullYear()) + 543;
       return `${dd}-${mm}-${beYear}`;
     }
 
@@ -2744,6 +2751,49 @@
       bindDirectorSignButtons();
     }
 
+    async function loadDirectorOverview() {
+      const targetDate = directorDateInputEl.value || getTodayIsoDate();
+      const refreshBtn = document.getElementById("refreshOverviewBtn");
+      const currentSeq = ++overviewRequestSeq;
+
+      if (directorLoadingTextEl) directorLoadingTextEl.classList.remove("d-none");
+      if (refreshBtn) refreshBtn.disabled = true;
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "getDailyOverview",
+            isoDate: targetDate
+          })
+        });
+        const result = await res.json();
+        if (currentSeq !== overviewRequestSeq) return;
+        if (result && result.ok) {
+          renderDirectorOverview(result);
+        } else {
+          renderDirectorOverview({
+            summary: { total: 4, reported: 0, leaveOrOfficial: 0, pending: 4 },
+            items: []
+          });
+        }
+      } catch (err) {
+        if (currentSeq === overviewRequestSeq) {
+          console.error(err);
+          renderDirectorOverview({
+            summary: { total: 4, reported: 0, leaveOrOfficial: 0, pending: 4 },
+            items: []
+          });
+        }
+      } finally {
+        if (currentSeq === overviewRequestSeq) {
+          if (directorLoadingTextEl) directorLoadingTextEl.classList.add("d-none");
+          if (refreshBtn) refreshBtn.disabled = false;
+        }
+      }
+    }
+
     function normalizeMonthlyItems(rawItems) {
       const list = Array.isArray(rawItems) ? rawItems : [];
       const mapped = list.map((raw, idx) => {
@@ -2889,6 +2939,43 @@
       });
 
       bindDirectorSignButtons();
+    }
+
+    async function loadDirectorMonthlyOverview() {
+      const yearMonth = directorMonthInputEl.value || getCurrentYearMonth();
+      const refreshBtn = document.getElementById("refreshMonthlyBtn");
+      const currentSeq = ++overviewRequestSeq;
+
+      if (directorLoadingTextEl) directorLoadingTextEl.classList.remove("d-none");
+      if (refreshBtn) refreshBtn.disabled = true;
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "getMonthlyOverview",
+            yearMonth
+          })
+        });
+        const result = await res.json();
+        if (currentSeq !== overviewRequestSeq) return;
+        if (result && result.ok) {
+          renderDirectorMonthlyOverview(result);
+        } else {
+          renderDirectorMonthlyOverview({ items: [] });
+        }
+      } catch (err) {
+        if (currentSeq === overviewRequestSeq) {
+          console.error(err);
+          renderDirectorMonthlyOverview({ items: [] });
+        }
+      } finally {
+        if (currentSeq === overviewRequestSeq) {
+          if (directorLoadingTextEl) directorLoadingTextEl.classList.add("d-none");
+          if (refreshBtn) refreshBtn.disabled = false;
+        }
+      }
     }
 
     function bindDirectorSignButtons() {
@@ -3993,4 +4080,3 @@
   </script>
 </body>
 </html>
-

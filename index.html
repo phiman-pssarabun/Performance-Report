@@ -612,6 +612,35 @@
       padding-bottom: 0.75rem;
     }
 
+    .mobile-report-entries {
+      margin-top: 0.45rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mobile-report-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding-top: 0.45rem;
+    }
+
+    .mobile-report-entry + .mobile-report-entry {
+      margin-top: 0.45rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .mobile-report-subject {
+      font-size: 0.88rem;
+      color: #1e293b;
+      line-height: 1.35;
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+    }
+
     .form-label {
       color: var(--navy-dark);
       margin-bottom: 0.3rem;
@@ -1019,35 +1048,6 @@
         page-break-inside: avoid;
       }
     }
-
-    .mobile-report-entries {
-  margin-top: 0.45rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.mobile-report-entry {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding-top: 0.45rem;
-}
-
-.mobile-report-entry + .mobile-report-entry {
-  margin-top: 0.45rem;
-  padding-top: 0.5rem;
-  border-top: 1px dashed #cbd5e1;
-}
-
-.mobile-report-subject {
-  font-size: 0.88rem;
-  color: #1e293b;
-  line-height: 1.35;
-  flex: 1;
-  min-width: 0;
-  word-break: break-word;
-}
   </style>
 </head>
 <body class="py-3 py-md-4">
@@ -1632,6 +1632,10 @@
     const loginAlertEl = document.getElementById("loginAlert");
     const changePassAlertEl = document.getElementById("changePassAlert");
 
+    function normalizePersonName(name) {
+      return String(name || "").replace(/\s+/g, " ").trim();
+    }
+
     function hideInlineDeleteBanner() {
       if (deleteFeedbackTimer) {
         clearTimeout(deleteFeedbackTimer);
@@ -2178,115 +2182,115 @@
     }
 
     function renderDirectorOverview(data) {
-  const sum = data.summary || { total: 4, reported: 0, leaveOrOfficial: 0, pending: 4 };
-  document.getElementById("statTotal").textContent = toThaiDigits(sum.total);
-  document.getElementById("statReported").textContent = toThaiDigits(sum.reported);
-  document.getElementById("statLeave").textContent = toThaiDigits(sum.leaveOrOfficial);
-  document.getElementById("statPending").textContent = toThaiDigits(sum.pending);
+      const sum = data.summary || { total: 4, reported: 0, leaveOrOfficial: 0, pending: 4 };
+      document.getElementById("statTotal").textContent = toThaiDigits(sum.total);
+      document.getElementById("statReported").textContent = toThaiDigits(sum.reported);
+      document.getElementById("statLeave").textContent = toThaiDigits(sum.leaveOrOfficial);
+      document.getElementById("statPending").textContent = toThaiDigits(sum.pending);
 
-  const tbody = document.getElementById("directorTableBody");
-  const cardList = document.getElementById("directorCardList");
-  tbody.innerHTML = "";
-  cardList.innerHTML = "";
+      const tbody = document.getElementById("directorTableBody");
+      const cardList = document.getElementById("directorCardList");
+      tbody.innerHTML = "";
+      cardList.innerHTML = "";
 
-  const rawList = Array.isArray(data.items) ? data.items : [];
-  const displayItems = expandOverviewItems(rawList);
+      const rawList = Array.isArray(data.items) ? data.items : [];
+      const displayItems = expandOverviewItems(rawList);
 
-  // ส่วนที่ ๑: ตารางมุมมองคอมพิวเตอร์ (คงแถวย่อยต่อเนื่องภายใต้ชื่อเดิม)
-  displayItems.forEach((item) => {
-    const isSubRow = Boolean(item.isSubRow);
-    const orderCellHtml = isSubRow
-      ? `<span class="sub-report-marker">↳</span>`
-      : `<span class="fw-bold text-muted">${escapeHtml(item.orderLabel || toThaiDigits(item.order))}</span>`;
+      // ส่วนที่ ๑: ตารางมุมมองคอมพิวเตอร์ (คงแถวย่อยต่อเนื่องภายใต้ชื่อเดิม)
+      displayItems.forEach((item) => {
+        const isSubRow = Boolean(item.isSubRow);
+        const orderCellHtml = isSubRow
+          ? `<span class="sub-report-marker">↳</span>`
+          : `<span class="fw-bold text-muted">${escapeHtml(item.orderLabel || toThaiDigits(item.order))}</span>`;
 
-    const nameCellHtml = isSubRow
-      ? ``
-      : `${escapeHtml(item.fullName)}`;
+        const nameCellHtml = isSubRow
+          ? ``
+          : `${escapeHtml(item.fullName)}`;
 
-    const statusCellHtml = isSubRow
-      ? ``
-      : `${renderBadgeHtml(item)}`;
+        const statusCellHtml = isSubRow
+          ? ``
+          : `${renderBadgeHtml(item)}`;
 
-    const viewPdfBtn = item.pdfUrl
-      ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`
-      : `<span class="text-muted" style="font-size: 0.98rem;">-</span>`;
+        const viewPdfBtn = item.pdfUrl
+          ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`
+          : `<span class="text-muted" style="font-size: 0.98rem;">-</span>`;
 
-    const tr = document.createElement("tr");
-    if (isSubRow) tr.classList.add("sub-report-row");
-    tr.innerHTML = `
-      <td class="col-no">${orderCellHtml}</td>
-      <td class="col-name">${nameCellHtml}</td>
-      <td class="col-status">${statusCellHtml}</td>
-      <td class="col-note">${escapeHtml(item.note || "-")}</td>
-      <td class="col-action">${viewPdfBtn}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+        const tr = document.createElement("tr");
+        if (isSubRow) tr.classList.add("sub-report-row");
+        tr.innerHTML = `
+          <td class="col-no">${orderCellHtml}</td>
+          <td class="col-name">${nameCellHtml}</td>
+          <td class="col-status">${statusCellHtml}</td>
+          <td class="col-note">${escapeHtml(item.note || "-")}</td>
+          <td class="col-action">${viewPdfBtn}</td>
+        `;
+        tbody.appendChild(tr);
+      });
 
-  // ส่วนที่ ๒: การ์ดมุมมองมือถือ (รวมรายงานหลายเรื่องของคนเดียวกันไว้ในการ์ดเดียว)
-  const groupedMobile = [];
-  const groupByName = new Map();
+      // ส่วนที่ ๒: การ์ดมุมมองมือถือ (รวมรายงานหลายเรื่องของคนเดียวกันไว้ในการ์ดเดียว)
+      const groupedMobile = [];
+      const groupByName = new Map();
 
-  displayItems.forEach((item) => {
-    const personKey = normalizePersonName(item.fullName || "") || `__idx_${groupedMobile.length}`;
-    let grp = groupByName.get(personKey);
+      displayItems.forEach((item) => {
+        const personKey = normalizePersonName(item.fullName || "") || `__idx_${groupedMobile.length}`;
+        let grp = groupByName.get(personKey);
 
-    if (!grp) {
-      grp = {
-        orderLabel: toThaiDigits(item.order || groupedMobile.length + 1),
-        fullName: item.fullName || "-",
-        stateKey: item.stateKey || "pending",
-        stateLabel: item.stateLabel || "ยังไม่รายงาน",
-        entries: []
-      };
-      groupByName.set(personKey, grp);
-      groupedMobile.push(grp);
-    } else if (!item.isSubRow) {
-      grp.stateKey = item.stateKey || grp.stateKey;
-      grp.stateLabel = item.stateLabel || grp.stateLabel;
-    }
+        if (!grp) {
+          grp = {
+            orderLabel: toThaiDigits(item.order || groupedMobile.length + 1),
+            fullName: item.fullName || "-",
+            stateKey: item.stateKey || "pending",
+            stateLabel: item.stateLabel || "ยังไม่รายงาน",
+            entries: []
+          };
+          groupByName.set(personKey, grp);
+          groupedMobile.push(grp);
+        } else if (!item.isSubRow) {
+          grp.stateKey = item.stateKey || grp.stateKey;
+          grp.stateLabel = item.stateLabel || grp.stateLabel;
+        }
 
-    const hasContentOrPdf = Boolean((item.note && item.note !== "-") || item.pdfUrl);
-    if (hasContentOrPdf) {
-      grp.entries.push({
-        text: item.note || "-",
-        pdfUrl: item.pdfUrl || ""
+        const hasContentOrPdf = Boolean((item.note && item.note !== "-") || item.pdfUrl);
+        if (hasContentOrPdf) {
+          grp.entries.push({
+            text: item.note || "-",
+            pdfUrl: item.pdfUrl || ""
+          });
+        }
+      });
+
+      groupedMobile.forEach((grp) => {
+        const card = document.createElement("div");
+        card.className = "deputy-mobile-card";
+
+        let entriesHtml = "";
+        if (grp.entries.length > 0) {
+          const rowsHtml = grp.entries.map((entry) => {
+            const pdfBtn = entry.pdfUrl
+              ? `<a href="${entry.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn flex-shrink-0">ดูไฟล์รายงาน</a>`
+              : "";
+            return `
+              <div class="mobile-report-entry">
+                <div class="mobile-report-subject">${escapeHtml(entry.text)}</div>
+                ${pdfBtn}
+              </div>
+            `;
+          }).join("");
+          entriesHtml = `<div class="mobile-report-entries">${rowsHtml}</div>`;
+        } else {
+          entriesHtml = `<div class="text-muted mt-1" style="font-size: 0.86rem;">ยังไม่มีข้อมูลรายงานหรือหมายเหตุ</div>`;
+        }
+
+        card.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center gap-2">
+            <div class="fw-bold" style="color: var(--navy-dark);">${escapeHtml(grp.orderLabel)}. ${escapeHtml(grp.fullName)}</div>
+            ${renderBadgeHtml(grp)}
+          </div>
+          ${entriesHtml}
+        `;
+        cardList.appendChild(card);
       });
     }
-  });
-
-  groupedMobile.forEach((grp) => {
-    const card = document.createElement("div");
-    card.className = "deputy-mobile-card";
-
-    let entriesHtml = "";
-    if (grp.entries.length > 0) {
-      const rowsHtml = grp.entries.map((entry) => {
-        const pdfBtn = entry.pdfUrl
-          ? `<a href="${entry.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn flex-shrink-0">ดูไฟล์รายงาน</a>`
-          : "";
-        return `
-          <div class="mobile-report-entry">
-            <div class="mobile-report-subject">${escapeHtml(entry.text)}</div>
-            ${pdfBtn}
-          </div>
-        `;
-      }).join("");
-      entriesHtml = `<div class="mobile-report-entries">${rowsHtml}</div>`;
-    } else {
-      entriesHtml = `<div class="text-muted mt-1" style="font-size: 0.86rem;">ยังไม่มีข้อมูลรายงานหรือหมายเหตุ</div>`;
-    }
-
-    card.innerHTML = `
-      <div class="d-flex justify-content-between align-items-center gap-2">
-        <div class="fw-bold" style="color: var(--navy-dark);">${escapeHtml(grp.orderLabel)}. ${escapeHtml(grp.fullName)}</div>
-        ${renderBadgeHtml(grp)}
-      </div>
-      ${entriesHtml}
-    `;
-    cardList.appendChild(card);
-  });
-}
 
     async function loadDirectorOverview() {
       const targetDate = directorDateInputEl.value || getTodayIsoDate();

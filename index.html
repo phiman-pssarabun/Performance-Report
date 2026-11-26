@@ -412,7 +412,11 @@
     }
 
     .director-table tbody tr.sub-report-row {
-      background-color: #f8fbfe;
+      background-color: #f9fcff;
+    }
+
+    .director-table tbody tr.sub-report-row td {
+      border-top: 1px dashed #dbe8f3;
     }
 
     .director-table td {
@@ -447,9 +451,10 @@
     .sub-report-marker {
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      justify-content: center;
       color: var(--navy-accent);
       font-weight: 700;
+      font-size: 1.15rem;
     }
 
     .my-reports-card {
@@ -600,9 +605,11 @@
     }
 
     .deputy-mobile-card.sub-report-card {
-      background: #f8fbfe;
+      background: #f9fcff;
       border-left: 3px solid var(--navy-accent);
-      margin-left: 0.65rem;
+      margin-left: 0.85rem;
+      padding-top: 0.7rem;
+      padding-bottom: 0.75rem;
     }
 
     .form-label {
@@ -1484,7 +1491,7 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwH_ab9NG2r52aT-fuissvRQPZxlqHTalItk2waQ-nx6OwThWBgfVeDIq9JdE-JASNQ/exec";
 
@@ -2116,7 +2123,7 @@
               ...rep,
               fullName: raw.fullName,
               order: raw.order,
-              orderLabel: isSub ? `↳ ${toThaiDigits(prevCount + 1)}` : (raw.orderLabel || toThaiDigits(raw.order)),
+              orderLabel: isSub ? "↳" : (raw.orderLabel || toThaiDigits(raw.order)),
               isSubRow: isSub,
               stateKey: rep.stateKey || raw.stateKey || "reported",
               stateLabel: rep.stateLabel || raw.stateLabel || "รายงานแล้ว",
@@ -2133,7 +2140,7 @@
         const isSub = Boolean(raw.isSubRow) || prevCount > 1;
         expanded.push({
           ...raw,
-          orderLabel: raw.orderLabel || (isSub ? `↳ ${toThaiDigits(prevCount)}` : toThaiDigits(raw.order)),
+          orderLabel: isSub ? "↳" : (raw.orderLabel || toThaiDigits(raw.order)),
           isSubRow: isSub
         });
       });
@@ -2158,11 +2165,16 @@
       displayItems.forEach((item) => {
         const isSubRow = Boolean(item.isSubRow);
         const orderCellHtml = isSubRow
-          ? `<span class="sub-report-marker">${escapeHtml(item.orderLabel || "↳")}</span>`
+          ? `<span class="sub-report-marker">↳</span>`
           : `<span class="fw-bold text-muted">${escapeHtml(item.orderLabel || toThaiDigits(item.order))}</span>`;
+
         const nameCellHtml = isSubRow
-          ? `<span style="padding-left: 0.75rem; color: #334155;">${escapeHtml(item.fullName)}</span>`
+          ? ``
           : `${escapeHtml(item.fullName)}`;
+
+        const statusCellHtml = isSubRow
+          ? ``
+          : `${renderBadgeHtml(item)}`;
 
         const viewPdfBtn = item.pdfUrl
           ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`
@@ -2173,7 +2185,7 @@
         tr.innerHTML = `
           <td class="col-no">${orderCellHtml}</td>
           <td class="col-name">${nameCellHtml}</td>
-          <td class="col-status">${renderBadgeHtml(item)}</td>
+          <td class="col-status">${statusCellHtml}</td>
           <td class="col-note">${escapeHtml(item.note || "-")}</td>
           <td class="col-action">${viewPdfBtn}</td>
         `;
@@ -2181,14 +2193,25 @@
 
         const card = document.createElement("div");
         card.className = `deputy-mobile-card${isSubRow ? " sub-report-card" : ""}`;
-        card.innerHTML = `
-          <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
-            <div class="fw-bold" style="color: var(--navy-dark);">${escapeHtml(item.orderLabel || toThaiDigits(item.order))}. ${escapeHtml(item.fullName)}</div>
-            ${renderBadgeHtml(item)}
-          </div>
-          <div class="text-muted mb-2" style="font-size: 0.88rem;">${escapeHtml(item.note || "ยังไม่มีข้อมูลรายงานหรือหมายเหตุ")}</div>
-          ${item.pdfUrl ? `<div>${viewPdfBtn}</div>` : ""}
-        `;
+        if (isSubRow) {
+          card.innerHTML = `
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div style="font-size: 0.88rem; color: #1e293b;">
+                <span class="sub-report-marker me-1">↳</span>${escapeHtml(item.note || "-")}
+              </div>
+              ${item.pdfUrl ? `<div class="flex-shrink-0">${viewPdfBtn}</div>` : ""}
+            </div>
+          `;
+        } else {
+          card.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
+              <div class="fw-bold" style="color: var(--navy-dark);">${escapeHtml(item.orderLabel || toThaiDigits(item.order))}. ${escapeHtml(item.fullName)}</div>
+              ${renderBadgeHtml(item)}
+            </div>
+            <div class="text-muted mb-2" style="font-size: 0.88rem;">${escapeHtml(item.note || "ยังไม่มีข้อมูลรายงานหรือหมายเหตุ")}</div>
+            ${item.pdfUrl ? `<div>${viewPdfBtn}</div>` : ""}
+          `;
+        }
         cardList.appendChild(card);
       });
     }

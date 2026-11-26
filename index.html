@@ -689,8 +689,8 @@
       background: #ffffff;
       color: #000000;
       font-size: 16px;
-      line-height: 1.45;
-      padding: 32px 44px 44px;
+      line-height: 1.55;
+      padding: 28px 44px 36px;
       width: 794px;
       max-width: 100%;
       margin: 0 auto;
@@ -701,9 +701,9 @@
     .pdf-render-box .report-sheet {
       width: 794px;
       max-width: 794px;
-      padding: 34px 44px 48px;
+      padding: 16px 40px 24px;
       font-size: 16px;
-      line-height: 1.46;
+      line-height: 1.55;
     }
 
     .doc-header-center {
@@ -715,45 +715,49 @@
       font-weight: 700;
       color: #000000;
       font-size: 19px;
-      line-height: 1.35;
+      line-height: 1.4;
     }
 
     .doc-date-sub {
       font-weight: 400;
       color: #000000;
       font-size: 16px;
-      line-height: 1.35;
+      line-height: 1.4;
       margin-top: 2px;
     }
 
     .doc-row {
       font-size: 16px;
+      line-height: 1.55;
       margin-bottom: 8px;
     }
 
     .doc-label {
       font-weight: 700;
       color: #000000;
+      line-height: 1.55;
     }
 
     .doc-body-text {
       font-weight: 400;
       color: #000000;
+      line-height: 1.55;
     }
 
     .doc-indent-para {
       font-size: 16px;
       font-weight: 400;
+      line-height: 1.58;
       color: #000000;
       text-indent: 2.5em;
       margin-top: 2px;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
 
     .doc-photo-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 14px;
       margin-top: 8px;
     }
 
@@ -2523,6 +2527,20 @@
       previewModal.show();
     });
 
+    function collectBlockCutCandidates(sheetEl, scaleRatio) {
+      const sheetRect = sheetEl.getBoundingClientRect();
+      const candidates = [];
+      const selector = ".doc-header-center, .doc-title, .doc-date-sub, .doc-row, .doc-label, .doc-body-text, .doc-indent-para, .doc-photo-box";
+      sheetEl.querySelectorAll(selector).forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.height <= 0 || r.width <= 0) return;
+        const topPx = Math.max(0, Math.round((r.top - sheetRect.top) * scaleRatio));
+        const bottomPx = Math.max(topPx, Math.round((r.bottom - sheetRect.top) * scaleRatio));
+        candidates.push({ top: topPx, bottom: bottomPx });
+      });
+      return candidates;
+    }
+
     async function generatePdfAssets(data) {
       if (document.fonts && document.fonts.ready) {
         await document.fonts.ready;
@@ -2541,8 +2559,9 @@
 
       try {
         const sheetEl = tempBox.firstElementChild;
+        const renderScale = 2;
         const canvas = await html2canvas(sheetEl, {
-          scale: 2,
+          scale: renderScale,
           useCORS: true,
           backgroundColor: "#ffffff"
         });
@@ -2555,25 +2574,46 @@
 
         const pageW = pdf.internal.pageSize.getWidth();
         const pageH = pdf.internal.pageSize.getHeight();
-        const marginX = 12;
+        const marginX = 14;
         const marginTop = 18;
         const marginBottom = 18;
         const usableW = pageW - marginX * 2;
         const usableH = pageH - marginTop - marginBottom;
 
-        const imgData = canvas.toDataURL("image/jpeg", 0.95);
         const imgHeightMm = (canvas.height * usableW) / canvas.width;
 
         if (imgHeightMm <= usableH) {
+          const imgData = canvas.toDataURL("image/jpeg", 0.95);
           pdf.addImage(imgData, "JPEG", marginX, marginTop, usableW, imgHeightMm);
         } else {
-          const safeUsableH = Math.max(usableH - 4, 50);
-          const pxPerPage = Math.max(Math.floor((safeUsableH * canvas.width) / usableW), 1);
+          const pxPerPage = Math.max(Math.floor((usableH * canvas.width) / usableW), 1);
+          const sheetRect = sheetEl.getBoundingClientRect();
+          const domToCanvasScale = canvas.height / Math.max(sheetRect.height, 1);
+          const blocks = collectBlockCutCandidates(sheetEl, domToCanvasScale);
+
           let offsetY = 0;
           let pageIdx = 0;
 
           while (offsetY < canvas.height) {
-            const sliceH = Math.min(pxPerPage, canvas.height - offsetY);
+            let cutY = Math.min(offsetY + pxPerPage, canvas.height);
+
+            if (cutY < canvas.height) {
+              // หากจุดตัดไปพาดกลางบล็อกใด ให้เลื่อนจุดตัดถอยขึ้นไปก่อนขอบบนของบล็อกนั้น
+              let adjustedCutY = cutY;
+              for (let i = 0; i < blocks.length; i++) {
+                const b = blocks[i];
+                if (b.top < cutY && b.bottom > cutY) {
+                  if (b.top > offsetY + Math.floor(pxPerPage * 0.25)) {
+                    adjustedCutY = Math.min(adjustedCutY, b.top);
+                  }
+                }
+              }
+              if (adjustedCutY > offsetY) {
+                cutY = adjustedCutY;
+              }
+            }
+
+            const sliceH = Math.max(1, cutY - offsetY);
             const sliceCanvas = document.createElement("canvas");
             sliceCanvas.width = canvas.width;
             sliceCanvas.height = sliceH;
@@ -2587,7 +2627,7 @@
             const slicePdfH = (sliceH * usableW) / canvas.width;
             pdf.addImage(sliceUrl, "JPEG", marginX, marginTop, usableW, slicePdfH);
 
-            offsetY += sliceH;
+            offsetY = cutY;
             pageIdx++;
           }
         }
@@ -2650,7 +2690,7 @@
         }
 
         document.getElementById("saveStatusText").textContent = currentReportData.isEditing
-          ? "บันทึกแก้ไขและทับไฟล์ PDF เดิมเรียบร้อยแล้ว"
+          ? "บันทึกแก้ไขและอัปเดตไฟล์ PDF เรียบร้อยแล้ว"
           : "สร้างไฟล์ PDF เรียบร้อยแล้ว";
         previewModal.hide();
         successModal.show();

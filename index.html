@@ -319,6 +319,33 @@
       box-shadow: 0 8px 20px rgba(18, 57, 82, 0.08);
     }
 
+    .view-mode-switch {
+      display: inline-flex;
+      background: #eef4f9;
+      border: 1px solid #c7d9e8;
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .view-mode-btn {
+      border: none;
+      background: transparent;
+      color: #475569;
+      font-weight: 700;
+      padding: 0.35rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.96rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .view-mode-btn.active {
+      background: var(--navy);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(18, 57, 82, 0.2);
+    }
+
     .stat-card {
       background: #ffffff;
       border: 1px solid #c7d9e8;
@@ -427,6 +454,13 @@
       font-size: 1.1rem;
     }
 
+    .director-table td.col-date-monthly {
+      white-space: nowrap;
+      font-weight: 700;
+      color: var(--navy-dark);
+      min-width: 190px;
+    }
+
     .director-table td.col-name {
       text-align: left;
       min-width: 220px;
@@ -441,6 +475,7 @@
 
     .director-table th.col-no,
     .director-table td.col-no,
+    .director-table th.col-date-monthly,
     .director-table th.col-status,
     .director-table td.col-status,
     .director-table th.col-action,
@@ -610,6 +645,13 @@
       margin-left: 0.85rem;
       padding-top: 0.7rem;
       padding-bottom: 0.75rem;
+    }
+
+    .mobile-card-date-sub {
+      font-size: 0.82rem;
+      color: #475569;
+      margin-top: 0.15rem;
+      font-weight: 600;
     }
 
     .mobile-report-entries {
@@ -919,6 +961,10 @@
       .my-reports-card {
         padding: 0.85rem;
         border-radius: 14px;
+      }
+      .view-mode-btn {
+        font-size: 0.84rem;
+        padding: 0.28rem 0.65rem;
       }
       .inline-delete-banner {
         padding: 0.65rem 0.75rem;
@@ -1353,7 +1399,16 @@
       </div>
 
       <div class="director-toolbar mb-3">
-        <div class="row g-2 align-items-end">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <div class="fw-bold" style="color: var(--navy-dark); font-size: 1.05rem;">รูปแบบการแสดงผลรายงาน</div>
+          <div class="view-mode-switch" role="group" aria-label="เลือกรูปแบบการดูรายงาน">
+            <button type="button" class="view-mode-btn active" id="modeDailyBtn" data-mode="daily">รายวัน</button>
+            <button type="button" class="view-mode-btn" id="modeMonthlyBtn" data-mode="monthly">ประจำเดือน</button>
+          </div>
+        </div>
+
+        <!-- แถบควบคุมโหมดรายวัน -->
+        <div id="dailyControlsRow" class="row g-2 align-items-end">
           <div class="col-sm-6 col-md-4 col-lg-3">
             <label for="directorDateInput" class="form-label fw-bold mb-1">เลือกวันที่ตรวจสอบรายงาน</label>
             <input type="date" id="directorDateInput" class="form-control" />
@@ -1373,9 +1428,31 @@
             </button>
           </div>
         </div>
+
+        <!-- แถบควบคุมโหมดประจำเดือน -->
+        <div id="monthlyControlsRow" class="row g-2 align-items-end d-none">
+          <div class="col-sm-6 col-md-4 col-lg-3">
+            <label for="directorMonthInput" class="form-label fw-bold mb-1">เลือกเดือนและปีที่ต้องการดู</label>
+            <input type="month" id="directorMonthInput" class="form-control" />
+          </div>
+          <div class="col-sm-6 col-md-8 col-lg-9 d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-outline-secondary fw-semibold" id="prevMonthOverviewBtn" style="border-radius: 10px;">
+              เดือนก่อนหน้า
+            </button>
+            <button type="button" class="btn btn-outline-secondary fw-semibold" id="thisMonthOverviewBtn" style="border-radius: 10px;">
+              เดือนนี้
+            </button>
+            <button type="button" class="btn btn-outline-secondary fw-semibold" id="nextMonthOverviewBtn" style="border-radius: 10px;">
+              เดือนถัดไป
+            </button>
+            <button type="button" class="btn btn-primary fw-semibold" id="refreshMonthlyBtn" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
+              รีเฟรชข้อมูลทั้งเดือน
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="row g-2 g-md-3 mb-3">
+      <div id="dailyStatsSection" class="row g-2 g-md-3 mb-3">
         <div class="col-6 col-md-3">
           <div class="stat-card">
             <div class="stat-label">รอง ผอ. ทั้งหมด</div>
@@ -1402,6 +1479,27 @@
         </div>
       </div>
 
+      <div id="monthlyStatsSection" class="row g-2 g-md-3 mb-3 d-none">
+        <div class="col-6 col-md-4">
+          <div class="stat-card">
+            <div class="stat-label">รายงานทั้งหมดในเดือน</div>
+            <div class="stat-number" style="color: var(--navy-dark);" id="statMonthTotal">๐</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="stat-card stat-reported">
+            <div class="stat-label">ปฏิบัติงาน / รายงานแล้ว</div>
+            <div class="stat-number text-success" id="statMonthReported">๐</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="stat-card stat-leave">
+            <div class="stat-label">ไปราชการ / ลา</div>
+            <div class="stat-number" style="color: #a16207;" id="statMonthLeave">๐</div>
+          </div>
+        </div>
+      </div>
+
       <div id="directorLoadingText" class="loading-banner mb-3 d-none" role="status" aria-live="polite">
         <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
         <span>กำลังโหลดข้อมูล..</span>
@@ -1411,7 +1509,7 @@
       <div class="director-table-card d-none d-md-block">
         <div class="table-responsive">
           <table class="table align-middle director-table">
-            <thead>
+            <thead id="directorTableHead">
               <tr>
                 <th class="col-no">ลำดับ</th>
                 <th class="col-name">ชื่อ-สกุล</th>
@@ -1583,6 +1681,7 @@
     let generatedPdfBlobUrl = null;
     let loggedInUser = null;
     let loggedInRole = null;
+    let overviewMode = "daily";
     let overviewRequestSeq = 0;
     let myReportsRequestSeq = 0;
     let myReportsCache = [];
@@ -1612,8 +1711,16 @@
     const confirmDeleteInlineBtnEl = document.getElementById("confirmDeleteInlineBtn");
     const cancelDeleteBtnEl = document.getElementById("cancelDeleteBtn");
     const thaiDatePreviewEl = document.getElementById("thaiDatePreview");
+    const modeDailyBtnEl = document.getElementById("modeDailyBtn");
+    const modeMonthlyBtnEl = document.getElementById("modeMonthlyBtn");
+    const dailyControlsRowEl = document.getElementById("dailyControlsRow");
+    const monthlyControlsRowEl = document.getElementById("monthlyControlsRow");
+    const dailyStatsSectionEl = document.getElementById("dailyStatsSection");
+    const monthlyStatsSectionEl = document.getElementById("monthlyStatsSection");
     const directorDateInputEl = document.getElementById("directorDateInput");
+    const directorMonthInputEl = document.getElementById("directorMonthInput");
     const directorDatePreviewEl = document.getElementById("directorDatePreview");
+    const directorTableHeadEl = document.getElementById("directorTableHead");
     const singlePhotoInput = document.getElementById("singlePhotoInput");
     const multiPhotoInput = document.getElementById("multiPhotoInput");
     const photoGridEl = document.getElementById("photoGrid");
@@ -2079,6 +2186,16 @@
       };
     }
 
+    function formatThaiMonthText(yearMonthStr) {
+      const clean = yearMonthStr && /^\d{4}-\d{2}$/.test(yearMonthStr)
+        ? yearMonthStr
+        : getCurrentYearMonth();
+      const [y, m] = clean.split("-").map(Number);
+      const monthName = THAI_MONTHS[m - 1] || "";
+      const beYearThai = toThaiDigits(y + 543);
+      return `ประจำเดือน${monthName} พ.ศ. ${beYearThai}`;
+    }
+
     function formatFileDateDDMMBE(isoDateStr) {
       const [y, m, d] = isoDateStr.split("-").map(Number);
       const dd = String(d).padStart(2, "0");
@@ -2095,6 +2212,13 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
+    function getCurrentYearMonth() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      return `${yyyy}-${mm}`;
+    }
+
     function shiftIsoDate(isoDateStr, deltaDays) {
       const base = isoDateStr && /^\d{4}-\d{2}-\d{2}$/.test(isoDateStr)
         ? isoDateStr
@@ -2107,10 +2231,23 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
+    function shiftYearMonth(yearMonthStr, deltaMonths) {
+      const base = yearMonthStr && /^\d{4}-\d{2}$/.test(yearMonthStr)
+        ? yearMonthStr
+        : getCurrentYearMonth();
+      const [y, m] = base.split("-").map(Number);
+      const dt = new Date(y, m - 1 + deltaMonths, 1);
+      const yyyy = dt.getFullYear();
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      return `${yyyy}-${mm}`;
+    }
+
     function setTodayDefault() {
       const todayIso = getTodayIsoDate();
+      const thisMonth = getCurrentYearMonth();
       reportDateEl.value = todayIso;
       directorDateInputEl.value = todayIso;
+      directorMonthInputEl.value = thisMonth;
       updateThaiDateLabel();
       updateDirectorDateLabel();
     }
@@ -2121,9 +2258,63 @@
     }
 
     function updateDirectorDateLabel() {
-      if (!directorDateInputEl.value) return;
-      directorDatePreviewEl.textContent = formatThaiDateParts(directorDateInputEl.value).fullText;
+      if (overviewMode === "monthly") {
+        directorDatePreviewEl.textContent = formatThaiMonthText(directorMonthInputEl.value);
+      } else {
+        if (!directorDateInputEl.value) return;
+        directorDatePreviewEl.textContent = formatThaiDateParts(directorDateInputEl.value).fullText;
+      }
     }
+
+    function setOverviewMode(newMode) {
+      overviewMode = newMode === "monthly" ? "monthly" : "daily";
+      const isMonthly = overviewMode === "monthly";
+
+      modeDailyBtnEl.classList.toggle("active", !isMonthly);
+      modeMonthlyBtnEl.classList.toggle("active", isMonthly);
+
+      dailyControlsRowEl.classList.toggle("d-none", isMonthly);
+      monthlyControlsRowEl.classList.toggle("d-none", !isMonthly);
+
+      dailyStatsSectionEl.classList.toggle("d-none", isMonthly);
+      monthlyStatsSectionEl.classList.toggle("d-none", !isMonthly);
+
+      if (isMonthly) {
+        if (!directorMonthInputEl.value) {
+          directorMonthInputEl.value = getCurrentYearMonth();
+        }
+        directorTableHeadEl.innerHTML = `
+          <tr>
+            <th class="col-no">ลำดับ</th>
+            <th class="col-date-monthly">วันที่รายงาน</th>
+            <th class="col-name">ชื่อ-สกุล</th>
+            <th class="col-status">สถานะ</th>
+            <th>เรื่อง / หมายเหตุ</th>
+            <th class="col-action">ไฟล์รายงาน</th>
+          </tr>
+        `;
+        updateDirectorDateLabel();
+        loadDirectorMonthlyOverview();
+      } else {
+        if (!directorDateInputEl.value) {
+          directorDateInputEl.value = getTodayIsoDate();
+        }
+        directorTableHeadEl.innerHTML = `
+          <tr>
+            <th class="col-no">ลำดับ</th>
+            <th class="col-name">ชื่อ-สกุล</th>
+            <th class="col-status">สถานะ</th>
+            <th>เรื่อง / หมายเหตุ</th>
+            <th class="col-action">ไฟล์รายงาน</th>
+          </tr>
+        `;
+        updateDirectorDateLabel();
+        loadDirectorOverview();
+      }
+    }
+
+    modeDailyBtnEl.addEventListener("click", () => setOverviewMode("daily"));
+    modeMonthlyBtnEl.addEventListener("click", () => setOverviewMode("monthly"));
 
     function renderBadgeHtml(item) {
       if (item.stateKey === "leave") {
@@ -2292,6 +2483,152 @@
       });
     }
 
+    function normalizeMonthlyItems(rawItems) {
+      const list = Array.isArray(rawItems) ? rawItems : [];
+      const mapped = list.map((raw, idx) => {
+        const isoDate = String(raw.isoDate || raw.date || "").trim();
+        const thaiDateLabel = raw.thaiDateText || (isoDate && /^\d{4}-\d{2}-\d{2}$/.test(isoDate)
+          ? formatThaiDateParts(isoDate).fullText
+          : "-");
+        const stateKey = raw.stateKey || (raw.dailyStatus === "ลากิจ" || raw.dailyStatus === "ลาป่วย" || raw.dailyStatus === "ไปราชการ" ? "leave" : "reported");
+        const stateLabel = raw.stateLabel || raw.dailyStatus || (stateKey === "leave" ? "ไปราชการ / ลา" : "รายงานแล้ว");
+        const noteText = raw.note || raw.subject || raw.statusNote || "-";
+        return {
+          ...raw,
+          _origIdx: idx,
+          isoDate,
+          thaiDateLabel,
+          fullName: raw.fullName || "-",
+          stateKey,
+          stateLabel,
+          note: noteText,
+          pdfUrl: raw.pdfUrl || ""
+        };
+      });
+
+      // เรียงลำดับตามวันที่รายงาน (จากน้อยไปมาก) และคงลำดับเดิมเมื่อวันที่เดียวกัน
+      mapped.sort((a, b) => {
+        if (a.isoDate && b.isoDate && a.isoDate !== b.isoDate) {
+          return a.isoDate.localeCompare(b.isoDate);
+        }
+        if (a.isoDate && !b.isoDate) return -1;
+        if (!a.isoDate && b.isoDate) return 1;
+        return a._origIdx - b._origIdx;
+      });
+
+      return mapped;
+    }
+
+    function renderDirectorMonthlyOverview(data) {
+      const items = normalizeMonthlyItems(data.items || []);
+      const sum = data.summary || {};
+
+      const totalCount = sum.total !== undefined ? sum.total : items.length;
+      const reportedCount = sum.reported !== undefined
+        ? sum.reported
+        : items.filter((it) => it.stateKey === "reported").length;
+      const leaveCount = sum.leaveOrOfficial !== undefined
+        ? sum.leaveOrOfficial
+        : items.filter((it) => it.stateKey === "leave").length;
+
+      document.getElementById("statMonthTotal").textContent = toThaiDigits(totalCount);
+      document.getElementById("statMonthReported").textContent = toThaiDigits(reportedCount);
+      document.getElementById("statMonthLeave").textContent = toThaiDigits(leaveCount);
+
+      const tbody = document.getElementById("directorTableBody");
+      const cardList = document.getElementById("directorCardList");
+      tbody.innerHTML = "";
+      cardList.innerHTML = "";
+
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">ไม่พบข้อมูลการรายงานในเดือนที่เลือก</td></tr>`;
+        cardList.innerHTML = `<div class="deputy-mobile-card text-center text-muted py-3">ไม่พบข้อมูลการรายงานในเดือนที่เลือก</div>`;
+        return;
+      }
+
+      // ตารางมุมมองคอมพิวเตอร์: แสดงทุกวันในเดือน เรียงตามวันที่รายงาน
+      items.forEach((item, idx) => {
+        const viewPdfBtn = item.pdfUrl
+          ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`
+          : `<span class="text-muted" style="font-size: 0.98rem;">-</span>`;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="col-no fw-bold text-muted">${toThaiDigits(idx + 1)}</td>
+          <td class="col-date-monthly">${escapeHtml(item.thaiDateLabel)}</td>
+          <td class="col-name">${escapeHtml(item.fullName)}</td>
+          <td class="col-status">${renderBadgeHtml(item)}</td>
+          <td class="col-note">${escapeHtml(item.note || "-")}</td>
+          <td class="col-action">${viewPdfBtn}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // การ์ดมุมมองมือถือ: จัดกลุ่มตาม "วันที่ + ชื่อ-สกุล" หากวันเดียวกันคนเดียวกันมีหลายเรื่องให้อยู่ในการ์ดเดียวกัน
+      const groupedMobile = [];
+      const groupMap = new Map();
+
+      items.forEach((item) => {
+        const key = `${item.isoDate || item.thaiDateLabel}__${normalizePersonName(item.fullName)}`;
+        let grp = groupMap.get(key);
+        if (!grp) {
+          grp = {
+            isoDate: item.isoDate,
+            thaiDateLabel: item.thaiDateLabel,
+            fullName: item.fullName,
+            stateKey: item.stateKey,
+            stateLabel: item.stateLabel,
+            entries: []
+          };
+          groupMap.set(key, grp);
+          groupedMobile.push(grp);
+        }
+
+        const hasContentOrPdf = Boolean((item.note && item.note !== "-") || item.pdfUrl);
+        if (hasContentOrPdf) {
+          grp.entries.push({
+            text: item.note || "-",
+            pdfUrl: item.pdfUrl || ""
+          });
+        }
+      });
+
+      groupedMobile.forEach((grp, gIdx) => {
+        const card = document.createElement("div");
+        card.className = "deputy-mobile-card";
+
+        let entriesHtml = "";
+        if (grp.entries.length > 0) {
+          const rowsHtml = grp.entries.map((entry) => {
+            const pdfBtn = entry.pdfUrl
+              ? `<a href="${entry.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn flex-shrink-0">ดูไฟล์รายงาน</a>`
+              : "";
+            return `
+              <div class="mobile-report-entry">
+                <div class="mobile-report-subject">${escapeHtml(entry.text)}</div>
+                ${pdfBtn}
+              </div>
+            `;
+          }).join("");
+          entriesHtml = `<div class="mobile-report-entries">${rowsHtml}</div>`;
+        } else {
+          entriesHtml = `<div class="text-muted mt-1" style="font-size: 0.86rem;">ไม่มีรายละเอียดเพิ่มเติม</div>`;
+        }
+
+        card.innerHTML = `
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-bold" style="color: var(--navy-dark);">${toThaiDigits(gIdx + 1)}. ${escapeHtml(grp.fullName)}</div>
+              <div class="mobile-card-date-sub">${escapeHtml(grp.thaiDateLabel)}</div>
+            </div>
+            ${renderBadgeHtml(grp)}
+          </div>
+          ${entriesHtml}
+        `;
+        cardList.appendChild(card);
+      });
+    }
+
     async function loadDirectorOverview() {
       const targetDate = directorDateInputEl.value || getTodayIsoDate();
       const loadingEl = document.getElementById("directorLoadingText");
@@ -2319,7 +2656,7 @@
         });
         const result = await res.json();
         if (currentSeq !== overviewRequestSeq) return;
-        if (result && result.ok) {
+        if (result && result.ok && overviewMode === "daily") {
           renderDirectorOverview(result);
         }
       } catch (err) {
@@ -2330,6 +2667,49 @@
           refreshBtn.disabled = false;
           prevBtn.disabled = false;
           todayBtn.disabled = false;
+          nextBtn.disabled = false;
+        }
+      }
+    }
+
+    async function loadDirectorMonthlyOverview() {
+      const targetMonth = directorMonthInputEl.value || getCurrentYearMonth();
+      const loadingEl = document.getElementById("directorLoadingText");
+      const refreshBtn = document.getElementById("refreshMonthlyBtn");
+      const prevBtn = document.getElementById("prevMonthOverviewBtn");
+      const thisMonthBtn = document.getElementById("thisMonthOverviewBtn");
+      const nextBtn = document.getElementById("nextMonthOverviewBtn");
+      const currentSeq = ++overviewRequestSeq;
+
+      updateDirectorDateLabel();
+      loadingEl.classList.remove("d-none");
+      refreshBtn.disabled = true;
+      prevBtn.disabled = true;
+      thisMonthBtn.disabled = true;
+      nextBtn.disabled = true;
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "getMonthlyOverview",
+            yearMonth: targetMonth
+          })
+        });
+        const result = await res.json();
+        if (currentSeq !== overviewRequestSeq) return;
+        if (result && result.ok && overviewMode === "monthly") {
+          renderDirectorMonthlyOverview(result);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (currentSeq === overviewRequestSeq) {
+          loadingEl.classList.add("d-none");
+          refreshBtn.disabled = false;
+          prevBtn.disabled = false;
+          thisMonthBtn.disabled = false;
           nextBtn.disabled = false;
         }
       }
@@ -2584,6 +2964,34 @@
       updateDirectorDateLabel();
       loadDirectorOverview();
     });
+
+    directorMonthInputEl.addEventListener("change", () => {
+      if (!directorMonthInputEl.value) {
+        directorMonthInputEl.value = getCurrentYearMonth();
+      }
+      updateDirectorDateLabel();
+      loadDirectorMonthlyOverview();
+    });
+
+    document.getElementById("prevMonthOverviewBtn").addEventListener("click", () => {
+      directorMonthInputEl.value = shiftYearMonth(directorMonthInputEl.value, -1);
+      updateDirectorDateLabel();
+      loadDirectorMonthlyOverview();
+    });
+
+    document.getElementById("nextMonthOverviewBtn").addEventListener("click", () => {
+      directorMonthInputEl.value = shiftYearMonth(directorMonthInputEl.value, 1);
+      updateDirectorDateLabel();
+      loadDirectorMonthlyOverview();
+    });
+
+    document.getElementById("thisMonthOverviewBtn").addEventListener("click", () => {
+      directorMonthInputEl.value = getCurrentYearMonth();
+      updateDirectorDateLabel();
+      loadDirectorMonthlyOverview();
+    });
+
+    document.getElementById("refreshMonthlyBtn").addEventListener("click", loadDirectorMonthlyOverview);
 
     function autoExpandTextarea(el) {
       let minH = 54;

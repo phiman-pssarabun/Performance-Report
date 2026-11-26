@@ -812,6 +812,14 @@
       line-height: 1.55;
     }
 
+    .pdf-render-box .doc-photo-grid {
+      gap: 10px;
+    }
+
+    .pdf-render-box .doc-photo-box {
+      height: 185px;
+    }
+
     .doc-header-center {
       text-align: center;
       margin-bottom: 14px;
@@ -1414,15 +1422,6 @@
             <input type="date" id="directorDateInput" class="form-control" />
           </div>
           <div class="col-sm-6 col-md-8 col-lg-9 d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-outline-secondary fw-semibold" id="prevDayOverviewBtn" style="border-radius: 10px;">
-              วันก่อนหน้า
-            </button>
-            <button type="button" class="btn btn-outline-secondary fw-semibold" id="todayOverviewBtn" style="border-radius: 10px;">
-              วันนี้
-            </button>
-            <button type="button" class="btn btn-outline-secondary fw-semibold" id="nextDayOverviewBtn" style="border-radius: 10px;">
-              วันถัดไป
-            </button>
             <button type="button" class="btn btn-primary fw-semibold" id="refreshOverviewBtn" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
               รีเฟรชข้อมูล
             </button>
@@ -1436,15 +1435,6 @@
             <input type="month" id="directorMonthInput" class="form-control" />
           </div>
           <div class="col-sm-6 col-md-8 col-lg-9 d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-outline-secondary fw-semibold" id="prevMonthOverviewBtn" style="border-radius: 10px;">
-              เดือนก่อนหน้า
-            </button>
-            <button type="button" class="btn btn-outline-secondary fw-semibold" id="thisMonthOverviewBtn" style="border-radius: 10px;">
-              เดือนนี้
-            </button>
-            <button type="button" class="btn btn-outline-secondary fw-semibold" id="nextMonthOverviewBtn" style="border-radius: 10px;">
-              เดือนถัดไป
-            </button>
             <button type="button" class="btn btn-primary fw-semibold" id="refreshMonthlyBtn" style="background: var(--navy); border-color: var(--navy); border-radius: 10px;">
               รีเฟรชข้อมูลทั้งเดือน
             </button>
@@ -2219,29 +2209,6 @@
       return `${yyyy}-${mm}`;
     }
 
-    function shiftIsoDate(isoDateStr, deltaDays) {
-      const base = isoDateStr && /^\d{4}-\d{2}-\d{2}$/.test(isoDateStr)
-        ? isoDateStr
-        : getTodayIsoDate();
-      const [y, m, d] = base.split("-").map(Number);
-      const dt = new Date(y, m - 1, d + deltaDays);
-      const yyyy = dt.getFullYear();
-      const mm = String(dt.getMonth() + 1).padStart(2, "0");
-      const dd = String(dt.getDate()).padStart(2, "0");
-      return `${yyyy}-${mm}-${dd}`;
-    }
-
-    function shiftYearMonth(yearMonthStr, deltaMonths) {
-      const base = yearMonthStr && /^\d{4}-\d{2}$/.test(yearMonthStr)
-        ? yearMonthStr
-        : getCurrentYearMonth();
-      const [y, m] = base.split("-").map(Number);
-      const dt = new Date(y, m - 1 + deltaMonths, 1);
-      const yyyy = dt.getFullYear();
-      const mm = String(dt.getMonth() + 1).padStart(2, "0");
-      return `${yyyy}-${mm}`;
-    }
-
     function setTodayDefault() {
       const todayIso = getTodayIsoDate();
       const thisMonth = getCurrentYearMonth();
@@ -2387,7 +2354,6 @@
       const rawList = Array.isArray(data.items) ? data.items : [];
       const displayItems = expandOverviewItems(rawList);
 
-      // ส่วนที่ ๑: ตารางมุมมองคอมพิวเตอร์ (คงแถวย่อยต่อเนื่องภายใต้ชื่อเดิม)
       displayItems.forEach((item) => {
         const isSubRow = Boolean(item.isSubRow);
         const orderCellHtml = isSubRow
@@ -2418,7 +2384,6 @@
         tbody.appendChild(tr);
       });
 
-      // ส่วนที่ ๒: การ์ดมุมมองมือถือ (รวมรายงานหลายเรื่องของคนเดียวกันไว้ในการ์ดเดียว)
       const groupedMobile = [];
       const groupByName = new Map();
 
@@ -2506,7 +2471,6 @@
         };
       });
 
-      // เรียงลำดับตามวันที่รายงาน (จากน้อยไปมาก) และคงลำดับเดิมเมื่อวันที่เดียวกัน
       mapped.sort((a, b) => {
         if (a.isoDate && b.isoDate && a.isoDate !== b.isoDate) {
           return a.isoDate.localeCompare(b.isoDate);
@@ -2546,7 +2510,6 @@
         return;
       }
 
-      // ตารางมุมมองคอมพิวเตอร์: แสดงทุกวันในเดือน เรียงตามวันที่รายงาน
       items.forEach((item, idx) => {
         const viewPdfBtn = item.pdfUrl
           ? `<a href="${item.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์รายงาน</a>`
@@ -2564,7 +2527,6 @@
         tbody.appendChild(tr);
       });
 
-      // การ์ดมุมมองมือถือ: จัดกลุ่มตาม "วันที่ + ชื่อ-สกุล" หากวันเดียวกันคนเดียวกันมีหลายเรื่องให้อยู่ในการ์ดเดียวกัน
       const groupedMobile = [];
       const groupMap = new Map();
 
@@ -2633,17 +2595,11 @@
       const targetDate = directorDateInputEl.value || getTodayIsoDate();
       const loadingEl = document.getElementById("directorLoadingText");
       const refreshBtn = document.getElementById("refreshOverviewBtn");
-      const prevBtn = document.getElementById("prevDayOverviewBtn");
-      const todayBtn = document.getElementById("todayOverviewBtn");
-      const nextBtn = document.getElementById("nextDayOverviewBtn");
       const currentSeq = ++overviewRequestSeq;
 
       updateDirectorDateLabel();
       loadingEl.classList.remove("d-none");
       refreshBtn.disabled = true;
-      prevBtn.disabled = true;
-      todayBtn.disabled = true;
-      nextBtn.disabled = true;
 
       try {
         const res = await fetch(GAS_WEB_APP_URL, {
@@ -2665,9 +2621,6 @@
         if (currentSeq === overviewRequestSeq) {
           loadingEl.classList.add("d-none");
           refreshBtn.disabled = false;
-          prevBtn.disabled = false;
-          todayBtn.disabled = false;
-          nextBtn.disabled = false;
         }
       }
     }
@@ -2676,17 +2629,11 @@
       const targetMonth = directorMonthInputEl.value || getCurrentYearMonth();
       const loadingEl = document.getElementById("directorLoadingText");
       const refreshBtn = document.getElementById("refreshMonthlyBtn");
-      const prevBtn = document.getElementById("prevMonthOverviewBtn");
-      const thisMonthBtn = document.getElementById("thisMonthOverviewBtn");
-      const nextBtn = document.getElementById("nextMonthOverviewBtn");
       const currentSeq = ++overviewRequestSeq;
 
       updateDirectorDateLabel();
       loadingEl.classList.remove("d-none");
       refreshBtn.disabled = true;
-      prevBtn.disabled = true;
-      thisMonthBtn.disabled = true;
-      nextBtn.disabled = true;
 
       try {
         const res = await fetch(GAS_WEB_APP_URL, {
@@ -2708,9 +2655,6 @@
         if (currentSeq === overviewRequestSeq) {
           loadingEl.classList.add("d-none");
           refreshBtn.disabled = false;
-          prevBtn.disabled = false;
-          thisMonthBtn.disabled = false;
-          nextBtn.disabled = false;
         }
       }
     }
@@ -2946,47 +2890,12 @@
       loadDirectorOverview();
     });
 
-    document.getElementById("prevDayOverviewBtn").addEventListener("click", () => {
-      directorDateInputEl.value = shiftIsoDate(directorDateInputEl.value, -1);
-      updateDirectorDateLabel();
-      loadDirectorOverview();
-    });
-
-    document.getElementById("nextDayOverviewBtn").addEventListener("click", () => {
-      directorDateInputEl.value = shiftIsoDate(directorDateInputEl.value, 1);
-      updateDirectorDateLabel();
-      loadDirectorOverview();
-    });
-
     document.getElementById("refreshOverviewBtn").addEventListener("click", loadDirectorOverview);
-    document.getElementById("todayOverviewBtn").addEventListener("click", () => {
-      directorDateInputEl.value = getTodayIsoDate();
-      updateDirectorDateLabel();
-      loadDirectorOverview();
-    });
 
     directorMonthInputEl.addEventListener("change", () => {
       if (!directorMonthInputEl.value) {
         directorMonthInputEl.value = getCurrentYearMonth();
       }
-      updateDirectorDateLabel();
-      loadDirectorMonthlyOverview();
-    });
-
-    document.getElementById("prevMonthOverviewBtn").addEventListener("click", () => {
-      directorMonthInputEl.value = shiftYearMonth(directorMonthInputEl.value, -1);
-      updateDirectorDateLabel();
-      loadDirectorMonthlyOverview();
-    });
-
-    document.getElementById("nextMonthOverviewBtn").addEventListener("click", () => {
-      directorMonthInputEl.value = shiftYearMonth(directorMonthInputEl.value, 1);
-      updateDirectorDateLabel();
-      loadDirectorMonthlyOverview();
-    });
-
-    document.getElementById("thisMonthOverviewBtn").addEventListener("click", () => {
-      directorMonthInputEl.value = getCurrentYearMonth();
       updateDirectorDateLabel();
       loadDirectorMonthlyOverview();
     });
@@ -3220,7 +3129,7 @@
     function collectBlockCutCandidates(sheetEl, scaleRatio) {
       const sheetRect = sheetEl.getBoundingClientRect();
       const candidates = [];
-      const selector = ".doc-header-center, .doc-title, .doc-date-sub, .doc-row, .doc-label, .doc-body-text, .doc-indent-para, .doc-photo-box";
+      const selector = ".doc-header-center, .doc-title, .doc-date-sub, .doc-row, .doc-label, .doc-body-text, .doc-indent-para, .doc-photo-grid, .doc-photo-box";
       sheetEl.querySelectorAll(selector).forEach((el) => {
         const r = el.getBoundingClientRect();
         if (r.height <= 0 || r.width <= 0) return;
@@ -3292,7 +3201,7 @@
               for (let i = 0; i < blocks.length; i++) {
                 const b = blocks[i];
                 if (b.top < cutY && b.bottom > cutY) {
-                  if (b.top > offsetY + Math.floor(pxPerPage * 0.25)) {
+                  if (b.top > offsetY) {
                     adjustedCutY = Math.min(adjustedCutY, b.top);
                   }
                 }

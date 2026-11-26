@@ -279,6 +279,20 @@
       box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
     }
 
+    .edit-mode-banner {
+      background: #fffbeb;
+      border: 1px solid #f59e0b;
+      color: #92400e;
+      border-radius: 12px;
+      padding: 0.7rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
     .status-panel-box {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
@@ -426,6 +440,7 @@
 
     .my-reports-table {
       width: 100%;
+      table-layout: fixed;
     }
 
     .my-reports-table thead th {
@@ -435,28 +450,65 @@
       font-size: 1.08rem;
       text-align: center;
       border-bottom: 2px solid #cbd5e1;
-      padding: 0.8rem 0.55rem;
+      padding: 0.8rem 0.65rem;
+      white-space: nowrap;
+    }
+
+    .my-reports-table th.col-report-no,
+    .my-reports-table td.col-report-no {
+      width: 66px;
       white-space: nowrap;
     }
 
     .my-reports-table th.col-report-date,
     .my-reports-table td.col-report-date {
-      min-width: 195px;
+      width: 165px;
       white-space: nowrap;
+      font-size: 1rem;
     }
 
-    .my-reports-table th.col-report-no,
-    .my-reports-table td.col-report-no,
-    .my-reports-table th.col-report-file,
-    .my-reports-table td.col-report-file {
+    .my-reports-table th.col-report-subject,
+    .my-reports-table td.col-report-subject {
+      width: auto;
+      word-break: normal;
+      overflow-wrap: break-word;
+      font-weight: 700;
+      color: var(--navy-dark);
+    }
+
+    .my-reports-table th.col-report-actions,
+    .my-reports-table td.col-report-actions {
+      width: 225px;
       white-space: nowrap;
     }
 
     .my-reports-table td {
-      padding: 0.8rem 0.55rem;
+      padding: 0.8rem 0.65rem;
       vertical-align: middle;
       border-color: #e2e8f0;
       font-size: 1.06rem;
+    }
+
+    .report-action-group {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      flex-wrap: nowrap;
+    }
+
+    .edit-report-btn {
+      border-radius: 8px;
+      padding: 0.3rem 0.65rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .delete-report-btn {
+      border-radius: 8px;
+      padding: 0.3rem 0.65rem;
+      font-weight: 700;
+      white-space: nowrap;
     }
 
     .status-pill {
@@ -492,13 +544,13 @@
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-accent) 100%);
       border: none;
       color: #fff;
-      border-radius: 9px;
-      padding: 0.35rem 0.9rem;
+      border-radius: 8px;
+      padding: 0.32rem 0.72rem;
       font-weight: 700;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.3rem;
       box-shadow: 0 3px 8px rgba(26, 82, 118, 0.2);
       white-space: nowrap;
     }
@@ -628,8 +680,8 @@
       background: #ffffff;
       color: #000000;
       font-size: 16px;
-      line-height: 1.4;
-      padding: 28px 40px;
+      line-height: 1.45;
+      padding: 32px 44px 44px;
       width: 794px;
       max-width: 100%;
       margin: 0 auto;
@@ -640,9 +692,9 @@
     .pdf-render-box .report-sheet {
       width: 794px;
       max-width: 794px;
-      padding: 28px 40px;
+      padding: 34px 44px 48px;
       font-size: 16px;
-      line-height: 1.4;
+      line-height: 1.46;
     }
 
     .doc-header-center {
@@ -686,7 +738,7 @@
       color: #000000;
       text-indent: 2.5em;
       margin-top: 2px;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
 
     .doc-photo-grid {
@@ -826,9 +878,11 @@
         padding: 0.18rem 0.6rem;
         white-space: nowrap;
       }
-      .view-pdf-btn {
-        font-size: 0.84rem;
-        padding: 0.25rem 0.65rem;
+      .view-pdf-btn,
+      .edit-report-btn,
+      .delete-report-btn {
+        font-size: 0.82rem;
+        padding: 0.24rem 0.55rem;
       }
       .photo-grid {
         gap: 0.5rem;
@@ -879,7 +933,7 @@
 
     @page {
       size: A4 portrait;
-      margin: 15mm 18mm;
+      margin: 18mm 18mm;
     }
 
     @media print {
@@ -1019,6 +1073,15 @@
       </div>
 
       <form id="reportForm" class="card-box">
+        <div id="editingBanner" class="edit-mode-banner d-none">
+          <div>
+            <strong>โหมดแก้ไขรายงาน:</strong> <span id="editingBannerLabel">กำลังแก้ไขรายการที่บันทึกไว้ (บันทึกแล้วจะทับไฟล์เดิม)</span>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-dark fw-bold" id="cancelEditBtn" style="border-radius: 8px;">
+            ยกเลิกการแก้ไข
+          </button>
+        </div>
+
         <div class="row g-2 g-md-3 mb-3">
           <div class="col-md-4">
             <label for="reportDate" class="form-label fw-bold">เลือกวันที่ปฏิบัติงาน <span class="text-danger">*</span></label>
@@ -1112,7 +1175,7 @@
 
           <div class="action-bar">
             <button type="reset" class="btn btn-outline-secondary" id="resetBtn">ล้างข้อมูล</button>
-            <button type="submit" class="btn btn-primary" style="background: var(--navy); border-color: var(--navy);">
+            <button type="submit" class="btn btn-primary" id="submitFormBtn" style="background: var(--navy); border-color: var(--navy);">
               ตรวจสอบข้อมูลก่อนบันทึก
             </button>
           </div>
@@ -1139,10 +1202,10 @@
           <table class="table align-middle my-reports-table mb-0">
             <thead>
               <tr>
-                <th class="col-report-no" style="width: 75px;">ลำดับ</th>
+                <th class="col-report-no">ลำดับ</th>
                 <th class="col-report-date">วันที่ปฏิบัติงาน</th>
-                <th>การปฏิบัติ เรื่อง</th>
-                <th class="col-report-file" style="width: 145px;">ไฟล์รายงาน</th>
+                <th class="col-report-subject">การปฏิบัติ เรื่อง</th>
+                <th class="col-report-actions">จัดการ / ไฟล์รายงาน</th>
               </tr>
             </thead>
             <tbody id="myReportsTableBody"></tbody>
@@ -1415,6 +1478,8 @@
     let loggedInRole = null;
     let overviewRequestSeq = 0;
     let myReportsRequestSeq = 0;
+    let myReportsCache = [];
+    let editingTarget = null;
 
     const appContainerEl = document.getElementById("appContainer");
     const reportDateEl = document.getElementById("reportDate");
@@ -1428,6 +1493,9 @@
     const leaveNoteInputEl = document.getElementById("leaveNoteInput");
     const reportDetailsSectionEl = document.getElementById("reportDetailsSection");
     const deputyReportsHistorySectionEl = document.getElementById("deputyReportsHistorySection");
+    const editingBannerEl = document.getElementById("editingBanner");
+    const editingBannerLabelEl = document.getElementById("editingBannerLabel");
+    const submitFormBtnEl = document.getElementById("submitFormBtn");
     const thaiDatePreviewEl = document.getElementById("thaiDatePreview");
     const directorDateInputEl = document.getElementById("directorDateInput");
     const directorDatePreviewEl = document.getElementById("directorDatePreview");
@@ -1448,6 +1516,37 @@
     const directorProfileBtnEl = document.getElementById("directorProfileBtn");
     const loginAlertEl = document.getElementById("loginAlert");
     const changePassAlertEl = document.getElementById("changePassAlert");
+
+    function updateEditingBannerUI() {
+      if (editingTarget) {
+        editingBannerEl.classList.remove("d-none");
+        editingBannerLabelEl.textContent = `กำลังแก้ไขรายงาน: ${editingTarget.subject || "-"} (บันทึกแล้วจะทับไฟล์เดิม)`;
+        submitFormBtnEl.textContent = "ตรวจสอบข้อมูลและบันทึกทับไฟล์เดิม";
+      } else {
+        editingBannerEl.classList.add("d-none");
+        editingBannerLabelEl.textContent = "";
+        submitFormBtnEl.textContent = "ตรวจสอบข้อมูลก่อนบันทึก";
+      }
+    }
+
+    function clearEditingMode(resetFields = false) {
+      editingTarget = null;
+      updateEditingBannerUI();
+      if (resetFields) {
+        document.getElementById("reportForm").reset();
+        lockFullNameToLoggedInUser();
+        dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
+        photoSlots = [null, null, null, null];
+        renderPhotoGrid();
+        setTodayDefault();
+        updateDailyStatusModeUI();
+        document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
+      }
+    }
+
+    document.getElementById("cancelEditBtn").addEventListener("click", () => {
+      clearEditingMode(true);
+    });
 
     function lockFullNameToLoggedInUser() {
       if (!loggedInUser) return;
@@ -1616,7 +1715,9 @@
       deputyReportsHistorySectionEl.classList.remove("d-none");
       loadMyReportsHistory(userFullName);
 
-      dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
+      if (!editingTarget) {
+        dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
+      }
       updateDailyStatusModeUI();
       updateThaiDateLabel();
     }
@@ -1648,6 +1749,8 @@
       stopIdleTimer();
       loggedInUser = null;
       loggedInRole = null;
+      editingTarget = null;
+      updateEditingBannerUI();
       sessionStorage.removeItem(SESSION_USER_KEY);
       sessionStorage.removeItem(SESSION_ROLE_KEY);
       sessionStorage.removeItem(LAST_ACTIVITY_KEY);
@@ -1969,32 +2072,130 @@
       }
     }
 
+    function populateFormForEdit(row) {
+      editingTarget = {
+        reportId: row.reportId || row.id || "",
+        rowIndex: row.rowIndex || "",
+        oldIsoDate: row.isoDate || "",
+        oldFullName: row.fullName || loggedInUser || fullNameEl.value || "",
+        oldPdfUrl: row.pdfUrl || "",
+        subject: row.subject || ""
+      };
+
+      if (row.isoDate && /^\d{4}-\d{2}-\d{2}$/.test(row.isoDate)) {
+        reportDateEl.value = row.isoDate;
+        updateThaiDateLabel();
+      }
+
+      if (loggedInRole !== "director" && row.dailyStatus) {
+        dailyStatusSelectEl.value = row.dailyStatus;
+      } else {
+        dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
+      }
+      updateDailyStatusModeUI();
+
+      officialNoteInputEl.value = row.officialPlace || row.officialNote || "";
+      officialOrganizerInputEl.value = row.officialOrganizer || "";
+      document.getElementById("subject").value = row.subject || "";
+      document.getElementById("facts").value = row.facts || "";
+      document.getElementById("results").value = row.results || "";
+      document.getElementById("suggestions").value = row.suggestions || "";
+
+      photoSlots = [null, null, null, null];
+      const existingPhotos = Array.isArray(row.photos) ? row.photos : [];
+      existingPhotos.slice(0, 4).forEach((p, i) => {
+        if (p && p.dataUrl) {
+          photoSlots[i] = {
+            fileName: p.fileName || `ภาพ_${i + 1}.jpg`,
+            mimeType: p.mimeType || "image/jpeg",
+            dataUrl: p.dataUrl
+          };
+        }
+      });
+      renderPhotoGrid();
+
+      updateEditingBannerUI();
+      document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
+      document.getElementById("reportForm").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function handleDeleteReport(row) {
+      const labelDate = row.thaiDateText || row.isoDate || "";
+      const confirmMsg = `ยืนยันการลบรายงานเรื่อง "${row.subject || "-"}"${labelDate ? ` (${labelDate})` : ""} ใช่หรือไม่?\nการลบจะไม่สามารถกู้คืนได้`;
+      if (!confirm(confirmMsg)) return;
+
+      const personName = loggedInUser || fullNameEl.value || "";
+      const loadingEl = document.getElementById("myReportsLoadingText");
+      loadingEl.classList.remove("d-none");
+
+      try {
+        await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "deleteReport",
+            reportId: row.reportId || row.id || "",
+            rowIndex: row.rowIndex || "",
+            isoDate: row.isoDate || "",
+            fullName: row.fullName || personName,
+            subject: row.subject || "",
+            pdfUrl: row.pdfUrl || ""
+          })
+        });
+
+        if (
+          editingTarget &&
+          ((editingTarget.reportId && row.reportId && editingTarget.reportId === row.reportId) ||
+            (editingTarget.oldIsoDate === row.isoDate && editingTarget.subject === row.subject))
+        ) {
+          clearEditingMode(true);
+        }
+
+        setTimeout(() => {
+          loadMyReportsHistory(personName);
+        }, 1000);
+      } catch (err) {
+        alert("เกิดข้อผิดพลาดในการลบรายงาน: " + err.message);
+        loadingEl.classList.add("d-none");
+      }
+    }
+
     function renderMyReportsHistory(items) {
+      myReportsCache = Array.isArray(items) ? items : [];
       const tbody = document.getElementById("myReportsTableBody");
       const cardList = document.getElementById("myReportsCardList");
       tbody.innerHTML = "";
       cardList.innerHTML = "";
 
-      if (!items || !items.length) {
+      if (!myReportsCache.length) {
         tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">ยังไม่มีรายงานที่บันทึกไว้</td></tr>`;
         cardList.innerHTML = `<div class="text-center text-muted py-2" style="font-size: 0.88rem;">ยังไม่มีรายงานที่บันทึกไว้</div>`;
         return;
       }
 
-      items.forEach((row, idx) => {
+      myReportsCache.forEach((row, idx) => {
         const dateLabel = row.thaiDateText || (row.isoDate && /^\d{4}-\d{2}-\d{2}$/.test(row.isoDate)
           ? formatThaiDateParts(row.isoDate).fullText
           : "-");
         const pdfBtn = row.pdfUrl
-          ? `<a href="${row.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดูไฟล์ PDF</a>`
-          : `<span class="text-muted">-</span>`;
+          ? `<a href="${row.pdfUrl}" target="_blank" rel="noopener noreferrer" class="view-pdf-btn">ดู PDF</a>`
+          : "";
+
+        const actionGroupHtml = `
+          <div class="report-action-group">
+            ${pdfBtn}
+            <button type="button" class="btn btn-sm btn-warning edit-report-btn" data-idx="${idx}">แก้ไข</button>
+            <button type="button" class="btn btn-sm btn-outline-danger delete-report-btn" data-idx="${idx}">ลบ</button>
+          </div>
+        `;
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td class="col-report-no text-center fw-bold text-muted">${toThaiDigits(idx + 1)}</td>
-          <td class="col-report-date">${escapeHtml(dateLabel)}</td>
-          <td>${escapeHtml(row.subject || "-")}</td>
-          <td class="col-report-file text-center">${pdfBtn}</td>
+          <td class="col-report-date text-center">${escapeHtml(dateLabel)}</td>
+          <td class="col-report-subject">${escapeHtml(row.subject || "-")}</td>
+          <td class="col-report-actions text-center">${actionGroupHtml}</td>
         `;
         tbody.appendChild(tr);
 
@@ -2003,9 +2204,23 @@
         card.innerHTML = `
           <div class="fw-bold mb-1" style="color: var(--navy-dark); font-size: 0.9rem;">${toThaiDigits(idx + 1)}. ${escapeHtml(row.subject || "-")}</div>
           <div class="text-muted mb-2" style="font-size: 0.82rem;">${escapeHtml(dateLabel)}</div>
-          ${row.pdfUrl ? `<div>${pdfBtn}</div>` : ""}
+          ${actionGroupHtml}
         `;
         cardList.appendChild(card);
+      });
+
+      document.querySelectorAll(".edit-report-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = myReportsCache[Number(btn.dataset.idx)];
+          if (item) populateFormForEdit(item);
+        });
+      });
+
+      document.querySelectorAll(".delete-report-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const item = myReportsCache[Number(btn.dataset.idx)];
+          if (item) handleDeleteReport(item);
+        });
       });
     }
 
@@ -2272,6 +2487,12 @@
       }
 
       currentReportData = {
+        isEditing: Boolean(editingTarget),
+        reportId: editingTarget ? editingTarget.reportId : "",
+        rowIndex: editingTarget ? editingTarget.rowIndex : "",
+        oldIsoDate: editingTarget ? editingTarget.oldIsoDate : "",
+        oldFullName: editingTarget ? editingTarget.oldFullName : "",
+        oldPdfUrl: editingTarget ? editingTarget.oldPdfUrl : "",
         isoDate: reportDateEl.value,
         fileDateText: formatFileDateDDMMBE(reportDateEl.value),
         dateParts,
@@ -2325,17 +2546,20 @@
 
         const pageW = pdf.internal.pageSize.getWidth();
         const pageH = pdf.internal.pageSize.getHeight();
-        const margin = 10;
-        const usableW = pageW - margin * 2;
-        const usableH = pageH - margin * 2;
+        const marginX = 12;
+        const marginTop = 18;
+        const marginBottom = 18;
+        const usableW = pageW - marginX * 2;
+        const usableH = pageH - marginTop - marginBottom;
 
         const imgData = canvas.toDataURL("image/jpeg", 0.95);
         const imgHeightMm = (canvas.height * usableW) / canvas.width;
 
         if (imgHeightMm <= usableH) {
-          pdf.addImage(imgData, "JPEG", margin, margin, usableW, imgHeightMm);
+          pdf.addImage(imgData, "JPEG", marginX, marginTop, usableW, imgHeightMm);
         } else {
-          const pxPerPage = Math.floor((usableH * canvas.width) / usableW);
+          const safeUsableH = Math.max(usableH - 4, 50);
+          const pxPerPage = Math.max(Math.floor((safeUsableH * canvas.width) / usableW), 1);
           let offsetY = 0;
           let pageIdx = 0;
 
@@ -2352,7 +2576,7 @@
             if (pageIdx > 0) pdf.addPage();
             const sliceUrl = sliceCanvas.toDataURL("image/jpeg", 0.95);
             const slicePdfH = (sliceH * usableW) / canvas.width;
-            pdf.addImage(sliceUrl, "JPEG", margin, margin, usableW, slicePdfH);
+            pdf.addImage(sliceUrl, "JPEG", marginX, marginTop, usableW, slicePdfH);
 
             offsetY += sliceH;
             pageIdx++;
@@ -2386,12 +2610,21 @@
         dlBtn.download = pdfFileName;
 
         if (GAS_WEB_APP_URL) {
-          document.getElementById("saveStatusText").textContent = "กำลังบันทึกข้อมูล...";
+          document.getElementById("saveStatusText").textContent = currentReportData.isEditing
+            ? "กำลังบันทึกทับข้อมูลและไฟล์ PDF เดิม..."
+            : "กำลังบันทึกข้อมูล...";
           await fetch(GAS_WEB_APP_URL, {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify({
+              action: currentReportData.isEditing ? "updateReport" : "createReport",
+              overwrite: currentReportData.isEditing,
+              reportId: currentReportData.reportId,
+              rowIndex: currentReportData.rowIndex,
+              oldIsoDate: currentReportData.oldIsoDate,
+              oldFullName: currentReportData.oldFullName,
+              oldPdfUrl: currentReportData.oldPdfUrl,
               isoDate: currentReportData.isoDate,
               thaiDateText: currentReportData.thaiDateText,
               fullName: currentReportData.fullName,
@@ -2407,12 +2640,18 @@
           });
         }
 
-        document.getElementById("saveStatusText").textContent = "สร้างไฟล์ PDF เรียบร้อยแล้ว";
+        document.getElementById("saveStatusText").textContent = currentReportData.isEditing
+          ? "บันทึกแก้ไขและทับไฟล์ PDF เดิมเรียบร้อยแล้ว"
+          : "สร้างไฟล์ PDF เรียบร้อยแล้ว";
         previewModal.hide();
         successModal.show();
 
+        const savedName = currentReportData.fullName;
+        editingTarget = null;
+        updateEditingBannerUI();
+
         setTimeout(() => {
-          loadMyReportsHistory(currentReportData.fullName);
+          loadMyReportsHistory(savedName);
         }, 1200);
       } catch (err) {
         alert("เกิดข้อผิดพลาด: " + err.message);
@@ -2424,19 +2663,14 @@
 
     document.getElementById("doneBtn").addEventListener("click", () => {
       document.title = "ระบบรายงานการปฏิบัติงาน";
-      document.getElementById("reportForm").reset();
-      lockFullNameToLoggedInUser();
-      dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
-      photoSlots = [null, null, null, null];
-      renderPhotoGrid();
-      setTodayDefault();
-      updateDailyStatusModeUI();
-      document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
+      clearEditingMode(true);
       loadMyReportsHistory(loggedInUser || fullNameEl.value);
     });
 
     document.getElementById("reportForm").addEventListener("reset", () => {
       setTimeout(() => {
+        editingTarget = null;
+        updateEditingBannerUI();
         lockFullNameToLoggedInUser();
         dailyStatusSelectEl.value = "ปฏิบัติงานสำคัญ";
         photoSlots = [null, null, null, null];

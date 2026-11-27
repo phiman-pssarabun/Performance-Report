@@ -683,14 +683,6 @@
       box-shadow: 0 6px 16px rgba(18, 57, 82, 0.08);
     }
 
-    .deputy-mobile-card.sub-report-card {
-      background: #f9fcff;
-      border-left: 3px solid var(--navy-accent);
-      margin-left: 0.85rem;
-      padding-top: 0.7rem;
-      padding-bottom: 0.75rem;
-    }
-
     .mobile-card-date-sub {
       font-size: 0.82rem;
       color: #475569;
@@ -750,21 +742,72 @@
       margin: 0 auto 0.5rem;
     }
 
+    .sign-controls-bar {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 0.65rem 0.8rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .zoom-pill-group {
+      display: inline-flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      overflow: hidden;
+    }
+
+    .zoom-pill-btn {
+      border: none;
+      background: transparent;
+      color: var(--navy-dark);
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .zoom-pill-btn:hover {
+      background: #eef4f9;
+    }
+
+    .zoom-pill-label {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #334155;
+      border-left: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+      min-width: 52px;
+      text-align: center;
+    }
+
     .sign-stage-scroll {
       background: #e2e8f0;
       border: 1px solid #cbd5e1;
       border-radius: 12px;
-      padding: 1rem;
+      padding: 0.85rem;
       overflow: auto;
-      max-height: 65vh;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y pinch-zoom;
+      max-height: 62vh;
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: flex-start;
+    }
+
+    .sign-page-sizer {
+      position: relative;
+      flex-shrink: 0;
+      margin: 0 auto;
     }
 
     .sign-page-wrapper {
       position: relative;
       display: inline-block;
+      transform-origin: top left;
       background: #ffffff;
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
       cursor: crosshair;
@@ -773,29 +816,31 @@
 
     .sign-page-wrapper canvas {
       display: block;
-      max-width: 100%;
+      width: auto;
       height: auto;
     }
 
     .sign-stamp-box {
       position: absolute;
       transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.82);
       border: 1.5px dashed var(--navy);
       border-radius: 8px;
       padding: 4px 10px;
       text-align: center;
       cursor: move;
+      touch-action: none;
+      pointer-events: auto;
       z-index: 10;
-      min-width: 185px;
+      min-width: 175px;
       color: #000000;
-      line-height: 1.45;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
+      line-height: 1.42;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.16);
     }
 
     .sign-stamp-box img {
-      max-height: 44px;
-      max-width: 145px;
+      max-height: 40px;
+      max-width: 138px;
       object-fit: contain;
       display: block;
       margin: 0 auto 2px;
@@ -803,14 +848,14 @@
     }
 
     .sign-stamp-name {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 400;
       color: #000000;
       white-space: pre;
     }
 
     .sign-stamp-role {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 400;
       color: #000000;
       white-space: nowrap;
@@ -1131,6 +1176,25 @@
       .signed-badge {
         font-size: 0.78rem;
         padding: 0.12rem 0.5rem;
+      }
+      .sign-controls-bar {
+        padding: 0.55rem 0.65rem;
+      }
+      .sign-stage-scroll {
+        padding: 0.55rem;
+        max-height: 56vh;
+      }
+      .sign-stamp-box {
+        min-width: 155px;
+        padding: 3px 8px;
+      }
+      .sign-stamp-box img {
+        max-height: 34px;
+        max-width: 118px;
+      }
+      .sign-stamp-name,
+      .sign-stamp-role {
+        font-size: 12px;
       }
       textarea.subject-field {
         min-height: 38px;
@@ -1465,7 +1529,6 @@
         </div>
       </form>
 
-      <!-- ตารางรายละเอียดการรายงานทั้งหมดของตนเอง (แสดงสำหรับผู้บริหารที่ล็อกอิน เรียงล่าสุดขึ้นด้านบน) -->
       <div id="deputyReportsHistorySection" class="my-reports-card mt-3 d-none">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
           <div>
@@ -1674,8 +1737,9 @@
             <div class="signature-profile-box">
               <img id="directorSignaturePreview" class="signature-preview-img d-none" alt="ตัวอย่างลายเซ็น" />
               <div id="directorSignatureEmptyText" class="text-muted mb-2" style="font-size: 0.92rem;">
-                ยังไม่ได้อัปโหลดลายเซ็น (อัปโหลดครั้งเดียวใช้ได้ตลอด)
+                ยังไม่ได้อัปโหลดลายเซ็น (เก็บในระบบ ใช้ได้ทุกเครื่อง)
               </div>
+              <div id="signatureSyncStatus" class="text-muted mb-2" style="font-size: 0.84rem;"></div>
               <input type="file" id="directorSignatureInput" accept="image/*" class="d-none" />
               <div class="d-flex justify-content-center gap-2 flex-wrap">
                 <button type="button" class="btn btn-sm btn-primary fw-bold" id="uploadSignatureBtn" style="background: var(--navy); border-color: var(--navy); border-radius: 8px;">
@@ -1722,30 +1786,43 @@
 
   <!-- Modal ลงนามเอกสาร PDF สำหรับผู้อำนวยการ -->
   <div class="modal fade" id="signPdfModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-fullscreen-sm-down modal-dialog-scrollable">
       <div class="modal-content" style="border-radius: 16px;">
         <div class="modal-header" style="background: var(--navy-dark); color: #fff; border-top-left-radius: 16px; border-top-right-radius: 16px;">
           <h5 class="modal-title fw-bold">ลงนามเอกสารรายงานการปฏิบัติงาน</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body p-3">
-          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-            <div>
-              <div class="fw-bold" id="signDocTitleText" style="color: var(--navy-dark);">-</div>
-              <div class="text-muted" id="signGuideText" style="font-size: 0.92rem;">คลิกบนหน้าเอกสารเพื่อวางตราประทับลงนาม หรือลากกล่องตราประทับเพื่อปรับตำแหน่ง</div>
+        <div class="modal-body p-2 p-sm-3">
+          <div class="mb-2">
+            <div class="fw-bold" id="signDocTitleText" style="color: var(--navy-dark); font-size: 0.98rem;">-</div>
+            <div class="text-muted" id="signGuideText" style="font-size: 0.86rem;">
+              แตะบนหน้ากระดาษเพื่อวางตราประทับ หรือลากกล่องตราประทับเพื่อปรับจุด • เลื่อน/ซูมกระดาษได้สะดวก
             </div>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold" id="prevSignPageBtn" style="border-radius: 8px;">หน้าก่อนหน้า</button>
-              <span class="fw-bold" id="signPageIndicator" style="font-size: 0.94rem;">หน้า ๑ / ๑</span>
-              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold" id="nextSignPageBtn" style="border-radius: 8px;">หน้าถัดไป</button>
+          </div>
+
+          <div class="sign-controls-bar d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-1">
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold" id="prevSignPageBtn" style="border-radius: 8px;">ก่อนหน้า</button>
+              <span class="fw-bold px-1" id="signPageIndicator" style="font-size: 0.88rem;">หน้า ๑ / ๑</span>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-bold" id="nextSignPageBtn" style="border-radius: 8px;">ถัดไป</button>
+            </div>
+
+            <div class="zoom-pill-group" aria-label="ปรับขนาดซูมเอกสาร">
+              <button type="button" class="zoom-pill-btn" id="zoomOutSignBtn" title="ย่อเอกสาร">-</button>
+              <span class="zoom-pill-label" id="signZoomLabel">๑๐๐%</span>
+              <button type="button" class="zoom-pill-btn" id="zoomInSignBtn" title="ขยายเอกสาร">+</button>
+              <button type="button" class="zoom-pill-btn" id="zoomResetSignBtn" title="พอดีหน้าจอ" style="border-left: 1px solid #e2e8f0;">พอดี</button>
+            </div>
+
+            <div class="d-flex align-items-center gap-1 flex-wrap">
               <button type="button" class="btn btn-sm btn-outline-dark fw-bold" id="clearSignStampBtn" style="border-radius: 8px;">ล้างจุดลงนาม</button>
               <button type="button" class="btn btn-sm btn-outline-danger fw-bold d-none" id="revertOriginalPdfBtn" style="border-radius: 8px;">
-                ย้อนกลับฉบับก่อนลงนาม
+                ย้อนกลับฉบับเดิม
               </button>
             </div>
           </div>
 
-          <div id="signModalAlert" class="alert alert-warning py-2 px-3 d-none mb-2" style="font-size: 0.94rem;"></div>
+          <div id="signModalAlert" class="alert alert-warning py-2 px-3 d-none mb-2" style="font-size: 0.9rem;"></div>
 
           <div id="signLoadingBox" class="text-center py-5 d-none">
             <span class="spinner-border spinner-border-sm text-primary me-2"></span>
@@ -1753,19 +1830,21 @@
           </div>
 
           <div class="sign-stage-scroll" id="signStageScroll">
-            <div class="sign-page-wrapper" id="signPageWrapper">
-              <canvas id="signPdfCanvas"></canvas>
-              <div class="sign-stamp-box d-none" id="signStampOverlay">
-                <img id="signStampSigImg" alt="ลายเซ็น" />
-                <div class="sign-stamp-name">(นายสิรวุฒิ  ยุนุ้ย)</div>
-                <div class="sign-stamp-role">ผู้อำนวยการโรงเรียนพิมานพิทยาสรรค์</div>
+            <div class="sign-page-sizer" id="signPageSizer">
+              <div class="sign-page-wrapper" id="signPageWrapper">
+                <canvas id="signPdfCanvas"></canvas>
+                <div class="sign-stamp-box d-none" id="signStampOverlay">
+                  <img id="signStampSigImg" alt="ลายเซ็น" />
+                  <div class="sign-stamp-name">(นายสิรวุฒิ  ยุนุ้ย)</div>
+                  <div class="sign-stamp-role">ผู้อำนวยการโรงเรียนพิมานพิทยาสรรค์</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer py-2">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">ปิด</button>
-          <button type="button" class="btn btn-success px-4 fw-bold" id="confirmSignSaveBtn" style="border-radius: 10px;">
+          <button type="button" class="btn btn-success px-3 fw-bold" id="confirmSignSaveBtn" style="border-radius: 10px;">
             บันทึกการลงนามทับไฟล์เดิม
           </button>
         </div>
@@ -1906,6 +1985,10 @@
     let signStampPlacement = null;
     let isDraggingStamp = false;
     let didDragStampMove = false;
+    let signZoomScale = 1.0;
+    let basePdfWidthPx = 600;
+    let basePdfHeightPx = 848;
+    let isSignatureSyncing = false;
 
     const appContainerEl = document.getElementById("appContainer");
     const reportDateEl = document.getElementById("reportDate");
@@ -1962,9 +2045,16 @@
     const directorSignatureSectionEl = document.getElementById("directorSignatureSection");
     const directorSignaturePreviewEl = document.getElementById("directorSignaturePreview");
     const directorSignatureEmptyTextEl = document.getElementById("directorSignatureEmptyText");
+    const signatureSyncStatusEl = document.getElementById("signatureSyncStatus");
     const directorSignatureInputEl = document.getElementById("directorSignatureInput");
     const uploadSignatureBtnEl = document.getElementById("uploadSignatureBtn");
     const removeSignatureBtnEl = document.getElementById("removeSignatureBtn");
+
+    function setSignatureSyncStatus(msg, color = "#64748b") {
+      if (!signatureSyncStatusEl) return;
+      signatureSyncStatusEl.textContent = msg || "";
+      signatureSyncStatusEl.style.color = color;
+    }
 
     function getSavedDirectorSignature() {
       try {
@@ -1974,7 +2064,7 @@
       }
     }
 
-    function saveDirectorSignature(dataUrl) {
+    function writeLocalDirectorSignature(dataUrl) {
       try {
         if (dataUrl) {
           localStorage.setItem(DIRECTOR_SIGNATURE_STORAGE_KEY, dataUrl);
@@ -1985,6 +2075,90 @@
         console.error(err);
       }
       renderDirectorSignatureUI();
+      if (signStampPlacement && document.getElementById("signPdfModal").classList.contains("show")) {
+        updateSignStampOverlayDom();
+      }
+    }
+
+    async function syncSignatureToCloud(dataUrl) {
+      const targetName = loggedInUser || "นายสิรวุฒิ ยุนุ้ย";
+      isSignatureSyncing = true;
+      setSignatureSyncStatus(
+        dataUrl ? "กำลังบันทึกลายเซ็นลงระบบคลาวด์..." : "กำลังลบลายเซ็นออกจากระบบคลาวด์...",
+        "#1a5276"
+      );
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "saveSignature",
+            fullName: targetName,
+            signatureDataUrl: dataUrl || ""
+          })
+        });
+        const json = await res.json();
+        if (json && json.ok) {
+          setSignatureSyncStatus(
+            dataUrl ? "ซิงค์ลายเซ็นกับ Google Sheets เรียบร้อยแล้ว (ใช้ได้ทุกเครื่อง)" : "ลบลายเซ็นใน Google Sheets เรียบร้อยแล้ว",
+            "#166534"
+          );
+        } else {
+          setSignatureSyncStatus("บันทึกในเครื่องแล้ว (รอซิงค์คลาวด์)", "#b45309");
+        }
+      } catch (err) {
+        setSignatureSyncStatus("บันทึกในเครื่องแล้ว (เชื่อมต่อคลาวด์ไม่สำเร็จชั่วคราว)", "#b45309");
+      } finally {
+        isSignatureSyncing = false;
+      }
+    }
+
+    async function loadSignatureFromCloud(forceRefresh = false) {
+      const targetName = loggedInUser || "นายสิรวุฒิ ยุนุ้ย";
+      const localSig = getSavedDirectorSignature();
+      if (localSig && !forceRefresh) {
+        renderDirectorSignatureUI();
+      }
+
+      isSignatureSyncing = true;
+      setSignatureSyncStatus("กำลังตรวจสอบลายเซ็นจากระบบ...", "#64748b");
+
+      try {
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "getSignature",
+            fullName: targetName
+          })
+        });
+        const json = await res.json();
+        if (json && json.ok) {
+          const cloudSig = String(json.signatureDataUrl || "").trim();
+          if (cloudSig) {
+            writeLocalDirectorSignature(cloudSig);
+            setSignatureSyncStatus("โหลดลายเซ็นจากระบบเรียบร้อยแล้ว", "#166534");
+            return cloudSig;
+          }
+          if (!localSig) {
+            setSignatureSyncStatus("ยังไม่มีลายเซ็นในระบบ", "#64748b");
+          } else {
+            setSignatureSyncStatus("พร้อมใช้งานบนเครื่องนี้", "#166534");
+          }
+          return localSig;
+        }
+      } catch (err) {
+        setSignatureSyncStatus(localSig ? "ใช้ลายเซ็นที่บันทึกไว้ในเครื่องนี้" : "", "#64748b");
+      } finally {
+        isSignatureSyncing = false;
+      }
+      return getSavedDirectorSignature();
+    }
+
+    async function saveDirectorSignature(dataUrl) {
+      writeLocalDirectorSignature(dataUrl);
+      await syncSignatureToCloud(dataUrl);
     }
 
     function renderDirectorSignatureUI() {
@@ -2002,6 +2176,29 @@
       }
     }
 
+    function compressSignatureDataUrl(dataUrl, maxWidth = 420, maxHeight = 160) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.naturalWidth || maxWidth;
+          let h = img.naturalHeight || maxHeight;
+          const ratio = Math.min(maxWidth / w, maxHeight / h, 1);
+          w = Math.max(1, Math.round(w * ratio));
+          h = Math.max(1, Math.round(h * ratio));
+
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/png"));
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      });
+    }
+
     uploadSignatureBtnEl.addEventListener("click", () => {
       directorSignatureInputEl.value = "";
       directorSignatureInputEl.click();
@@ -2010,12 +2207,13 @@
     directorSignatureInputEl.addEventListener("change", async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      const dataUrl = await readFileAsDataUrl(file);
-      saveDirectorSignature(String(dataUrl || ""));
+      const rawDataUrl = await readFileAsDataUrl(file);
+      const compactDataUrl = await compressSignatureDataUrl(String(rawDataUrl || ""));
+      await saveDirectorSignature(compactDataUrl);
     });
 
-    removeSignatureBtnEl.addEventListener("click", () => {
-      saveDirectorSignature("");
+    removeSignatureBtnEl.addEventListener("click", async () => {
+      await saveDirectorSignature("");
     });
 
     function normalizePersonName(name) {
@@ -2276,6 +2474,7 @@
         backToDirectorBtnEl.classList.add("d-none");
         deputyReportsHistorySectionEl.classList.add("d-none");
         directorSectionEl.classList.remove("d-none");
+        loadSignatureFromCloud(false);
         setOverviewMode("daily");
       } else {
         openFormForAuthenticatedUser(userFullName, false);
@@ -2391,6 +2590,7 @@
       if (loggedInRole === "director") {
         directorSignatureSectionEl.classList.remove("d-none");
         renderDirectorSignatureUI();
+        loadSignatureFromCloud(false);
       } else {
         directorSignatureSectionEl.classList.add("d-none");
       }
@@ -3040,12 +3240,59 @@
       alertEl.textContent = "";
     }
 
+    function computeFitZoomScale() {
+      const scrollEl = document.getElementById("signStageScroll");
+      if (!scrollEl || !basePdfWidthPx) return 1.0;
+      const availW = Math.max(220, scrollEl.clientWidth - 20);
+      const fit = availW / basePdfWidthPx;
+      return Math.max(0.4, Math.min(1.0, Number(fit.toFixed(2))));
+    }
+
+    function applySignZoomTransform() {
+      const sizerEl = document.getElementById("signPageSizer");
+      const wrapperEl = document.getElementById("signPageWrapper");
+      const zoomLabelEl = document.getElementById("signZoomLabel");
+
+      const scaledW = Math.round(basePdfWidthPx * signZoomScale);
+      const scaledH = Math.round(basePdfHeightPx * signZoomScale);
+
+      if (sizerEl) {
+        sizerEl.style.width = `${scaledW}px`;
+        sizerEl.style.height = `${scaledH}px`;
+      }
+      if (wrapperEl) {
+        wrapperEl.style.width = `${basePdfWidthPx}px`;
+        wrapperEl.style.height = `${basePdfHeightPx}px`;
+        wrapperEl.style.transform = `scale(${signZoomScale})`;
+      }
+      if (zoomLabelEl) {
+        zoomLabelEl.textContent = toThaiDigits(Math.round(signZoomScale * 100)) + "%";
+      }
+      updateSignStampOverlayDom();
+    }
+
+    function setSignZoom(newScale) {
+      signZoomScale = Math.max(0.4, Math.min(2.5, Number(newScale.toFixed(2))));
+      applySignZoomTransform();
+    }
+
+    document.getElementById("zoomOutSignBtn").addEventListener("click", () => {
+      setSignZoom(signZoomScale - 0.15);
+    });
+
+    document.getElementById("zoomInSignBtn").addEventListener("click", () => {
+      setSignZoom(signZoomScale + 0.15);
+    });
+
+    document.getElementById("zoomResetSignBtn").addEventListener("click", () => {
+      setSignZoom(computeFitZoomScale());
+    });
+
     function updateSignStampOverlayDom() {
       const stampEl = document.getElementById("signStampOverlay");
       const sigImgEl = document.getElementById("signStampSigImg");
       const nameEl = stampEl.querySelector(".sign-stamp-name");
       const roleEl = stampEl.querySelector(".sign-stamp-role");
-      const canvasEl = document.getElementById("signPdfCanvas");
 
       if (nameEl) nameEl.textContent = DIRECTOR_STAMP_NAME;
       if (roleEl) roleEl.textContent = DIRECTOR_STAMP_ROLE;
@@ -3064,9 +3311,8 @@
         sigImgEl.classList.add("d-none");
       }
 
-      const rect = canvasEl.getBoundingClientRect();
-      const leftPx = signStampPlacement.nx * rect.width;
-      const topPx = signStampPlacement.ny * rect.height;
+      const leftPx = signStampPlacement.nx * basePdfWidthPx;
+      const topPx = signStampPlacement.ny * basePdfHeightPx;
 
       stampEl.style.left = `${leftPx}px`;
       stampEl.style.top = `${topPx}px`;
@@ -3083,6 +3329,8 @@
 
       canvasEl.width = Math.round(viewport.width);
       canvasEl.height = Math.round(viewport.height);
+      basePdfWidthPx = canvasEl.width;
+      basePdfHeightPx = canvasEl.height;
 
       await page.render({
         canvasContext: ctx,
@@ -3094,7 +3342,7 @@
       document.getElementById("prevSignPageBtn").disabled = signCurrentPage <= 1;
       document.getElementById("nextSignPageBtn").disabled = signCurrentPage >= signTotalPages;
 
-      updateSignStampOverlayDom();
+      applySignZoomTransform();
     }
 
     async function fetchPdfArrayBufferForSigning(pdfUrl) {
@@ -3145,16 +3393,16 @@
         revertBtn.classList.add("d-none");
       }
 
-      const savedSig = getSavedDirectorSignature();
-      if (!savedSig) {
-        showSignAlert("ยังไม่ได้อัปโหลดลายเซ็นในหน้าโปรไฟล์ กรุณาไปที่ 'ดูโปรไฟล์' เพื่ออัปโหลดลายเซ็นก่อนบันทึกการลงนาม", "warning");
-      }
-
       const loadingBox = document.getElementById("signLoadingBox");
       const stageScroll = document.getElementById("signStageScroll");
       loadingBox.classList.remove("d-none");
       stageScroll.classList.add("d-none");
       signPdfModal.show();
+
+      const savedSig = await loadSignatureFromCloud(false);
+      if (!savedSig) {
+        showSignAlert("ยังไม่ได้อัปโหลดลายเซ็นในหน้าโปรไฟล์ กรุณาไปที่ 'ดูโปรไฟล์' เพื่ออัปโหลดลายเซ็นก่อนบันทึกการลงนาม", "warning");
+      }
 
       try {
         const pdfArrayBuffer = await fetchPdfArrayBufferForSigning(item.pdfUrl);
@@ -3167,6 +3415,7 @@
         loadingBox.classList.add("d-none");
         stageScroll.classList.remove("d-none");
         await renderSignPdfPage(1);
+        setSignZoom(computeFitZoomScale());
       } catch (err) {
         loadingBox.classList.add("d-none");
         stageScroll.classList.remove("d-none");
@@ -3196,17 +3445,20 @@
       if (e.target.closest("#signStampOverlay")) return;
       if (!signPdfDoc) return;
 
-      const canvasEl = document.getElementById("signPdfCanvas");
-      const rect = canvasEl.getBoundingClientRect();
+      const wrapperEl = document.getElementById("signPageWrapper");
+      const rect = wrapperEl.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return;
 
-      const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-      const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+      const xUnscaled = (e.clientX - rect.left) / signZoomScale;
+      const yUnscaled = (e.clientY - rect.top) / signZoomScale;
+
+      const x = Math.max(0, Math.min(basePdfWidthPx, xUnscaled));
+      const y = Math.max(0, Math.min(basePdfHeightPx, yUnscaled));
 
       signStampPlacement = {
         page: signCurrentPage,
-        nx: x / rect.width,
-        ny: y / rect.height
+        nx: x / basePdfWidthPx,
+        ny: y / basePdfHeightPx
       };
       updateSignStampOverlayDom();
     });
@@ -3222,16 +3474,19 @@
     signStampOverlayEl.addEventListener("pointermove", (e) => {
       if (!isDraggingStamp || !signStampPlacement) return;
       didDragStampMove = true;
-      const canvasEl = document.getElementById("signPdfCanvas");
-      const rect = canvasEl.getBoundingClientRect();
+      const wrapperEl = document.getElementById("signPageWrapper");
+      const rect = wrapperEl.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return;
 
-      const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-      const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+      const xUnscaled = (e.clientX - rect.left) / signZoomScale;
+      const yUnscaled = (e.clientY - rect.top) / signZoomScale;
+
+      const x = Math.max(0, Math.min(basePdfWidthPx, xUnscaled));
+      const y = Math.max(0, Math.min(basePdfHeightPx, yUnscaled));
 
       signStampPlacement.page = signCurrentPage;
-      signStampPlacement.nx = x / rect.width;
-      signStampPlacement.ny = y / rect.height;
+      signStampPlacement.nx = x / basePdfWidthPx;
+      signStampPlacement.ny = y / basePdfHeightPx;
       updateSignStampOverlayDom();
     });
 
@@ -3259,7 +3514,7 @@
 
     async function renderSignedPdfBase64() {
       if (!signPdfDoc || !signStampPlacement) {
-        throw new Error("กรุณาคลิกเลือกตำแหน่งลงนามบนเอกสารก่อนค่ะ");
+        throw new Error("กรุณาแตะหรือคลิกเลือกตำแหน่งลงนามบนเอกสารก่อนค่ะ");
       }
       const savedSig = getSavedDirectorSignature();
       if (!savedSig) {
@@ -3297,7 +3552,7 @@
           const drawSigW = Math.max(40, Math.round(natW * ratio));
           const drawSigH = Math.max(18, Math.round(natH * ratio));
 
-          const stampFontSize = Math.max(16, Math.round(pageCanvas.width * 0.016));
+          const stampFontSize = Math.max(18, Math.round(pageCanvas.width * 0.0202));
           const lineGap = Math.round(stampFontSize * 0.36);
 
           ctx.save();
@@ -3706,8 +3961,8 @@
 
     window.addEventListener("resize", () => {
       document.querySelectorAll("textarea.auto-expand").forEach((el) => autoExpandTextarea(el));
-      if (signStampPlacement && document.getElementById("signPdfModal").classList.contains("show")) {
-        updateSignStampOverlayDom();
+      if (document.getElementById("signPdfModal").classList.contains("show") && signPdfDoc) {
+        applySignZoomTransform();
       }
     });
 
